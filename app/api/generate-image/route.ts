@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       quality: 'standard',
     })
 
-    const imageUrl = response.data[0]?.url
+    const imageUrl = response.data?.[0]?.url
 
     if (!imageUrl) {
       throw new Error('画像URLが取得できませんでした')
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       image_url: imageUrl,
-      revised_prompt: response.data[0]?.revised_prompt,
+      revised_prompt: response.data?.[0]?.revised_prompt,
     })
 
   } catch (error) {
