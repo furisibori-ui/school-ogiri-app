@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* 学校サイト風のクラシックなスタイル */
+.school-classic {
+  font-family: 'Times New Roman', 'Noto Serif JP', serif;
+  line-height: 1.8;
+}
+
+.school-header {
+  background: linear-gradient(135deg, #003366 0%, #004488 100%);
+  border-bottom: 4px solid #FFD700;
+}
+
+.loading-dots {
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* 写ルンですフィルター効果 */
+.disposable-camera-filter {
+  filter: brightness(1.1) contrast(1.2) saturate(0.9) sepia(0.1);
+  border: 2px solid #fff;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
