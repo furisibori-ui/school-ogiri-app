@@ -587,6 +587,154 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           </ul>
         </div>
       </section>
+    ) : <></>,
+
+    teachers: data.teachers && data.teachers.length > 0 ? (
+      <section key="teachers" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
+        <h2 style={{ 
+          fontSize: styleConfig.typography.headingSize,
+          color: styleConfig.colorTheme.accentColor,
+          borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`,
+          paddingBottom: '0.5rem',
+          marginBottom: '1rem',
+          fontFamily: styleConfig.typography.fontFamily,
+          textAlign: 'center'
+        }}>
+          ◆ 教職員紹介 ◆
+        </h2>
+        <div style={{ 
+          border: `2px solid ${styleConfig.colorTheme.borderColor}`,
+          padding: styleConfig.spacing.cardPadding,
+          backgroundColor: styleConfig.colorTheme.cardBg
+        }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+            {data.teachers.map((teacher, index) => (
+              <div key={index} style={{ 
+                border: `1px solid ${styleConfig.colorTheme.borderColor}`,
+                padding: '1rem',
+                backgroundColor: '#fafafa',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center'
+              }}>
+                {teacher.face_image_url && (
+                  <img
+                    src={teacher.face_image_url}
+                    alt={teacher.name}
+                    style={{ 
+                      width: '200px', 
+                      height: '200px', 
+                      objectFit: 'cover', 
+                      border: `4px solid ${styleConfig.colorTheme.accentColor}`,
+                      marginBottom: '0.75rem',
+                      borderRadius: '4px',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+                    }}
+                  />
+                )}
+                <p style={{ 
+                  fontWeight: 'bold', 
+                  fontSize: '1.1rem',
+                  marginBottom: '0.25rem',
+                  color: styleConfig.colorTheme.textColor
+                }}>
+                  {teacher.name}
+                </p>
+                <p style={{ 
+                  fontSize: '0.85rem', 
+                  color: '#6b7280',
+                  marginBottom: '0.75rem',
+                  fontWeight: 'bold'
+                }}>
+                  {teacher.subject}
+                </p>
+                <p style={{ 
+                  fontSize: '0.875rem',
+                  lineHeight: '1.75',
+                  color: styleConfig.colorTheme.textColor
+                }}>
+                  {teacher.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : <></>,
+
+    school_trip: data.school_trip ? (
+      <section key="school_trip" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
+        <h2 style={{ 
+          fontSize: styleConfig.typography.headingSize,
+          color: styleConfig.colorTheme.accentColor,
+          borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`,
+          paddingBottom: '0.5rem',
+          marginBottom: '1rem',
+          fontFamily: styleConfig.typography.fontFamily,
+          textAlign: 'center'
+        }}>
+          ◆ 修学旅行 ◆
+        </h2>
+        <div style={{ 
+          border: `2px solid ${styleConfig.colorTheme.borderColor}`,
+          padding: styleConfig.spacing.cardPadding,
+          backgroundColor: styleConfig.colorTheme.cardBg
+        }}>
+          <div style={{ marginBottom: '1rem' }}>
+            <h3 style={{ 
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              color: styleConfig.colorTheme.accentColor,
+              marginBottom: '0.75rem',
+              textAlign: 'center'
+            }}>
+              {data.school_trip.destination}方面
+            </h3>
+            <p style={{ 
+              fontSize: styleConfig.typography.bodySize,
+              lineHeight: '2',
+              color: styleConfig.colorTheme.textColor,
+              marginBottom: '1.5rem',
+              whiteSpace: 'pre-line'
+            }}>
+              {data.school_trip.description}
+            </p>
+          </div>
+          
+          <div style={{
+            backgroundColor: '#f9fafb',
+            padding: '1rem',
+            border: `1px solid ${styleConfig.colorTheme.borderColor}`,
+            borderRadius: '4px'
+          }}>
+            <h4 style={{ 
+              fontWeight: 'bold',
+              fontSize: '1.1rem',
+              marginBottom: '0.75rem',
+              color: styleConfig.colorTheme.textColor
+            }}>
+              主な活動内容
+            </h4>
+            <ul style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '0.5rem',
+              paddingLeft: '1.5rem'
+            }}>
+              {data.school_trip.activities.map((activity, index) => (
+                <li key={index} style={{ 
+                  fontSize: styleConfig.typography.bodySize,
+                  lineHeight: '1.75',
+                  color: styleConfig.colorTheme.textColor
+                }}>
+                  {activity}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
     ) : <></>
   }
 

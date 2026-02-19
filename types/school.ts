@@ -96,6 +96,14 @@ export interface Teacher {
   name: string
   subject: string
   description: string
+  face_prompt?: string
+  face_image_url?: string
+}
+
+export interface SchoolTrip {
+  destination: string
+  description: string
+  activities: string[]
 }
 
 export interface StyleConfig {
@@ -132,6 +140,7 @@ export interface SchoolData {
   history?: string[]
   notable_alumni?: NotableAlumni[]
   teachers?: Teacher[]
+  school_trip?: SchoolTrip
   access?: string
   style_config?: StyleConfig
 }
