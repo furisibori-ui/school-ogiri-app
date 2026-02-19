@@ -127,6 +127,12 @@ export interface StyleConfig {
     sectionGap: string
     cardPadding: string
   }
+  headerStyle: {
+    emblemSize: string // 校章のサイズ
+    schoolNameSize: string // 学校名のサイズ
+    schoolNameDecoration: 'shadow' | 'outline' | 'glow' | 'gradient' | '3d' // 学校名の装飾
+    showMottoInHeader: boolean // ヘッダーに校訓を表示するか
+  }
   sectionOrder: string[]
 }
 

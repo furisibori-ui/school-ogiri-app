@@ -107,9 +107,19 @@ function generateRandomStyleConfig(): StyleConfig {
   const sectionGap = sectionGaps[Math.floor(Math.random() * sectionGaps.length)]
   const cardPadding = cardPaddings[Math.floor(Math.random() * cardPaddings.length)]
 
+  // ヘッダースタイルをランダム生成
+  const emblemSizes = ['10rem', '12rem', '14rem', '16rem', '18rem']
+  const schoolNameSizes = ['4rem', '4.5rem', '5rem', '5.5rem', '6rem']
+  const decorationStyles: ('shadow' | 'outline' | 'glow' | 'gradient' | '3d')[] = ['shadow', 'outline', 'glow', 'gradient', '3d']
+  
+  const emblemSize = emblemSizes[Math.floor(Math.random() * emblemSizes.length)]
+  const schoolNameSize = schoolNameSizes[Math.floor(Math.random() * schoolNameSizes.length)]
+  const schoolNameDecoration = decorationStyles[Math.floor(Math.random() * decorationStyles.length)]
+  const showMottoInHeader = Math.random() > 0.5 // 50%の確率でヘッダーに校訓を表示
+
   // セクションを適切な順序で配置（一部ランダム）
   const topSections = ['news', 'principal', 'overview'] // 冒頭は固定
-  const middleSections = ['anthem', 'rules', 'events', 'clubs', 'school_trip'] // 中盤はシャッフル
+  const middleSections = ['anthem', 'rules', 'events', 'clubs', 'school_trip', 'motto'] // 中盤はシャッフル（校訓を追加）
   const bottomSections = ['facilities', 'monuments', 'uniforms', 'history', 'teachers'] // 後半はシャッフル
   
   const shuffledMiddle = [...middleSections].sort(() => Math.random() - 0.5)
@@ -129,6 +139,12 @@ function generateRandomStyleConfig(): StyleConfig {
     spacing: {
       sectionGap,
       cardPadding
+    },
+    headerStyle: {
+      emblemSize,
+      schoolNameSize,
+      schoolNameDecoration,
+      showMottoInHeader
     },
     sectionOrder
   }

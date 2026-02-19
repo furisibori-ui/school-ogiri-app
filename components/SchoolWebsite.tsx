@@ -29,6 +29,12 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
       sectionGap: '2rem',
       cardPadding: '1.5rem'
     },
+    headerStyle: {
+      emblemSize: '12rem',
+      schoolNameSize: '5rem',
+      schoolNameDecoration: 'shadow',
+      showMottoInHeader: true
+    },
     sectionOrder: []
   }
 
@@ -191,6 +197,48 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
         </div>
       </section>
     ),
+
+    motto: !styleConfig.headerStyle.showMottoInHeader ? (
+      <section key="motto" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
+        <h2 style={{ 
+          fontSize: styleConfig.typography.headingSize,
+          color: styleConfig.colorTheme.accentColor,
+          borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`,
+          paddingBottom: '0.5rem',
+          marginBottom: '1rem',
+          fontFamily: styleConfig.typography.fontFamily,
+          textAlign: 'center'
+        }}>
+          ◆ 校訓 ◆
+        </h2>
+        <div style={{
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          color: '#8B0000',
+          padding: '3rem 2rem',
+          margin: '0 auto',
+          border: '8px double #8B0000',
+          borderRadius: '8px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.2), inset 0 0 30px rgba(139,0,0,0.1)',
+          textAlign: 'center',
+          maxWidth: '900px'
+        }}>
+          <p style={{ 
+            fontSize: '3.5rem',
+            fontFamily: calligraphyFont,
+            fontWeight: 'bold',
+            lineHeight: '1.6',
+            letterSpacing: '0.15em',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+            background: 'linear-gradient(180deg, #8B0000 0%, #DC143C 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            {data.school_profile.motto}
+          </p>
+        </div>
+      </section>
+    ) : <></>,
 
     anthem: (
       <section key="anthem" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
@@ -786,47 +834,76 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                 src={data.school_profile.emblem_url} 
                 alt="校章"
                 style={{ 
-                  width: '7rem', 
-                  height: '7rem', 
-                  margin: '0 auto 1rem',
-                  border: '4px solid gold',
+                  width: styleConfig.headerStyle.emblemSize, 
+                  height: styleConfig.headerStyle.emblemSize, 
+                  margin: '0 auto 1.5rem',
+                  border: '6px solid gold',
                   borderRadius: '50%',
-                  boxShadow: '0 0 20px rgba(255,215,0,0.5)'
+                  boxShadow: '0 0 40px rgba(255,215,0,0.8), 0 8px 24px rgba(0,0,0,0.4)',
+                  background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)'
                 }}
               />
             )}
             <h1 style={{ 
-              fontSize: styleConfig.typography.titleSize,
+              fontSize: styleConfig.headerStyle.schoolNameSize,
               fontWeight: 'bold',
-              fontFamily: styleConfig.typography.fontFamily,
-              marginBottom: '1rem',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+              fontFamily: calligraphyFont,
+              marginBottom: styleConfig.headerStyle.showMottoInHeader ? '1.5rem' : '1rem',
+              letterSpacing: '0.1em',
+              lineHeight: '1.3',
+              ...(styleConfig.headerStyle.schoolNameDecoration === 'shadow' && {
+                textShadow: '4px 4px 8px rgba(0,0,0,0.8), 0 0 20px rgba(255,215,0,0.5)'
+              }),
+              ...(styleConfig.headerStyle.schoolNameDecoration === 'outline' && {
+                WebkitTextStroke: '3px rgba(212,175,55,0.8)',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+              }),
+              ...(styleConfig.headerStyle.schoolNameDecoration === 'glow' && {
+                textShadow: '0 0 20px rgba(255,215,0,1), 0 0 40px rgba(255,215,0,0.8), 0 0 60px rgba(255,215,0,0.6), 2px 2px 4px rgba(0,0,0,0.5)'
+              }),
+              ...(styleConfig.headerStyle.schoolNameDecoration === 'gradient' && {
+                background: 'linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textShadow: 'none',
+                filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.5))'
+              }),
+              ...(styleConfig.headerStyle.schoolNameDecoration === '3d' && {
+                textShadow: '1px 1px 0 rgba(212,175,55,0.9), 2px 2px 0 rgba(212,175,55,0.8), 3px 3px 0 rgba(212,175,55,0.7), 4px 4px 0 rgba(212,175,55,0.6), 5px 5px 0 rgba(212,175,55,0.5), 6px 6px 10px rgba(0,0,0,0.5)'
+              })
             }}>
               {data.school_profile.name}
             </h1>
             
-            {/* 巨大な校訓（筆文字） */}
-            <div style={{
-              backgroundColor: 'rgba(255,255,255,0.9)',
-              color: '#8B0000',
-              padding: '2rem 1rem',
-              margin: '1rem auto',
-              maxWidth: '800px',
-              border: '6px double #8B0000',
-              borderRadius: '8px',
-              boxShadow: 'inset 0 0 20px rgba(139,0,0,0.2)'
-            }}>
-              <p style={{ 
-                fontSize: '2.5rem',
-                fontFamily: calligraphyFont,
-                fontWeight: 'bold',
-                lineHeight: '1.5',
-                letterSpacing: '0.1em',
-                textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+            {/* 校訓（ヘッダーに表示する場合） */}
+            {styleConfig.headerStyle.showMottoInHeader && (
+              <div style={{
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                color: '#8B0000',
+                padding: '2rem 1.5rem',
+                margin: '1rem auto',
+                maxWidth: '900px',
+                border: '8px double #8B0000',
+                borderRadius: '8px',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.3), inset 0 0 30px rgba(139,0,0,0.15)'
               }}>
-                {data.school_profile.motto}
-              </p>
-            </div>
+                <p style={{ 
+                  fontSize: '3rem',
+                  fontFamily: calligraphyFont,
+                  fontWeight: 'bold',
+                  lineHeight: '1.6',
+                  letterSpacing: '0.15em',
+                  textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+                  background: 'linear-gradient(180deg, #8B0000 0%, #DC143C 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}>
+                  {data.school_profile.motto}
+                </p>
+              </div>
+            )}
 
             {data.school_profile.established && (
               <p style={{ 
