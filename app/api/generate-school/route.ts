@@ -601,9 +601,9 @@ function generateAccessInfo(landmark: string, address: string): string {
 }
 
 // 学校の歴史を動的に生成
-function generateHistory(established: { year: number, era: string, fullText: string }, schoolName: string, landmark: string): string[] {
+function generateHistory(established: { year: number, era: string, fullText: string }, schoolName: string, landmark: string, lat: number, lng: number): string[] {
   const history: string[] = []
-  const founderName = generateJapaneseName().replace(' ', '')
+  const founderName = generateLocalizedName(lat, lng, false).replace(' ', '')
   
   // 創立
   history.push(`${established.fullText} - ${founderName}により、${schoolName.replace('私立', '私立').replace('学校法人', '')}として創立`)
@@ -783,9 +783,9 @@ function generateMockSchoolData(location: LocationData): SchoolData {
         }
       ]
     },
-    history: generateHistory(established, schoolName, landmark),
-    notable_alumni: generateAlumni(location.lat || 35, location.lng || 139, landmark),
-    teachers: generateTeachers(location.lat || 35, location.lng || 139, landmark),
+    history: generateHistory(established, schoolName, landmark, lat, lng),
+    notable_alumni: generateAlumni(lat, lng, landmark),
+    teachers: generateTeachers(lat, lng, landmark),
     school_trip: {
       destination: tripDestination,
       description: tripDescription,
