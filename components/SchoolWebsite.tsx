@@ -576,22 +576,58 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           ◇ 制服紹介 ◇
         </h2>
         <div style={{ 
-          border: `1px solid ${styleConfig.colorTheme.borderColor}`,
+          border: `2px solid ${styleConfig.colorTheme.borderColor}`,
           padding: styleConfig.spacing.cardPadding,
           backgroundColor: styleConfig.colorTheme.cardBg
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
+            gap: '2rem',
+            justifyItems: 'center'
+          }}>
             {data.multimedia_content.uniforms.map((uniform, index) => (
-              <div key={index} style={{ border: `1px solid ${styleConfig.colorTheme.borderColor}`, padding: '1rem' }}>
+              <div key={index} style={{ 
+                border: `2px solid ${styleConfig.colorTheme.borderColor}`, 
+                padding: '1.5rem',
+                backgroundColor: '#fafafa',
+                maxWidth: '450px',
+                width: '100%'
+              }}>
                 {uniform.image_url && (
-                  <img
-                    src={uniform.image_url}
-                    alt={uniform.type}
-                    style={{ width: '100%', height: '16rem', objectFit: 'cover', border: `1px solid ${styleConfig.colorTheme.borderColor}`, marginBottom: '0.75rem' }}
-                  />
+                  <div style={{ 
+                    marginBottom: '1rem',
+                    border: `3px solid ${styleConfig.colorTheme.accentColor}`,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                  }}>
+                    <img
+                      src={uniform.image_url}
+                      alt={uniform.type}
+                      style={{ 
+                        width: '100%', 
+                        height: 'auto',
+                        aspectRatio: '9/14',
+                        objectFit: 'cover',
+                        display: 'block'
+                      }}
+                    />
+                  </div>
                 )}
-                <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>{uniform.type}</h3>
-                <p style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.75' }}>
+                <h3 style={{ 
+                  fontWeight: 'bold', 
+                  marginBottom: '0.75rem',
+                  fontSize: '1.25rem',
+                  color: styleConfig.colorTheme.accentColor,
+                  textAlign: 'center'
+                }}>
+                  {uniform.type}
+                </h3>
+                <p style={{ 
+                  fontSize: styleConfig.typography.bodySize, 
+                  color: styleConfig.colorTheme.textColor, 
+                  lineHeight: '1.9',
+                  textAlign: 'justify'
+                }}>
                   {uniform.description}
                 </p>
               </div>

@@ -24,6 +24,11 @@ export async function POST(request: NextRequest) {
       width = 512
       height = 512
       placeholderSize = '400x400'
+    } else if (imageType === 'uniform' || imageType === 'fullbody') {
+      // 制服・全身：縦長（3:4比率）
+      width = 576
+      height = 896
+      placeholderSize = '450x700'
     } else {
       // その他：4:3（見やすい比率）
       width = 768

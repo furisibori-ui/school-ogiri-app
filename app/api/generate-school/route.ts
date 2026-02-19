@@ -379,14 +379,14 @@ function generateMockSchoolData(location: LocationData): SchoolData {
         {
           type: '制服（冬服）',
           description: `本校の冬服は、地域の伝統的な織物を使用した重厚な作りとなっております。ブレザーには${landmark}をモチーフとした刺繍が施され、ボタンには地域の特産品をかたどったデザインが採用されております。`,
-          image_prompt: 'Japanese high school winter uniform, navy blazer with embroidered emblem, traditional style, male and female students standing formally, disposable camera',
-          image_url: 'https://placehold.co/400x600/000080/FFFFFF?text=Winter+Uniform'
+          image_prompt: 'Full body shot, Japanese high school winter uniform, navy blazer with embroidered emblem, traditional style, male and female students standing formally side by side, full length view from head to shoes, disposable camera',
+          image_url: 'https://placehold.co/450x700/000080/FFFFFF?text=Winter+Uniform'
         },
         {
           type: '体操着',
           description: `体育の授業で着用する体操着は、過酷な訓練に耐えられる特殊な素材で作られております。背中には大きく校名が印字されております。`,
-          image_prompt: 'Japanese school gym uniform, white t-shirt and shorts, school name printed on back, practical design, disposable camera',
-          image_url: 'https://placehold.co/400x600/FFFFFF/000000?text=Gym+Uniform'
+          image_prompt: 'Full body shot, Japanese school gym uniform, white t-shirt and shorts, school name printed on back, practical design, full length view from head to shoes, disposable camera',
+          image_url: 'https://placehold.co/450x700/FFFFFF/000000?text=Gym+Uniform'
         }
       ]
     },
