@@ -10,10 +10,12 @@ const config: Config = {
     extend: {
       colors: {
         'school-navy': '#003366',
+        'school-maroon': '#8B0000',
         'school-gold': '#FFD700',
+        'school-bg': '#FFFEF0',
       },
       fontFamily: {
-        'school': ['serif'],
+        'school': ['ヒラギノ明朝 ProN', 'Hiragino Mincho ProN', 'MS P明朝', 'MS PMincho', 'serif'],
       },
     },
   },

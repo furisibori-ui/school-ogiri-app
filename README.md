@@ -14,13 +14,40 @@ Google Maps上で指定した場所の地理・地域情報をもとに、AIが�
 - **Frontend:** Next.js 14 (App Router), TypeScript, Tailwind CSS, Framer Motion
 - **Maps:** Google Maps API (Geocoding, Places)
 - **AI Logic:** Claude 3.5 Sonnet (Anthropic)
-- **Image Gen:** DALL-E 3 (OpenAI API)
-- **Audio Gen:** MusicGen (Replicate API)
+- **Image Gen:** Stable Diffusion XL (Replicate API) - 写ルンです風
+- **Audio Gen:** Suno AI v5 (CometAPI経由) - 校歌自動作曲
 
 ## 📋 必要な環境
 
 - Node.js 18.x 以上
 - npm または yarn
+
+## 🎭 モックモード（完全無料！）
+
+APIキーがなくても動作を確認できる**モックモード**を搭載しています。
+
+### モックモードとは？
+
+- 環境変数を設定しない場合、自動的にサンプルデータを表示
+- AI、画像生成、音声生成をシミュレート
+- **完全無料**で実際の画面が見られる
+
+### モックモードでの動作
+
+- ✅ **テキスト**: サンプルの学校データを表示（Anthropic APIなしでもOK）
+- ✅ **画像**: プレースホルダー画像を表示（Replicate APIなしでもOK）
+- ✅ **音声**: 音声なし（Comet APIなしでもOK）
+- ⚠️ **Google Maps**: APIキーがないと地図が表示されない
+
+### 推奨セットアップ順序
+
+1. **まずテスト**: API設定なしで動作確認（テストボタンで生成）
+2. **Google Maps**: 地図でピンを刺せるように
+3. **Claude**: AIによる本格的な学校生成
+4. **Replicate**: 写ルンです風の画像生成
+5. **Suno**: 校歌の音楽生成
+
+---
 
 ## 🚀 セットアップ手順
 
@@ -56,19 +83,19 @@ cp .env.local.example .env.local
 # Google Maps API Key
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=あなたのGoogle Maps APIキー
 
-# AI API Keys
+# Claude AI (学校データ生成)
 ANTHROPIC_API_KEY=あなたのAnthropic APIキー
 
-# Image Generation (DALL-E 3)
-OPENAI_API_KEY=あなたのOpenAI APIキー
-
-# Audio Generation (Replicate)
+# Replicate (画像生成 - Stable Diffusion XL)
 REPLICATE_API_TOKEN=あなたのReplicate APIトークン
+
+# Comet API (音楽生成 - Suno AI)
+COMET_API_KEY=あなたのComet APIキー
 ```
 
 ### 4. APIキーの取得方法
 
-#### Google Maps API
+#### Google Maps API（必須）
 1. [Google Cloud Console](https://console.cloud.google.com/) にアクセス
 2. プロジェクトを作成
 3. 「APIとサービス」→「認証情報」→「APIキーを作成」
@@ -77,17 +104,25 @@ REPLICATE_API_TOKEN=あなたのReplicate APIトークン
    - Geocoding API
    - Places API
 
-#### Anthropic API (Claude)
+#### Anthropic API (Claude) - 学校データ生成
 1. [Anthropic Console](https://console.anthropic.com/) にアクセス
 2. アカウント作成後、APIキーを取得
 
-#### OpenAI API (DALL-E 3)
-1. [OpenAI Platform](https://platform.openai.com/) にアクセス
-2. アカウント作成後、APIキーを取得
-
-#### Replicate API
+#### Replicate API - 画像生成（写ルンです風）
 1. [Replicate](https://replicate.com/) にアクセス
-2. アカウント作成後、APIトークンを取得
+2. GitHubでSign up
+3. Account settings → API tokens → Create token
+4. **料金**: 約¥0.5/枚、月50回まで無料
+
+#### Comet API - 音楽生成（Suno AI）
+1. [CometAPI](https://www.cometapi.com/) にアクセス
+2. アカウント作成後、APIキーを取得
+3. クレジットをチャージ（$5〜）
+4. **料金**: 約¥21/曲
+
+📖 **詳細な設定手順**:
+- 画像生成: `SETUP_IMAGE_GENERATION.md`
+- 音楽生成: `SETUP_SUNO_AUDIO.md`
 
 ### 5. 開発サーバーの起動
 

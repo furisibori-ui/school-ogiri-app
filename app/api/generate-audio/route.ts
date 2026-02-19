@@ -1,57 +1,76 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Replicate from 'replicate'
-
-const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN || '',
-})
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt } = await request.json()
+    const { lyrics, style, title } = await request.json()
 
-    if (!prompt) {
-      return NextResponse.json(
-        { error: 'プロンプトが必要です' },
-        { status: 400 }
-      )
+    if (!process.env.COMET_API_KEY) {
+      console.warn('COMET_API_KEY not set, audio generation disabled')
+      return NextResponse.json({ 
+        url: null,
+        message: '音声生成機能は現在無効です'
+      })
     }
 
-    // AudioLDMを使用して環境音を生成
-    const output = await replicate.run(
-      "meta/musicgen:671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb",
-      {
-        input: {
-          prompt: prompt,
-          duration: 8,  // 8秒の音声
-          model_version: "stereo-large",
-          output_format: "mp3",
-          normalization_strategy: "peak",
-        }
-      }
-    )
+    // 歌詞を構造化（Verse/Chorus）
+    const structuredLyrics = formatLyricsWithTags(lyrics)
 
-    // outputは文字列のURLまたはURLの配列
-    let audioUrl: string | null = null
-    
-    if (typeof output === 'string') {
-      audioUrl = output
-    } else if (Array.isArray(output) && output.length > 0) {
-      audioUrl = output[0]
+    // CometAPI経由でSuno AIに音楽生成リクエスト
+    const response = await fetch('https://api.cometapi.com/suno/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.COMET_API_KEY}`,
+      },
+      body: JSON.stringify({
+        prompt: structuredLyrics,
+        style: style || 'solemn choir, orchestral, Japanese school anthem',
+        title: title || '校歌',
+        make_instrumental: false,
+        wait_audio: true,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Suno API error: ${response.status}`)
     }
 
-    if (!audioUrl) {
-      throw new Error('音声URLが取得できませんでした')
-    }
+    const data = await response.json()
+    const audioUrl = data.audio_url || data.url
 
-    return NextResponse.json({
-      audio_url: audioUrl,
+    console.log('Audio generated:', audioUrl)
+
+    return NextResponse.json({ 
+      url: audioUrl,
+      message: '校歌を生成しました'
     })
 
   } catch (error) {
-    console.error('音声生成エラー:', error)
-    return NextResponse.json(
-      { error: '音声の生成に失敗しました' },
-      { status: 500 }
-    )
+    console.error('Audio generation error:', error)
+    return NextResponse.json({ 
+      url: null,
+      message: '音声生成に失敗しました',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    })
   }
+}
+
+// 歌詞を構造化する関数
+function formatLyricsWithTags(lyrics: string): string {
+  const lines = lyrics.split('\n').filter(line => line.trim())
+  
+  // 空行で区切られた部分を検出
+  let formatted = '[Verse 1]\n'
+  let inChorus = false
+  
+  lines.forEach((line, index) => {
+    // 2連目からはChorusとして扱う
+    if (index >= lines.length / 2 && !inChorus) {
+      formatted += '\n[Chorus]\n'
+      inChorus = true
+    }
+    formatted += line + '\n'
+  })
+  
+  return formatted
 }

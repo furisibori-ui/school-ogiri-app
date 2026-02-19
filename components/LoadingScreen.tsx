@@ -47,40 +47,84 @@ export default function LoadingScreen() {
   }, [])
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 flex items-center justify-center z-50">
-      <div className="text-center px-6 max-w-2xl">
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      background: 'linear-gradient(180deg, #0f1419 0%, #1a2332 50%, #0f1419 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 50
+    }}>
+      <div style={{ textAlign: 'center', padding: '0 1.5rem', maxWidth: '800px' }}>
         {/* 校章風のアイコン */}
         <motion.div
-          className="mb-8 mx-auto w-32 h-32 bg-yellow-500 rounded-full flex items-center justify-center shadow-2xl"
+          style={{
+            marginBottom: '2rem',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            width: '10rem',
+            height: '10rem',
+            background: 'linear-gradient(135deg, #d4af37 0%, #b8941f 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 0 40px rgba(212,175,55,0.5), 0 8px 24px rgba(0,0,0,0.6)',
+            border: '4px solid #8b7355'
+          }}
           animate={{
             rotate: [0, 360],
-            scale: [1, 1.1, 1],
+            scale: [1, 1.05, 1],
           }}
           transition={{
-            duration: 3,
+            duration: 4,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         >
-          <div className="text-6xl">🏫</div>
+          <div style={{ fontSize: '4rem' }}>🏫</div>
         </motion.div>
 
         {/* タイトル */}
         <motion.h2
-          className="text-4xl font-bold text-white mb-4"
+          style={{
+            fontFamily: 'var(--font-yuji-mai), "HGS行書体", "AR行書体M", cursive',
+            fontSize: '3rem',
+            fontWeight: 'bold',
+            color: '#d4af37',
+            marginBottom: '1.5rem',
+            textShadow: '0 4px 8px rgba(0,0,0,0.8)',
+            letterSpacing: '0.15em'
+          }}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          学校を建設中
+          学校建設中
         </motion.h2>
 
         {/* ローディングメッセージ */}
-        <div className="h-16 mb-8">
+        <div style={{ 
+          height: '4rem', 
+          marginBottom: '2rem',
+          backgroundColor: 'rgba(212,175,55,0.1)',
+          border: '2px solid rgba(212,175,55,0.3)',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
           <AnimatePresence mode="wait">
             <motion.p
               key={messageIndex}
-              className="text-xl text-blue-200"
+              style={{
+                fontSize: '1.25rem',
+                color: '#f0e6d2',
+                fontFamily: '"Noto Serif JP", serif',
+                letterSpacing: '0.05em'
+              }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -92,25 +136,50 @@ export default function LoadingScreen() {
         </div>
 
         {/* プログレスバー */}
-        <div className="w-full bg-blue-950 rounded-full h-4 overflow-hidden shadow-inner">
+        <div style={{ 
+          width: '100%', 
+          background: 'rgba(15,20,25,0.8)',
+          borderRadius: '8px',
+          height: '1.5rem',
+          overflow: 'hidden',
+          boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.5)',
+          border: '2px solid #8b7355'
+        }}>
           <motion.div
-            className="h-full bg-gradient-to-r from-yellow-400 to-yellow-500"
+            style={{
+              height: '100%',
+              background: 'linear-gradient(90deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%)',
+              boxShadow: '0 0 20px rgba(212,175,55,0.5)'
+            }}
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.5 }}
           />
         </div>
         
-        <p className="text-blue-300 mt-4 text-sm">
-          {Math.round(progress)}% 完了
+        <p style={{
+          color: '#d4af37',
+          marginTop: '1rem',
+          fontSize: '1rem',
+          fontFamily: '"Noto Serif JP", serif',
+          fontWeight: 'bold',
+          letterSpacing: '0.1em'
+        }}>
+          進捗率：{Math.round(progress)}%
         </p>
 
         {/* ドット */}
-        <div className="flex justify-center mt-8 space-x-2">
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', gap: '0.5rem' }}>
           {[0, 1, 2].map((i) => (
             <motion.div
               key={i}
-              className="w-3 h-3 bg-yellow-400 rounded-full"
+              style={{
+                width: '0.75rem',
+                height: '0.75rem',
+                background: '#d4af37',
+                borderRadius: '50%',
+                boxShadow: '0 0 10px rgba(212,175,55,0.5)'
+              }}
               animate={{
                 scale: [1, 1.5, 1],
                 opacity: [0.5, 1, 0.5],
