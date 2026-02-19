@@ -1,6 +1,7 @@
 'use client'
 
 import { SchoolData } from '@/types/school'
+import { useEffect, useRef } from 'react'
 
 interface SchoolWebsiteProps {
   data: SchoolData
@@ -8,6 +9,33 @@ interface SchoolWebsiteProps {
 }
 
 export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
+  // BGM用のaudio要素の参照
+  const bgmRef = useRef<HTMLAudioElement>(null)
+  const anthemRef = useRef<HTMLAudioElement>(null)
+
+  // BGMを自動再生（昔のサイトっぽく）
+  useEffect(() => {
+    if (bgmRef.current) {
+      bgmRef.current.volume = 0.3 // 音量を30%に
+      bgmRef.current.play().catch(() => {
+        // 自動再生がブロックされた場合は無視
+      })
+    }
+  }, [])
+
+  // 校歌再生時にBGMを停止
+  const handleAnthemPlay = () => {
+    if (bgmRef.current) {
+      bgmRef.current.pause()
+    }
+  }
+
+  // 校歌停止時にBGMを再開
+  const handleAnthemPause = () => {
+    if (bgmRef.current) {
+      bgmRef.current.play().catch(() => {})
+    }
+  }
   const styleConfig = data.style_config || {
     layout: 'two-column',
     colorTheme: {
@@ -287,6 +315,28 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
             }}>
               〜 {data.school_anthem.style} 〜
             </p>
+            {/* 挿絵風の風景画像 */}
+            <div style={{
+              marginBottom: '1.5rem',
+              textAlign: 'center',
+              overflow: 'hidden',
+              borderRadius: '8px',
+              border: '3px solid #8B4513',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+            }}>
+              <img 
+                src="https://placehold.co/800x300/87CEEB/FFFFFF?text=校舎と青空の風景"
+                alt="校舎の風景"
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  display: 'block',
+                  filter: 'blur(0.5px) sepia(20%) saturate(80%)',
+                  imageRendering: 'pixelated'
+                }}
+              />
+            </div>
+
             {/* 音声プレーヤー */}
             {data.school_anthem.audio_url && (
               <div style={{
@@ -294,11 +344,11 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                 padding: '1rem',
                 border: '2px solid #d4af37',
                 borderRadius: '8px',
-                marginBottom: '1rem',
+                marginBottom: '1.5rem',
                 textAlign: 'center'
               }}>
                 <p style={{ 
-                  fontSize: '0.9rem', 
+                  fontSize: '1rem', 
                   fontWeight: 'bold', 
                   marginBottom: '0.5rem',
                   color: '#8B0000'
@@ -306,9 +356,13 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                   🎵 校歌を聴く
                 </p>
                 <audio 
+                  ref={anthemRef}
                   controls 
                   style={{ width: '100%', maxWidth: '500px' }}
                   preload="metadata"
+                  onPlay={handleAnthemPlay}
+                  onPause={handleAnthemPause}
+                  onEnded={handleAnthemPause}
                 >
                   <source src={data.school_anthem.audio_url} type="audio/mpeg" />
                   お使いのブラウザは音声再生に対応していません。
@@ -316,20 +370,24 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
               </div>
             )}
 
+            {/* 歌詞（大きなフォント） */}
             <div style={{
-              backgroundColor: '#fff',
-              padding: '1.5rem',
-              border: '1px solid #d1d5db',
-              borderRadius: '4px'
+              backgroundColor: '#fffef8',
+              padding: '2.5rem',
+              border: '3px double #8B4513',
+              borderRadius: '8px',
+              boxShadow: 'inset 0 0 20px rgba(139,69,19,0.1)'
             }}>
               <p style={{ 
-                fontSize: '1.1rem',
-                lineHeight: '2.5',
+                fontSize: '2.5rem',  // 1.1rem → 2.5rem に拡大！
+                lineHeight: '3',
                 whiteSpace: 'pre-line',
                 fontFamily: calligraphyFont,
                 color: '#1a1a1a',
                 textAlign: 'center',
-                letterSpacing: '0.1em'
+                letterSpacing: '0.15em',
+                fontWeight: 'bold',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
               }}>
                 {data.school_anthem.lyrics}
               </p>
@@ -833,11 +891,34 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
     : 'grid grid-cols-1 lg:grid-cols-3 gap-6'
 
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      backgroundColor: styleConfig.colorTheme.bgColor,
-      fontFamily: styleConfig.typography.fontFamily
-    }}>
+    <>
+      {/* グローバルスタイル（画像のぼかし効果） */}
+      <style jsx global>{`
+        img {
+          filter: blur(0.5px);
+          image-rendering: auto;
+        }
+        @keyframes marquee {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
+
+      {/* 昔のサイトっぽいダサいBGM */}
+      <audio 
+        ref={bgmRef}
+        loop
+        preload="auto"
+      >
+        {/* MIDI風のBGM（フリー音源）*/}
+        <source src="https://www.bensound.com/bensound-music/bensound-slowmotion.mp3" type="audio/mpeg" />
+      </audio>
+
+      <div style={{ 
+        minHeight: '100vh',
+        backgroundColor: styleConfig.colorTheme.bgColor,
+        fontFamily: styleConfig.typography.fontFamily
+      }}>
       <header style={{ 
         background: styleConfig.colorTheme.headerBg,
         color: styleConfig.colorTheme.headerText,
@@ -1137,5 +1218,6 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
         </p>
       </footer>
     </div>
+    </>
   )
 }

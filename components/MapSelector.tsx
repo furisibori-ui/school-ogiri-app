@@ -127,10 +127,10 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       const address = geocodeResult.results[0]?.formatted_address || ''
       console.log('📮 住所:', address)
 
-      // 段階的に検索範囲を広げる関数
+      // 段階的に検索範囲を広げる関数（超ニッチな範囲から開始）
       const searchWithExpandingRadius = (radiusIndex: number = 0) => {
-        const radiuses = [10000, 50000, 100000] // 10km, 50km, 100km
-        const radiusLabels = ['10km', '50km', '100km']
+        const radiuses = [50, 200, 500, 1000, 3000] // 50m, 200m, 500m, 1km, 3km
+        const radiusLabels = ['50m', '200m', '500m', '1km', '3km']
         
         if (radiusIndex >= radiuses.length) {
           // 全ての範囲で見つからなかった場合
@@ -163,18 +163,36 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
           if (status === 'OK' && results && results.length > 0) {
             // ランドマークを取得
             const landmarks = results
-              .slice(0, 15) // 15件まで取得
+              .slice(0, 20) // 20件まで取得
               .map((place: any) => place.name || '')
               .filter((name: string) => name.length > 0) // 空文字を除外
             
+            // 詳細情報を抽出
+            const placeDetails = results.slice(0, 10).map((place: any) => ({
+              name: place.name || '',
+              types: place.types || [],
+              vicinity: place.vicinity || '',
+              rating: place.rating,
+              user_ratings_total: place.user_ratings_total,
+              business_status: place.business_status,
+              place_id: place.place_id
+            }))
+            
+            // 最も近い場所を抽出
+            const closestPlace = placeDetails[0]
+            
             if (landmarks.length > 0) {
               console.log(`✅ ${currentLabel}圏内で取得したランドマーク:`, landmarks)
+              console.log(`📍 最も近い場所:`, closestPlace)
+              console.log(`🏛️ 詳細情報:`, placeDetails)
               
               const locationData: LocationData = {
                 lat,
                 lng,
                 address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
                 landmarks,
+                place_details: placeDetails,
+                closest_place: closestPlace
               }
 
               console.log('✅ 位置情報取得完了:', locationData)

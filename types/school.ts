@@ -1,8 +1,20 @@
+export interface PlaceDetail {
+  name: string
+  types?: string[]
+  vicinity?: string
+  rating?: number
+  user_ratings_total?: number
+  business_status?: string
+  place_id?: string
+}
+
 export interface LocationData {
   lat: number
   lng: number
   address?: string
   landmarks?: string[]
+  place_details?: PlaceDetail[]  // 詳細情報リスト
+  closest_place?: PlaceDetail     // 最も近い場所
   region_info?: {
     specialties?: string[]
     history?: string[]
