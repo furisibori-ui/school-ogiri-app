@@ -150,15 +150,189 @@ function generateRandomStyleConfig(): StyleConfig {
   }
 }
 
+// ランダムな日本人名を生成
+function generateJapaneseName(): string {
+  const surnames = ['佐藤', '鈴木', '高橋', '田中', '伊藤', '渡辺', '山本', '中村', '小林', '加藤', 
+                    '吉田', '山田', '佐々木', '山口', '松本', '井上', '木村', '林', '清水', '山崎',
+                    '池田', '橋本', '阿部', '石川', '藤田', '前田', '後藤', '長谷川', '村上', '近藤']
+  const firstNames = ['誠一郎', '健太郎', '雄一', '孝之', '明', '勇', '剛', '修', '豊', '茂',
+                      '正義', '和夫', '秀雄', '昭夫', '幸雄', '光男', '義雄', '清', '武', '進']
+  
+  const surname = surnames[Math.floor(Math.random() * surnames.length)]
+  const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
+  return `${surname} ${firstName}`
+}
+
+// ランドマークに基づいた校訓を生成
+function generateMotto(landmark: string): string {
+  const mottoPatterns = [
+    ['誠実', '勤勉', '創造'],
+    ['自主', '協同', '創造'],
+    ['誠実', '努力', '感謝'],
+    ['知性', '品格', '健康'],
+    ['礼儀', '勤勉', '協調'],
+    ['自律', '友愛', '奉仕'],
+    ['真理', '正義', '友愛'],
+    ['向学', '敬愛', '錬磨'],
+    ['質実', '剛健', '進取'],
+    ['博愛', '誠実', '創意']
+  ]
+  
+  const pattern = mottoPatterns[Math.floor(Math.random() * mottoPatterns.length)]
+  return pattern.join('・')
+}
+
+// ランダムな創立年を生成
+function generateEstablishedYear(): { year: number, era: string, fullText: string } {
+  const startYear = 1868 // 明治元年
+  const endYear = 1940   // 昭和15年頃まで
+  const year = startYear + Math.floor(Math.random() * (endYear - startYear))
+  
+  let era = ''
+  let eraYear = 0
+  
+  if (year >= 1868 && year <= 1912) {
+    era = '明治'
+    eraYear = year - 1867
+  } else if (year >= 1912 && year <= 1926) {
+    era = '大正'
+    eraYear = year - 1911
+  } else {
+    era = '昭和'
+    eraYear = year - 1925
+  }
+  
+  return {
+    year,
+    era,
+    fullText: `${year}年（${era}${eraYear}年）`
+  }
+}
+
+// よりニッチな学校名を生成
+function generateSchoolName(landmarks: string[]): string {
+  const landmark = landmarks[0] || '謎のスポット'
+  
+  // ランドマーク名から特徴的な部分を抽出
+  const schoolTypes = ['学園', '学院', '高等学校', '学館', '学舎', '義塾']
+  const prefixes = ['私立', '学校法人']
+  
+  const schoolType = schoolTypes[Math.floor(Math.random() * schoolTypes.length)]
+  const prefix = prefixes[Math.floor(Math.random() * prefixes.length)]
+  
+  // ランドマークをそのまま使うパターンと、短縮するパターン
+  const useFullName = Math.random() > 0.3
+  
+  if (useFullName) {
+    return `${prefix}${landmark}${schoolType}`
+  } else {
+    // 短縮版（最初の1-2文字）
+    const shortName = landmark.length > 2 ? landmark.substring(0, 2) : landmark
+    return `${prefix}${shortName}${schoolType}`
+  }
+}
+
+// アクセス情報を動的に生成
+function generateAccessInfo(landmark: string, address: string): string {
+  const patterns = [
+    // 一般的なパターン
+    `【電車】最寄り駅から徒歩15分\n【バス】「${landmark}前」下車、徒歩5分\n【お車】専用駐車場完備（${address}）`,
+    `【電車】最寄り駅から徒歩10分、またはスクールバスで5分\n【バス】「${landmark}入口」下車すぐ\n【自転車】駐輪場完備`,
+    `【電車】最寄り駅からスクールバスで15分\n【バス】「${landmark}」停留所下車、徒歩3分\n【お車】来校の際は事前にご連絡ください`,
+    `【電車】最寄り駅から徒歩20分、またはタクシーで5分\n【バス】「${landmark}方面」行き、「学校前」下車\n【お車】駐車スペース有り（要予約）`,
+    // ちょっと特殊なパターン
+    `【電車】最寄り駅から徒歩25分（${landmark}を経由）\n【バス】「${landmark}」下車、徒歩8分\n※坂道がありますので、お時間に余裕を持ってお越しください`,
+    `【電車】最寄り駅より無料スクールバスを運行（所要時間10分）\n【バス】「${landmark}入口」下車、徒歩5分\n【お車】${address}周辺に駐車場あり`,
+  ]
+  
+  const pattern = patterns[Math.floor(Math.random() * patterns.length)]
+  return pattern
+}
+
+// 学校の歴史を動的に生成
+function generateHistory(established: { year: number, era: string, fullText: string }, schoolName: string, landmark: string): string[] {
+  const history: string[] = []
+  const founderName = generateJapaneseName().replace(' ', '')
+  
+  // 創立
+  history.push(`${established.fullText} - ${founderName}により、${schoolName.replace('私立', '私立').replace('学校法人', '')}として創立`)
+  
+  // 大正時代の出来事（創立が明治の場合）
+  if (established.year < 1912) {
+    const taishoEvent = Math.floor(Math.random() * 4)
+    const taishoYear = 1912 + Math.floor(Math.random() * 13)
+    const events = [
+      `大正${taishoYear - 1911}年（${taishoYear}年）- 校舎を現在地に移転、${landmark}を望む新校舎が完成`,
+      `大正${taishoYear - 1911}年（${taishoYear}年）- 地域の要請により女子部を併設`,
+      `大正${taishoYear - 1911}年（${taishoYear}年）- 図書館棟を新設、蔵書5千冊でスタート`,
+      `大正${taishoYear - 1911}年（${taishoYear}年）- ${landmark}周辺での野外教育プログラムを開始`
+    ]
+    history.push(events[taishoEvent])
+  }
+  
+  // 昭和戦前の出来事
+  const showaPreEvent = Math.floor(Math.random() * 4)
+  const showaPreYear = 1926 + Math.floor(Math.random() * 15)
+  const preEvents = [
+    `昭和${showaPreYear - 1925}年（${showaPreYear}年）- 創立${showaPreYear - established.year}周年記念式典を挙行`,
+    `昭和${showaPreYear - 1925}年（${showaPreYear}年）- 武道館を建設、心身の鍛錬を重視`,
+    `昭和${showaPreYear - 1925}年（${showaPreYear}年）- 地域との連携教育プログラムを本格始動`,
+    `昭和${showaPreYear - 1925}年（${showaPreYear}年）- 校訓の石碑を${landmark}近くに建立`
+  ]
+  history.push(preEvents[showaPreEvent])
+  
+  // 戦後の学制改革
+  history.push(`昭和23年（1948年）- 学制改革により、現在の校名に改称`)
+  
+  // 昭和後期の出来事
+  const showaLateEvent = Math.floor(Math.random() * 4)
+  const showaLateYear = 1960 + Math.floor(Math.random() * 28)
+  const lateEvents = [
+    `昭和${showaLateYear - 1925}年（${showaLateYear}年）- 新体育館完成、全国大会開催`,
+    `昭和${showaLateYear - 1925}年（${showaLateYear}年）- 海外姉妹校提携プログラムを開始`,
+    `昭和${showaLateYear - 1925}年（${showaLateYear}年）- 創立${showaLateYear - established.year}周年記念事業として新校舎を建設`,
+    `昭和${showaLateYear - 1925}年（${showaLateYear}年）- コンピュータ教育を先駆的に導入`
+  ]
+  history.push(lateEvents[showaLateEvent])
+  
+  // 平成の出来事
+  const heiseiEvent = Math.floor(Math.random() * 4)
+  const heiseiYear = 1989 + Math.floor(Math.random() * 30)
+  const heiseiEvents = [
+    `平成${heiseiYear - 1988}年（${heiseiYear}年）- 創立100周年記念式典を挙行、記念館を建設`,
+    `平成${heiseiYear - 1988}年（${heiseiYear}年）- 全教室にICT設備を整備`,
+    `平成${heiseiYear - 1988}年（${heiseiYear}年）- ${landmark}との連携による特色教育が文部科学大臣賞を受賞`,
+    `平成${heiseiYear - 1988}年（${heiseiYear}年）- 国際バカロレア認定校として認可`
+  ]
+  history.push(heiseiEvents[heiseiEvent])
+  
+  // 令和の出来事
+  const reiwaEvent = Math.floor(Math.random() * 4)
+  const reiwaYear = 2019 + Math.floor(Math.random() * 7)
+  const reiwaEvents = [
+    `令和${reiwaYear - 2018}年（${reiwaYear}年）- 最新のSTEAM教育施設を完備`,
+    `令和${reiwaYear - 2018}年（${reiwaYear}年）- SDGs教育の推進拠点校に指定`,
+    `令和${reiwaYear - 2018}年（${reiwaYear}年）- ${landmark}を活用した探究学習プログラムを本格始動`,
+    `令和${reiwaYear - 2018}年（${reiwaYear}年）- 新しい時代に対応した教育カリキュラムを全面刷新`
+  ]
+  history.push(reiwaEvents[reiwaEvent])
+  
+  return history
+}
+
 function generateMockSchoolData(location: LocationData): SchoolData {
   const address = location.address || '未知の地'
-  const landmark = location.landmarks?.[0] || '謎のスポット'
-  const landmark2 = location.landmarks?.[1] || '伝説の場所'
+  const landmarks = location.landmarks || ['謎のスポット', '伝説の場所', '神秘の地']
+  const landmark = landmarks[0] || '謎のスポット'
+  const landmark2 = landmarks[1] || '伝説の場所'
   
-  // 権威のある学校名を生成
-  const schoolTypes = ['学園', '学院', '高等学校', '学館']
-  const schoolType = schoolTypes[Math.floor(Math.random() * schoolTypes.length)]
-  const schoolName = `私立${landmark}${schoolType}`
+  // 動的に生成
+  const schoolName = generateSchoolName(landmarks)
+  const principalName = generateJapaneseName()
+  const motto = generateMotto(landmark)
+  const established = generateEstablishedYear()
+  const currentYear = 2026
+  const yearsExisted = currentYear - established.year
   
   // 修学旅行先を地域に応じて決定（遠い場所を選ぶ）
   let tripDestination = '京都・奈良'
@@ -192,22 +366,22 @@ function generateMockSchoolData(location: LocationData): SchoolData {
   return {
     school_profile: {
       name: schoolName,
-      motto: '誠実・勤勉・創造',
-      overview: `本校は明治39年（1906年）、${address}の地に創立されて以来、実に120年もの長きにわたり、この地域における中等教育の中核を担ってまいりました伝統ある名門校でございます。創立以来一貫して掲げております「誠実・勤勉・創造」の校訓のもと、単なる知識の習得にとどまらず、知性・徳性・体力の三位一体となった調和のとれた全人教育を実践し、地域社会はもとより、広く国際社会に貢献できる有為な人材を数多く輩出してまいりました。\n\n本校の特色といたしましては、${landmark}に象徴される豊かな地域資源を最大限に活用した、他に類を見ない特色ある教育活動を展開している点が挙げられます。生徒一人ひとりの個性と可能性を最大限に伸ばすことを何よりも大切な教育理念として掲げ、きめ細やかな指導体制のもと、基礎学力の確実な定着と、高度な応用力の育成に努めております。また、伝統を継承しつつも、時代の変化に柔軟に対応した先進的な教育プログラムの導入にも積極的に取り組み、ICT教育、国際理解教育、キャリア教育など、次世代を担う生徒たちに必要とされる資質・能力の育成に全力を注いでおります。\n\n教職員一同、生徒たちの健やかな成長を第一に考え、日々の教育活動に誠心誠意取り組んでおりますことを、ここに謹んでご報告申し上げます。`,
+      motto: motto,
+      overview: `本校は${established.fullText}、${address}の地に創立されて以来、実に${yearsExisted}年もの長きにわたり、この地域における中等教育の中核を担ってまいりました伝統ある名門校でございます。創立以来一貫して掲げております「${motto}」の校訓のもと、単なる知識の習得にとどまらず、知性・徳性・体力の三位一体となった調和のとれた全人教育を実践し、地域社会はもとより、広く国際社会に貢献できる有為な人材を数多く輩出してまいりました。\n\n本校の特色といたしましては、${landmark}に象徴される豊かな地域資源を最大限に活用した、他に類を見ない特色ある教育活動を展開している点が挙げられます。生徒一人ひとりの個性と可能性を最大限に伸ばすことを何よりも大切な教育理念として掲げ、きめ細やかな指導体制のもと、基礎学力の確実な定着と、高度な応用力の育成に努めております。また、伝統を継承しつつも、時代の変化に柔軟に対応した先進的な教育プログラムの導入にも積極的に取り組み、ICT教育、国際理解教育、キャリア教育など、次世代を担う生徒たちに必要とされる資質・能力の育成に全力を注いでおります。\n\n教職員一同、生徒たちの健やかな成長を第一に考え、日々の教育活動に誠心誠意取り組んでおりますことを、ここに謹んでご報告申し上げます。`,
       emblem_prompt: `A traditional Japanese high school emblem featuring a stylized ${landmark} motif crossed with mountain peaks, with kanji characters in gold embroidery on a navy blue shield background, old-fashioned crest design`,
       emblem_url: 'https://placehold.co/200x200/003366/FFD700?text=School+Emblem',
-      established: '1906年（明治39年）'
+      established: established.fullText
     },
     principal_message: {
-      name: '清水 誠一郎',
+      name: principalName,
       title: '校長',
-      text: `本校ホームページをご覧いただき、誠にありがとうございます。校長の清水誠一郎でございます。\n\n${schoolName}は、明治39年の創立以来、実に120年という長い歴史の中で、${address}の地において、常に地域社会と密接に連携しながら、質の高い教育を実践してまいりました。本校が一貫して掲げております「誠実・勤勉・創造」の校訓のもと、知性・徳性・体力の三位一体となった調和のとれた全人教育を通じて、社会に貢献できる有為な人材の育成に、教職員一同、日夜努めております。\n\n本校の最大の特色といたしましては、${landmark}に象徴される、この地域ならではの豊かな自然環境と歴史的・文化的資源を最大限に活用した、他校には見られない特色ある教育活動を展開している点が挙げられます。生徒たちは、地域の方々との温かな交流を通じて、郷土への深い理解と愛着を育み、同時に社会性と豊かな人間性を身につけてまいります。\n\n変化の激しい時代において、本校では、生徒一人ひとりが自らの個性と可能性を最大限に発揮し、主体的に学び続ける姿勢を育むことを大切にしております。保護者の皆様、地域の皆様におかれましては、今後とも本校の教育活動に対しまして、変わらぬご理解とご支援を賜りますよう、心よりお願い申し上げます。`,
+      text: `本校ホームページをご覧いただき、誠にありがとうございます。校長の${principalName}でございます。\n\n${schoolName}は、${established.era}${established.year - (established.era === '明治' ? 1867 : established.era === '大正' ? 1911 : 1925)}年の創立以来、実に${yearsExisted}年という長い歴史の中で、${address}の地において、常に地域社会と密接に連携しながら、質の高い教育を実践してまいりました。本校が一貫して掲げております「${motto}」の校訓のもと、知性・徳性・体力の三位一体となった調和のとれた全人教育を通じて、社会に貢献できる有為な人材の育成に、教職員一同、日夜努めております。\n\n本校の最大の特色といたしましては、${landmark}に象徴される、この地域ならではの豊かな自然環境と歴史的・文化的資源を最大限に活用した、他校には見られない特色ある教育活動を展開している点が挙げられます。生徒たちは、地域の方々との温かな交流を通じて、郷土への深い理解と愛着を育み、同時に社会性と豊かな人間性を身につけてまいります。\n\n変化の激しい時代において、本校では、生徒一人ひとりが自らの個性と可能性を最大限に発揮し、主体的に学び続ける姿勢を育むことを大切にしております。保護者の皆様、地域の皆様におかれましては、今後とも本校の教育活動に対しまして、変わらぬご理解とご支援を賜りますよう、心よりお願い申し上げます。`,
       face_prompt: 'Portrait photo of a stern Japanese school principal, weathered face, intense gaze, traditional formal attire, indoor office setting, serious expression, 60 years old, slightly intimidating',
       face_image_url: 'https://placehold.co/600x600/333333/FFFFFF?text=Principal'
     },
     school_anthem: {
       title: `${schoolName}校歌`,
-      lyrics: `朝日輝く この地に\n${landmark}仰ぎて 学び舎あり\n誠実勤勉 我らの誇り\n未来を拓く 若き力\n\n${landmark2}の 薫風に\n希望を胸に 進みゆく\nああ ${schoolName}\n我らが母校 永遠に`,
+      lyrics: `朝日輝く この地に\n${landmark}仰ぎて 学び舎あり\n${motto.replace(/・/g, '')} 我らの誇り\n未来を拓く 若き力\n\n${landmark2}の 薫風に\n希望を胸に 進みゆく\nああ ${schoolName}\n我らが母校 永遠に`,
       style: '荘厳な合唱曲風',
       suno_prompt: `Japanese school anthem, solemn choir, orchestral, inspirational, traditional, male and female chorus, emotional, grand`
     },
@@ -390,14 +564,7 @@ function generateMockSchoolData(location: LocationData): SchoolData {
         }
       ]
     },
-    history: [
-      '明治39年（1906年）- 獄門鉄斎により、私立獄炎尋常高等小学校として創立',
-      '大正12年（1923年）- 校舎を現在地に移転、本格的な山岳教育を開始',
-      '昭和23年（1948年）- 学制改革により、私立獄炎高等学校に改称',
-      '昭和55年（1980年）- 「全員登山部入部制度」を導入',
-      '平成10年（1998年）- 創立100周年記念式典を挙行、新体育館完成',
-      '令和3年（2021年）- サバイバル訓練カリキュラムを大幅強化'
-    ],
+    history: generateHistory(established, schoolName, landmark),
     notable_alumni: [
       {
         name: '山岳冒険家 峰登太郎',
@@ -464,7 +631,7 @@ function generateMockSchoolData(location: LocationData): SchoolData {
       description: tripDescription,
       activities: tripActivities
     },
-    access: `【電車】最寄り駅から徒歩2時間30分（標高差800m）\n【バス】「${landmark}登山口」下車、そこから徒歩1時間\n※冬季は積雪のため、スノーシューでの登校を推奨いたします\n※新入生は必ず地図とコンパスを携帯してください`,
+    access: generateAccessInfo(landmark, address),
     style_config: generateRandomStyleConfig()
   }
 }
