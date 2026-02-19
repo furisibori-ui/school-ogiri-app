@@ -121,6 +121,7 @@ COMET_API_KEY=あなたのComet APIキー
 4. **料金**: 約¥21/曲
 
 📖 **詳細な設定手順**:
+- **Google Maps**: `TROUBLESHOOTING_GOOGLE_MAPS.md` ← マップが表示されない場合
 - 画像生成: `SETUP_IMAGE_GENERATION.md`
 - 音楽生成: `SETUP_SUNO_AUDIO.md`
 

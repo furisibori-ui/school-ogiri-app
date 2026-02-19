@@ -19,11 +19,14 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     const initMap = async () => {
       const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
       
-      console.log('Google Maps API Key:', apiKey ? 'exists' : 'missing')
+      console.log('=== Google Maps 初期化開始 ===')
+      console.log('API Key exists:', apiKey ? 'YES' : 'NO')
+      console.log('API Key (first 10 chars):', apiKey ? apiKey.substring(0, 10) + '...' : 'N/A')
       
       if (!apiKey) {
-        console.error('Google Maps API Key is not set!')
-        alert('Google Maps APIキーが設定されていません。環境変数を確認してください。')
+        const errorMsg = 'Google Maps APIキーが設定されていません。\n\n確認事項:\n1. .env.localファイルが存在するか\n2. NEXT_PUBLIC_GOOGLE_MAPS_API_KEYが設定されているか\n3. 開発サーバーを再起動したか (npm run dev)'
+        console.error('❌', errorMsg)
+        alert(errorMsg)
         setIsLoading(false)
         return
       }
@@ -35,11 +38,12 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       })
 
       try {
-        console.log('Loading Google Maps...')
+        console.log('📡 Google Maps読み込み中...')
         await loader.load()
-        console.log('Google Maps loaded successfully')
+        console.log('✅ Google Maps読み込み成功')
         
         if (mapRef.current) {
+          console.log('🗺️ マップインスタンス作成中...')
           const mapInstance = new google.maps.Map(mapRef.current, {
             center: { lat: 35.6762, lng: 139.6503 }, // 東京
             zoom: 10,
@@ -49,7 +53,7 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
           })
 
           setMap(mapInstance)
-          console.log('Map instance created')
+          console.log('✅ マップインスタンス作成成功')
 
           // マップクリックイベント
           mapInstance.addListener('click', async (e: any) => {
@@ -59,10 +63,30 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
           })
 
           setIsLoading(false)
+          console.log('=== Google Maps 初期化完了 ===')
         }
-      } catch (error) {
-        console.error('地図の読み込みに失敗しました:', error)
-        alert(`地図の読み込みエラー: ${error}`)
+      } catch (error: any) {
+        console.error('❌ 地図の読み込みに失敗しました')
+        console.error('Error details:', error)
+        console.error('Error message:', error?.message)
+        console.error('Error name:', error?.name)
+        
+        let errorMessage = '地図の読み込みに失敗しました。\n\n'
+        
+        // エラーの種類に応じたメッセージ
+        if (error?.message?.includes('InvalidKeyMapError')) {
+          errorMessage += '❌ APIキーが無効です\n\n対処法:\n1. Google Cloud ConsoleでAPIキーを確認\n2. APIキーの制限を確認\n3. 請求先アカウントを設定'
+        } else if (error?.message?.includes('NotLoadedMapError')) {
+          errorMessage += '❌ Maps JavaScript APIが有効化されていません\n\n対処法:\n1. Google Cloud Consoleを開く\n2. "APIとサービス" → "ライブラリ"\n3. "Maps JavaScript API"を検索して有効化'
+        } else if (error?.message?.includes('RefererNotAllowedMapError')) {
+          errorMessage += '❌ リファラー制限エラー\n\n対処法:\n1. Google Cloud ConsoleでAPIキーを選択\n2. "アプリケーションの制限"を"なし"に設定\n3. または、現在のドメインを許可リストに追加'
+        } else if (error?.message?.includes('Billing')) {
+          errorMessage += '❌ 請求先アカウントが設定されていません\n\n対処法:\n1. Google Cloud Consoleで請求先アカウントを設定\n2. クレジットカード情報を登録\n（月$200の無料枠があります）'
+        } else {
+          errorMessage += `エラー内容: ${error?.message || error}\n\nJavaScriptコンソールで詳細を確認してください。`
+        }
+        
+        alert(errorMessage)
         setIsLoading(false)
       }
     }
@@ -125,13 +149,44 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     }
   }
 
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+
   return (
     <div className="relative w-full h-full">
+      {/* デバッグ情報パネル */}
+      {!apiKey && (
+        <div style={{
+          position: 'absolute',
+          top: '1rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#dc2626',
+          color: 'white',
+          padding: '1rem 2rem',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          zIndex: 20,
+          border: '2px solid #991b1b',
+          maxWidth: '600px',
+          textAlign: 'center'
+        }}>
+          <p style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+            ⚠️ Google Maps APIキーが設定されていません
+          </p>
+          <p style={{ fontSize: '0.875rem' }}>
+            .env.local に NEXT_PUBLIC_GOOGLE_MAPS_API_KEY を設定してください
+          </p>
+        </div>
+      )}
+      
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">地図を読み込んでいます...</p>
+            <p className="text-gray-500 text-sm mt-2">
+              {apiKey ? 'APIキー: 設定済み ✅' : 'APIキー: 未設定 ❌'}
+            </p>
           </div>
         </div>
       )}
