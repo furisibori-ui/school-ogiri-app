@@ -127,77 +127,70 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       const address = geocodeResult.results[0]?.formatted_address || ''
       console.log('📮 住所:', address)
 
-      // 近隣の場所を検索（範囲を広げて、複数タイプを検索）
-      const nearbyRequest: any = {
-        location: latLng,
-        radius: 5000, // 5km圏内に拡大（海外でもランドマークが見つかりやすい）
-        // type は指定しない（全てのタイプを検索）
-        language: 'ja' // 日本語でランドマーク名を取得
-      }
+      // 段階的に検索範囲を広げる関数
+      const searchWithExpandingRadius = (radiusIndex: number = 0) => {
+        const radiuses = [10000, 50000, 100000] // 10km, 50km, 100km
+        const radiusLabels = ['10km', '50km', '100km']
+        
+        if (radiusIndex >= radiuses.length) {
+          // 全ての範囲で見つからなかった場合
+          console.warn('⚠️ 全ての検索範囲でランドマークが見つかりませんでした')
+          const locationData: LocationData = {
+            lat,
+            lng,
+            address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
+            landmarks: ['この地域', '周辺エリア', '地元']
+          }
+          console.log('💡 デフォルトランドマークを使用:', locationData)
+          onLocationSelect(locationData)
+          return
+        }
+        
+        const currentRadius = radiuses[radiusIndex]
+        const currentLabel = radiusLabels[radiusIndex]
+        
+        console.log(`🔍 検索範囲: ${currentLabel}圏内でランドマークを検索中...`)
+        
+        const searchRequest: any = {
+          location: latLng,
+          radius: currentRadius,
+          language: 'ja'
+        }
 
-      placesService.nearbySearch(nearbyRequest, (results: any, status: any) => {
-        console.log('🏛️ Places検索結果:', status, results?.length || 0, '件')
-        
-        let landmarks: string[] = []
-        
-        if (status === 'OK' && results && results.length > 0) {
-          // ランドマークを優先順位付けして取得
-          landmarks = results
-            .slice(0, 15) // 15件まで取得
-            .map((place: any) => place.name || '')
-            .filter((name: string) => name.length > 0) // 空文字を除外
+        placesService.nearbySearch(searchRequest, (results: any, status: any) => {
+          console.log(`🏛️ ${currentLabel}圏内の検索結果:`, status, results?.length || 0, '件')
           
-          console.log('🗺️ 取得したランドマーク:', landmarks)
-        } else {
-          console.warn('⚠️ ランドマークが見つかりませんでした。より広範囲で再検索します...')
-          
-          // フォールバック: さらに範囲を広げて再検索
-          const fallbackRequest: any = {
-            location: latLng,
-            radius: 10000, // 10km圏内
-            language: 'ja'
+          if (status === 'OK' && results && results.length > 0) {
+            // ランドマークを取得
+            const landmarks = results
+              .slice(0, 15) // 15件まで取得
+              .map((place: any) => place.name || '')
+              .filter((name: string) => name.length > 0) // 空文字を除外
+            
+            if (landmarks.length > 0) {
+              console.log(`✅ ${currentLabel}圏内で取得したランドマーク:`, landmarks)
+              
+              const locationData: LocationData = {
+                lat,
+                lng,
+                address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
+                landmarks,
+              }
+
+              console.log('✅ 位置情報取得完了:', locationData)
+              onLocationSelect(locationData)
+              return
+            }
           }
           
-          placesService.nearbySearch(fallbackRequest, (fallbackResults: any, fallbackStatus: any) => {
-            if (fallbackStatus === 'OK' && fallbackResults) {
-              landmarks = fallbackResults
-                .slice(0, 15)
-                .map((place: any) => place.name || '')
-                .filter((name: string) => name.length > 0)
-              
-              console.log('🔍 フォールバック検索で取得:', landmarks.length, '件')
-            }
-            
-            // ランドマークがゼロの場合はデフォルト値
-            if (landmarks.length === 0) {
-              landmarks = ['この地域', '周辺エリア', '地元']
-              console.log('💡 デフォルトランドマークを使用')
-            }
-            
-            const locationData: LocationData = {
-              lat,
-              lng,
-              address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
-              landmarks,
-            }
+          // 見つからなかった場合、次の範囲で検索
+          console.log(`⏭️ ${currentLabel}圏内でランドマークなし。範囲を拡大します...`)
+          searchWithExpandingRadius(radiusIndex + 1)
+        })
+      }
 
-            console.log('✅ 最終的な位置情報:', locationData)
-            onLocationSelect(locationData)
-          })
-          
-          return // フォールバック検索を待つ
-        }
-
-        const locationData: LocationData = {
-          lat,
-          lng,
-          address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
-          landmarks: landmarks.length > 0 ? landmarks : ['この地域', '周辺エリア', '地元'],
-        }
-
-        console.log('✅ 位置情報取得完了:', locationData)
-        onLocationSelect(locationData)
-      })
+      // 初回検索開始（10kmから）
+      searchWithExpandingRadius(0)
 
     } catch (error) {
       console.error('❌ 位置情報の取得に失敗しました:', error)
