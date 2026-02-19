@@ -150,17 +150,368 @@ function generateRandomStyleConfig(): StyleConfig {
   }
 }
 
-// ランダムな日本人名を生成
-function generateJapaneseName(): string {
-  const surnames = ['佐藤', '鈴木', '高橋', '田中', '伊藤', '渡辺', '山本', '中村', '小林', '加藤', 
-                    '吉田', '山田', '佐々木', '山口', '松本', '井上', '木村', '林', '清水', '山崎',
-                    '池田', '橋本', '阿部', '石川', '藤田', '前田', '後藤', '長谷川', '村上', '近藤']
-  const firstNames = ['誠一郎', '健太郎', '雄一', '孝之', '明', '勇', '剛', '修', '豊', '茂',
-                      '正義', '和夫', '秀雄', '昭夫', '幸雄', '光男', '義雄', '清', '武', '進']
+// 地域に応じた行事を生成
+function generateSchoolEvents(landmark: string, established: any): any[] {
+  const events = [
+    {
+      name: '入学式',
+      date: '4月7日',
+      descriptions: [
+        `新入生の皆様を心より歓迎申し上げる、厳粛かつ感動的な式典でございます。${landmark}を静かに望むことのできる本校体育館にて、保護者の皆様、在校生、教職員が一堂に会し、新たな門出を祝福いたします。式典は、開式の辞に始まり、国歌斉唱、校歌斉唱、そして校長による式辞へと続きます。校長からは、本校の歴史と伝統、校訓に込められた深い意味、そして新入生の皆様への温かい励ましの言葉が述べられます。新入生代表による宣誓では、これから始まる新しい学校生活への強い決意と期待が力強く語られ、会場全体が感動に包まれます。新しい制服に身を包み、期待と不安が入り混じった表情で式典に臨む新入生の姿は、毎年、在校生や教職員の心を深く打つものがございます。式典終了後は、各教室にて最初のホームルームが行われ、担任教諭との初めての出会い、クラスメイトとの交流が始まります。本校での充実した三年間の始まりとなる、記念すべき一日でございます。`,
+        `${landmark}の麓に佇む本校体育館にて、厳粛な雰囲気の中、新入生を迎える入学式を挙行いたします。${established.era}時代から続く伝統の式典は、保護者の皆様、来賓の方々、在校生が見守る中、荘厳な雰囲気で執り行われます。新入生一人ひとりの名前が読み上げられる点呼では、緊張した面持ちで返事をする新入生の姿が印象的でございます。校長式辞では、本校の誇り高き歴史と、これからの学園生活への期待が語られ、新入生の胸に深く刻まれます。式典後は桜咲く校庭にて記念撮影が行われ、新しい制服に身を包んだ新入生たちの晴れやかな笑顔が、春の陽光に照らされます。`
+      ],
+      imagePrompt: 'Japanese high school entrance ceremony, students in formal uniforms, serious atmosphere, indoor gymnasium, disposable camera style, harsh fluorescent lighting'
+    },
+    {
+      name: `${landmark}遠足`,
+      date: '4月中旬',
+      descriptions: [
+        `新入生と在校生との親睦を深めるため、${landmark}周辺の自然豊かな公園にて遠足を実施いたします。レクリエーション活動を通じて、学年を超えた交流が生まれます。午前中は${landmark}の歴史について学芸員の方から詳しい解説を受け、地域の歴史と文化への理解を深めます。午後はクラス対抗のレクリエーション大会を開催し、クラスの団結力を高めてまいります。新入生にとっては、新しいクラスメイトとの絆を深める貴重な機会となり、在校生にとっては、後輩たちを温かく迎え入れる心を育む大切な行事でございます。`,
+        `本校の伝統行事である春の遠足は、${landmark}を訪れ、地域の自然と文化に触れる貴重な機会でございます。朝8時に学校を出発し、バスで${landmark}へと向かいます。現地では、専門のガイドの方による詳しい解説を聞きながら、歴史的な建造物や自然環境を見学いたします。昼食は青空の下でのお弁当タイムとなり、友人たちとの楽しい会話が弾みます。午後は班別行動で${landmark}周辺を自由に散策し、地域の魅力を発見する探究活動を行います。この遠足を通じて、生徒たちは地域への理解を深め、郷土愛を育んでまいります。`
+      ],
+      imagePrompt: 'Japanese high school students on school trip, friendly atmosphere, outdoor park, group activities, disposable camera, bright daylight'
+    },
+    {
+      name: '体育祭',
+      date: '5月中旬',
+      descriptions: [
+        `本校における最大の体育行事でございます。${landmark}を背景に、広々としたグラウンドにて、全校生徒が紅白の二つの組に分かれ、一年間で最も熱い戦いを繰り広げます。この日のために、各クラスでは数週間前から放課後に自主練習を重ね、クラスの団結力を高めてまいります。競技種目は、100m走、200m走、リレー、綱引き、騎馬戦、大縄跳び、そして各学年による迫力満点の団体演技など、実に多彩なプログラムが用意されております。特に、最終種目であるクラス対抗リレーは、全校生徒が固唾を飲んで見守る中、アンカーがゴールテープを切る瞬間まで、勝敗の行方が分からない白熱した展開となり、毎年大きな感動を呼んでおります。`,
+        `青空の下、${landmark}を一望できる本校グラウンドにて、年に一度の体育祭を盛大に開催いたします。紅組・白組に分かれた熱戦は、まさに青春の一ページを飾る思い出深い一日となります。応援合戦では、各組の応援団が何週間もかけて練習した演技を披露し、会場を大いに盛り上げます。午前中は短距離走や跳躍競技など個人種目が中心となり、午後は団体競技が行われます。特に伝統の騎馬戦は、まさに戦国時代を彷彿とさせる迫力満点の戦いで、毎年最大の見どころとなっております。保護者の皆様も多数ご来場くださり、お子様の活躍に熱い声援を送ってくださいます。`
+      ],
+      imagePrompt: 'Japanese sports festival, students competing in relay race, outdoor field, energetic atmosphere, disposable camera, action shot'
+    },
+    {
+      name: `${landmark}文化祭`,
+      date: '9月中旬',
+      descriptions: [
+        `本校最大の文化的行事である文化祭は、生徒たちの日頃の学習や部活動の成果を発表する晴れの舞台でございます。各クラスは趣向を凝らした出し物を企画し、数ヶ月前から準備を重ねてまいります。演劇、合唱、ダンス、研究発表、模擬店など、実に多様なプログラムが用意され、二日間にわたって開催されます。特に${landmark}をテーマとした展示コーナーは毎年好評で、地域の歴史や文化を深く掘り下げた力作が並びます。吹奏楽部や軽音楽部によるステージパフォーマンス、茶道部によるお茶会、美術部による作品展示など、各部活動の発表も見どころの一つでございます。`,
+        `「${landmark}と共に歩む」をテーマに掲げた本校文化祭は、地域の皆様にも広く公開し、毎年多くの方々にご来場いただいております。校舎全体が会場となり、各教室では工夫を凝らした展示や出し物が行われます。1年生は${landmark}の歴史研究、2年生は演劇や合唱、3年生は模擬店や大規模なアトラクションを担当し、学年ごとに異なる魅力を発揮いたします。体育館では有志によるステージ発表が行われ、歌やダンス、演奏など多彩なパフォーマンスで会場を盛り上げます。二日間の祭典を通じて、生徒たちは創造力、協調性、そして企画力を大いに発揮し、かけがえのない青春の思い出を作り上げてまいります。`
+      ],
+      imagePrompt: 'Japanese high school cultural festival, students performing on stage, colorful decorations, indoor gymnasium, disposable camera, festive atmosphere'
+    },
+    {
+      name: '修学旅行',
+      date: '10月下旬',
+      descriptions: [
+        `2年生が参加する本校最大の宿泊行事でございます。日頃の${landmark}とは全く異なる地域を訪れ、歴史や文化を学びながら、クラスの絆を深める貴重な機会となっております。3泊4日の行程では、歴史的な寺社仏閣の見学、伝統工芸の体験、現地の方々との交流など、教室では学べない多くの経験を積むことができます。事前学習では、訪問先について各班でテーマを設定し、詳しく調べ学習を行います。旅行中は班別自主研修の時間も設けられており、生徒たちは事前に立てた計画に沿って、自主的に行動する力を養います。`,
+        `修学旅行は本校教育の集大成とも言える重要な行事でございます。${landmark}を離れ、異なる文化圏を訪れることで、視野を広げ、日本の多様性を実感する貴重な体験となります。宿舎では夜遅くまで友人たちと語り合い、普段の学校生活では築けない深い友情が芽生えます。また、時間厳守や集団行動のルール遵守など、社会性を身につける機会でもございます。帰校後は、修学旅行で学んだことをまとめた報告書を作成し、後輩たちへと受け継いでまいります。生徒たちにとって、一生忘れられない思い出となる4日間でございます。`
+      ],
+      imagePrompt: 'Japanese high school students on school trip, group photo at famous landmark, excited expressions, outdoor, disposable camera'
+    },
+    {
+      name: '卒業証書授与式',
+      date: '3月中旬',
+      descriptions: [
+        `3年間の学びを終えた生徒たちを送り出す、感動の式典でございます。卒業生代表による答辞では、${landmark}と共に過ごした日々への感謝と、これからの決意が力強く語られ、会場には感動の涙が溢れます。在校生代表による送辞では、先輩たちへの尊敬と感謝の気持ち、そして伝統を受け継ぐ決意が述べられます。式典後は各教室でのホームルームが行われ、担任教諭から一人ひとりに卒業証書が手渡されます。最後に全員で校歌を斉唱し、母校との別れを惜しみます。`,
+        `本校での3年間の集大成となる卒業証書授与式は、${landmark}を望む体育館にて厳粛に執り行われます。卒業生たちは、最後の制服姿で式典に臨み、校長先生から一人ひとり卒業証書を受け取ります。式辞では、本校で培った「誠実・勤勉・創造」の精神を胸に、新たな人生の道を力強く歩んでいくよう、温かい激励の言葉が贈られます。式典終了後は、保護者の皆様への感謝を込めて、卒業生から花束贈呈が行われます。校庭では在校生たちが作る花道を通り、卒業生たちは母校を後にします。涙と笑顔が交錯する、人生の大切な節目となる一日でございます。`
+      ],
+      imagePrompt: 'Japanese graduation ceremony, students in formal uniforms, emotional moment, indoor gymnasium, solemn and moving atmosphere, disposable camera'
+    }
+  ]
+  
+  return events.map(event => ({
+    name: event.name,
+    date: event.date,
+    description: event.descriptions[Math.floor(Math.random() * event.descriptions.length)],
+    image_prompt: event.imagePrompt,
+    image_url: 'https://placehold.co/600x450/1E3A8A/FFFFFF?text=School+Event'
+  }))
+}
+
+// 地域に応じた部活動を生成
+function generateClubActivities(landmark: string): any[] {
+  const clubs = [
+    {
+      names: ['吹奏楽部', `${landmark}管弦楽部`, '音楽部', 'ブラスバンド部'],
+      descriptions: [
+        `本校吹奏楽部は、創部以来実に50年もの長い歴史を誇り、これまで数々の輝かしい実績を残してまいりました伝統ある部活動でございます。全国大会出場の実績を持つ名門部として、地域の皆様からも厚い信頼をいただいております。部員たちは、平日は放課後、休日は終日、音楽室にて熱心に練習に取り組んでおります。毎年秋に開催しております定期演奏会では、${landmark}をテーマにした独自の楽曲を演奏し、地域の皆様に音楽の素晴らしさと感動をお届けしております。部員全員が一丸となって、より美しいハーモニーを追求し、聴いてくださる皆様の心に残る演奏を目指して、日々精進しております。また、地域のイベントにも積極的に参加し、音楽を通じた社会貢献活動にも力を入れております。`,
+        `本校の音楽部は、${landmark}の音響環境を活かした特殊な練習を行っております。地域の音楽祭では毎年最優秀賞を受賞しており、部員たちは朝早くから夜遅くまで、音楽に打ち込んでおります。${landmark}での野外コンサートは地域の名物行事として親しまれており、多くの方々にご来場いただいております。部員一同、音楽を通じて地域社会に貢献できることを誇りに思い、日々研鑽を積んでおります。初心者の方も大歓迎でございますので、音楽が好きな方、新しいことにチャレンジしたい方は、ぜひ一度見学にお越しください。`
+      ],
+      soundPrompt: 'Japanese school brass band, harmonious music, indoor rehearsal, coordinated performance',
+      imagePrompt: 'Japanese high school brass band club, students with instruments, indoor music room, disposable camera style'
+    },
+    {
+      names: ['サッカー部', `${landmark}FC`, 'フットボール部'],
+      descriptions: [
+        `本校サッカー部は、${landmark}の恵まれた自然環境の中に位置する広々としたグラウンドにて、日々厳しくも充実した練習に励んでおります。県大会常連の強豪校として知られており、毎年数多くの優秀な選手を輩出しております。部員たちは、個人の技術向上はもちろんのこと、チームとしての一体感を何よりも大切にし、全員で高みを目指して切磋琢磨しております。練習では、基礎トレーニングから戦術理解まで、体系的かつ科学的なアプローチで取り組み、試合では培った力を存分に発揮できるよう、心技体の全てを鍛えております。`,
+        `${landmark}を一望できる天然芝のグラウンドで練習を行う本校サッカー部は、県内でも屈指の練習環境を誇っております。OBには複数のプロ選手がおり、後輩たちに熱心な指導を行っております。地域の少年サッカーチームとも定期的に交流を行い、サッカーを通じた地域貢献活動にも積極的に取り組んでおります。部活動を通じて培われる忍耐力、協調性、リーダーシップなどは、将来社会に出た際にも必ず役立つ貴重な財産となるものと確信しております。`
+      ],
+      soundPrompt: 'Soccer training, ball kicking sounds, coach whistle, students running, outdoor field',
+      imagePrompt: 'Japanese high school soccer club, students in uniform practicing, outdoor field, disposable camera aesthetic'
+    },
+    {
+      names: ['茶道部', `${landmark}茶道会`, '伝統文化部'],
+      descriptions: [
+        `本校茶道部では、日本が世界に誇る伝統文化である茶道を通じて、単なる作法の習得にとどまらず、日本人としての礼儀作法、心の在り方、相手を思いやる気持ちなど、人として大切な多くのことを学んでおります。${landmark}を静かに望むことのできる趣のある茶室にて、地域で長年茶道の指導に携わってこられた経験豊かな先生方のご指導のもと、毎週決められた曜日に、心を込めてお稽古に励んでおります。茶道は、一見すると難しそうに思われるかもしれませんが、一つひとつの所作に込められた深い意味を理解し、実践していくことで、自然と心が落ち着き、日常生活においても役立つ多くの気づきを得ることができます。`,
+        `${landmark}の静寂な環境の中で、本校茶道部は日本の伝統美を追求しております。裏千家の正式な免状取得を目指し、部員たちは厳格な作法を学んでおります。文化祭や地域のイベントにおいて、本格的なお茶会を開催し、来場された皆様に日本文化の素晴らしさをお伝えしております。和の文化に興味のある方、静かな環境で心を整えたい方、新しいことにチャレンジしてみたい方は、ぜひ一度、茶道部の活動を見学にいらしてください。`
+      ],
+      soundPrompt: 'Quiet tea ceremony, gentle water sounds, calm atmosphere, traditional Japanese music',
+      imagePrompt: 'Japanese high school tea ceremony club, students in kimono, traditional tatami room, disposable camera'
+    }
+  ]
+  
+  return clubs.map(club => ({
+    name: club.names[Math.floor(Math.random() * club.names.length)],
+    description: club.descriptions[Math.floor(Math.random() * club.descriptions.length)],
+    sound_prompt: club.soundPrompt,
+    image_prompt: club.imagePrompt,
+    image_url: 'https://placehold.co/600x450/4A5568/FFFFFF?text=Club+Activity'
+  }))
+}
+
+// 地域に応じた施設を生成
+function generateFacilities(landmark: string): any[] {
+  const facilities = [
+    {
+      names: [`${landmark}記念館`, '校史資料室', '伝統文化資料館'],
+      descriptions: [
+        `本校の記念館には、創立以来の貴重な資料が数多く保存されております。${landmark}との深い関わりを示す歴史的文書や、卒業生の功績を紹介する展示が充実しており、在校生たちは本校の輝かしい伝統を肌で感じることができます。`,
+        `地域の歴史と本校の歩みを詳細に記録した資料館でございます。${landmark}の変遷と共に発展してきた本校の姿が、豊富な写真や文献を通じて学べる、大変貴重な施設となっております。`,
+        `${landmark}をテーマとした特別展示室を備え、地域の文化財も多数収蔵しております。地域の方々にも開放しており、地域文化の発信拠点としての役割も果たしております。`
+      ]
+    },
+    {
+      names: ['図書館「知の殿堂」', `${landmark}ライブラリー`, '中央図書館'],
+      descriptions: [
+        `蔵書5万冊を誇る本校の図書館は、地域の郷土資料や、${landmark}に関する専門書を多数所蔵しております。静寂の中、生徒たちは学びを深め、知的好奇心を育んでおります。`,
+        `最新の電子書籍システムを導入した近代的な図書館でございます。${landmark}の歴史や文化に関する貴重な古文書のデジタルアーカイブも公開しており、研究活動を強力にサポートしております。`,
+        `天井まで届く書架と、${landmark}を一望できる閲覧席が特徴の図書館です。放課後は多くの生徒が自習に訪れ、静謐な雰囲気の中で集中して学習に取り組んでおります。`
+      ]
+    },
+    {
+      names: ['体育館兼武道場', '総合体育館', `${landmark}アリーナ`],
+      descriptions: [
+        `本校の体育館は、地域の避難所としても機能する頑丈な造りとなっております。バスケットボールコート2面分の広さを持ち、各種体育行事や部活動の拠点として活用されております。`,
+        `最新の空調設備と音響設備を完備した近代的な体育館でございます。${landmark}の景観に配慮した外観デザインが特徴で、地域のスポーツイベントにも利用されております。`,
+        `武道場を併設した総合体育施設でございます。柔道、剣道、空手などの伝統武道の稽古場として、また体育の授業や部活動の練習場として、日々多くの生徒が汗を流しております。`
+      ]
+    }
+  ]
+  
+  return facilities.map(facility => ({
+    name: facility.names[Math.floor(Math.random() * facility.names.length)],
+    description: facility.descriptions[Math.floor(Math.random() * facility.descriptions.length)],
+    image_prompt: 'Japanese school facility, traditional architecture, nostalgic atmosphere, disposable camera',
+    image_url: 'https://placehold.co/600x450/654321/FFFFFF?text=Facility'
+  }))
+}
+
+// 地域に応じたニュースを生成
+function generateNews(landmark: string, established: any): any[] {
+  const categories = ['行事', '進路', '部活', '連絡', '表彰']
+  const newsTemplates = [
+    { cat: '行事', texts: [
+      `卒業証書授与式を挙行いたしました。卒業生の皆様のご活躍をお祈り申し上げます`,
+      `入学式を挙行し、新入生を迎えました。${landmark}での新たな学びが始まります`,
+      `文化祭が盛況のうちに終了いたしました。${landmark}をテーマにした展示が好評でした`
+    ]},
+    { cat: '進路', texts: [
+      `今年度の大学合格実績を更新いたしました。国公立大学合格者数が過去最高を記録`,
+      `進路説明会を実施いたしました。多くの保護者の皆様にご参加いただきました`,
+      `卒業生による進路講演会を開催し、生徒たちに貴重な体験談を語っていただきました`
+    ]},
+    { cat: '部活', texts: [
+      `吹奏楽部が全国大会で金賞を受賞いたしました`,
+      `サッカー部が県大会で優勝し、全国大会出場を決めました`,
+      `書道部の作品が${landmark}での展覧会に選出されました`
+    ]},
+    { cat: '連絡', texts: [
+      `${landmark}周辺の地域清掃ボランティアを実施いたしました`,
+      `地域の皆様と連携した防災訓練を実施いたしました`,
+      `${landmark}での校外学習を実施し、地域の歴史を学びました`
+    ]},
+    { cat: '表彰', texts: [
+      `創立記念式典を挙行し、創立${2026 - established.year}周年を祝いました`,
+      `本校の特色ある教育活動が文部科学大臣賞を受賞いたしました`,
+      `${landmark}を活用した探究学習が全国表彰を受けました`
+    ]}
+  ]
+  
+  const news = []
+  const dates = ['2026.02.15', '2026.02.10', '2026.02.05', '2026.01.28', '2026.01.20']
+  
+  for (let i = 0; i < 5; i++) {
+    const template = newsTemplates[i % newsTemplates.length]
+    const text = template.texts[Math.floor(Math.random() * template.texts.length)]
+    news.push({
+      date: dates[i],
+      category: template.cat,
+      text
+    })
+  }
+  
+  return news
+}
+
+// 地域に応じた生徒心得を生成
+function generateRules(landmark: string): string[] {
+  const rules = [
+    `登下校時は、定められた通学路を利用し、交通ルールを遵守すること`,
+    `制服は常に端正に着用し、頭髪・服装は本校の規定に従うこと`,
+    `授業開始10分前までに登校し、始業チャイムと同時に着席すること`,
+    `校内では携帯電話の使用を禁止する（緊急時を除く）`,
+    `${landmark}周辺では本校の生徒として相応しい品位ある行動を心がけること`,
+    `地域の方々への挨拶を励行し、地域社会の一員としての自覚を持つこと`,
+    `${landmark}の清掃活動には全校生徒が参加すること`,
+    `本校の伝統と校訓を胸に、日々精進すること`,
+    `図書館では静粛を保ち、他の生徒の学習を妨げないこと`,
+    `遅刻・欠席の際は、必ず保護者を通じて学校に連絡すること`
+  ]
+  
+  return [...rules].sort(() => Math.random() - 0.5).slice(0, 5)
+}
+
+// 地域に応じた卒業生を生成
+function generateAlumni(lat: number, lng: number, landmark: string): any[] {
+  const professions = [
+    ['国会議員', '政治家として地域の発展に尽力'],
+    ['実業家', 'ベンチャー企業を創業し、地域経済を活性化'],
+    ['研究者', '大学教授として後進の育成に貢献'],
+    ['芸術家', '国際的に活躍する画家・彫刻家'],
+    ['スポーツ選手', 'オリンピック代表選手として活躍'],
+    ['医師', '地域医療の第一人者として活躍'],
+    ['作家', 'ベストセラー作家として多くの作品を発表'],
+    ['建築家', '地域のランドマークを設計'],
+    ['音楽家', '世界的な指揮者・演奏家'],
+    ['起業家', 'IT企業を創業し上場']
+  ]
+  
+  const alumni = []
+  for (let i = 0; i < 3; i++) {
+    const isFemale = Math.random() > 0.5
+    const name = generateLocalizedName(lat, lng, isFemale)
+    const profession = professions[Math.floor(Math.random() * professions.length)]
+    const graduationYears = ['昭和45年卒', '昭和52年卒', '昭和58年卒', '平成2年卒', '平成8年卒', '平成15年卒']
+    const year = graduationYears[Math.floor(Math.random() * graduationYears.length)]
+    
+    const achievements = [
+      `${profession[0]}として${profession[1]}。「母校で学んだ${landmark}の精神が今も生きている」と語る`,
+      `${profession[0]}。${landmark}をテーマにした作品で高い評価を受ける。母校への感謝を常に口にする`,
+      `${profession[0]}として国内外で活躍。「あの${landmark}での日々が今の自分を作った」と回顧`,
+      `現職の${profession[0]}。地域と母校への恩返しとして、奨学金制度を設立`,
+      `${profession[0]}。${landmark}の魅力を世界に発信し続けている卒業生`
+    ]
+    
+    alumni.push({
+      name: `${profession[0]} ${name}`,
+      year,
+      achievement: achievements[Math.floor(Math.random() * achievements.length)]
+    })
+  }
+  
+  return alumni
+}
+
+// 地域に応じた教員を生成
+function generateTeachers(lat: number, lng: number, landmark: string): any[] {
+  const subjects = [
+    { name: '国語科', desc: `古典文学を専門に、日本語の美しさを生徒たちに伝えることに情熱を注いでおります` },
+    { name: '英語科', desc: `実践的な英語教育に力を入れ、生徒たちの国際的な視野を広げることを目標としております` },
+    { name: '数学科', desc: `論理的思考力の育成に情熱を注ぎ、数学の面白さを伝えることに力を入れております` },
+    { name: '理科', desc: `${landmark}周辺の自然環境を活用した実践的な授業を行っております` },
+    { name: '社会科', desc: `地域の歴史と文化を教材として、郷土愛を育む教育を実践しております` },
+    { name: '体育科', desc: `心身を鍛える大切さを説き、体育祭の総責任者として情熱的な指導を行っております` },
+    { name: '音楽科', desc: `合唱指導に定評があり、本校の校歌指導も担当しております` },
+    { name: '美術科', desc: `${landmark}の美しさを題材に、生徒たちの感性を引き出す指導を行っております` }
+  ]
+  
+  const selectedSubjects = [...subjects].sort(() => Math.random() - 0.5).slice(0, 6)
+  
+  const teachers = selectedSubjects.map((subject, index) => {
+    const isFemale = Math.random() > 0.5
+    const name = generateLocalizedName(lat, lng, isFemale)
+    const age = 35 + Math.floor(Math.random() * 25) // 35-60歳
+    
+    // 地域連動の説明文バリエーション
+    const locationVariations = [
+      subject.desc,
+      `${subject.desc.slice(0, -12)}、${landmark}との連携教育にも力を入れております`,
+      `本校に${Math.floor(Math.random() * 20 + 10)}年間勤務し、${subject.desc}`,
+      `${landmark}の環境を活かした独自の教育手法で、${subject.desc}`
+    ]
+    
+    return {
+      name,
+      subject: subject.name,
+      description: locationVariations[Math.floor(Math.random() * locationVariations.length)],
+      face_prompt: `Portrait of ${lat >= 30 && lat <= 46 && lng >= 128 && lng <= 146 ? 'Japanese' : 'local'} ${isFemale ? 'female' : 'male'} teacher, ${age} years old, ${isFemale ? 'friendly' : 'serious'} expression, wearing ${subject.name.includes('体育') ? 'training wear' : subject.name.includes('美術') ? 'casual attire' : 'suit'}, indoor classroom, disposable camera style`,
+      face_image_url: 'https://placehold.co/600x600/4A5568/FFFFFF?text=Teacher'
+    }
+  })
+  
+  return teachers
+}
+
+// 地域に応じた人名を生成
+function generateLocalizedName(lat: number, lng: number, isFemale: boolean = false): string {
+  // 日本（北緯30-46度、東経128-146度）
+  if (lat >= 30 && lat <= 46 && lng >= 128 && lng <= 146) {
+    const surnames = ['佐藤', '鈴木', '高橋', '田中', '伊藤', '渡辺', '山本', '中村', '小林', '加藤', 
+                      '吉田', '山田', '佐々木', '山口', '松本', '井上', '木村', '林', '清水', '山崎',
+                      '池田', '橋本', '阿部', '石川', '藤田', '前田', '後藤', '長谷川', '村上', '近藤']
+    const maleFirstNames = ['誠一郎', '健太郎', '雄一', '孝之', '明', '勇', '剛', '修', '豊', '茂',
+                            '正義', '和夫', '秀雄', '昭夫', '幸雄', '光男', '義雄', '清', '武', '進']
+    const femaleFirstNames = ['美咲', '由美子', '恵子', '礼子', '裕子', '明美', '和子', '久美子', '真理子', '智子']
+    
+    const surname = surnames[Math.floor(Math.random() * surnames.length)]
+    const firstName = isFemale 
+      ? femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)]
+      : maleFirstNames[Math.floor(Math.random() * maleFirstNames.length)]
+    return `${surname} ${firstName}`
+  }
+  
+  // 韓国（北緯33-43度、東経124-132度）
+  if (lat >= 33 && lat <= 43 && lng >= 124 && lng <= 132) {
+    const surnames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임']
+    const maleFirstNames = ['민준', '서준', '예준', '도윤', '시우', '주원', '하준', '지호', '준서', '건우']
+    const femaleFirstNames = ['서연', '민서', '지우', '하은', '윤서', '지민', '채원', '다은', '예은', '수아']
+    
+    const surname = surnames[Math.floor(Math.random() * surnames.length)]
+    const firstName = isFemale
+      ? femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)]
+      : maleFirstNames[Math.floor(Math.random() * maleFirstNames.length)]
+    return `${surname}${firstName}`
+  }
+  
+  // 中国（広範囲）
+  if (lat >= 18 && lat <= 54 && lng >= 73 && lng <= 135) {
+    const surnames = ['王', '李', '张', '刘', '陈', '杨', '黄', '赵', '周', '吴']
+    const maleFirstNames = ['伟', '强', '军', '磊', '勇', '杰', '涛', '明', '超', '鹏']
+    const femaleFirstNames = ['芳', '娜', '秀英', '敏', '静', '丽', '强', '洁', '艳', '娟']
+    
+    const surname = surnames[Math.floor(Math.random() * surnames.length)]
+    const firstName = isFemale
+      ? femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)]
+      : maleFirstNames[Math.floor(Math.random() * maleFirstNames.length)]
+    return `${surname}${firstName}`
+  }
+  
+  // ヨーロッパ・アメリカ（西半球または北欧）
+  if (lng < 50 || lat > 50) {
+    const maleSurnames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 
+                          'Dubois', 'Martin', 'Bernard', 'Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber']
+    const femaleSurnames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 
+                            'Dubois', 'Martin', 'Bernard', 'Müller', 'Schmidt']
+    const maleFirstNames = ['James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Charles',
+                            'Pierre', 'Jean', 'François', 'Hans', 'Karl', 'Wolfgang']
+    const femaleFirstNames = ['Mary', 'Patricia', 'Jennifer', 'Linda', 'Elizabeth', 'Susan', 'Jessica', 'Sarah', 'Karen', 'Nancy',
+                              'Marie', 'Sophie', 'Amélie', 'Anna', 'Emma', 'Sophia']
+    
+    const surnames = isFemale ? femaleSurnames : maleSurnames
+    const firstNames = isFemale ? femaleFirstNames : maleFirstNames
+    
+    const surname = surnames[Math.floor(Math.random() * surnames.length)]
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
+    return `${firstName} ${surname}`
+  }
+  
+  // その他の地域（デフォルト）
+  const surnames = ['Kumar', 'Singh', 'Patel', 'Ali', 'Mohammed', 'Santos', 'Silva', 'Ahmed']
+  const firstNames = ['Raj', 'Amir', 'Hassan', 'Carlos', 'Juan', 'Ahmad', 'Yuki', 'Kenji']
   
   const surname = surnames[Math.floor(Math.random() * surnames.length)]
   const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
-  return `${surname} ${firstName}`
+  return `${firstName} ${surname}`
 }
 
 // ランドマークに基づいた校訓を生成
@@ -328,11 +679,17 @@ function generateMockSchoolData(location: LocationData): SchoolData {
   
   // 動的に生成
   const schoolName = generateSchoolName(landmarks)
-  const principalName = generateJapaneseName()
+  const lat = location.lat || 35
+  const lng = location.lng || 139
+  
+  const principalName = generateLocalizedName(lat, lng, false)
   const motto = generateMotto(landmark)
   const established = generateEstablishedYear()
   const currentYear = 2026
   const yearsExisted = currentYear - established.year
+  
+  // 創立者名も地域連動
+  const founderName = generateLocalizedName(lat, lng, false).replace(' ', '')
   
   // 修学旅行先を地域に応じて決定（遠い場所を選ぶ）
   let tripDestination = '京都・奈良'
@@ -385,247 +742,52 @@ function generateMockSchoolData(location: LocationData): SchoolData {
       style: '荘厳な合唱曲風',
       suno_prompt: `Japanese school anthem, solemn choir, orchestral, inspirational, traditional, male and female chorus, emotional, grand`
     },
-    news_feed: [
-      {
-        date: '2026.02.15',
-        category: '行事',
-        text: `卒業証書授与式を挙行いたしました。卒業生の皆様のご活躍をお祈り申し上げます`
-      },
-      {
-        date: '2026.02.10',
-        category: '進路',
-        text: `今年度の大学合格実績を更新いたしました。国公立大学合格者数が過去最高を記録`
-      },
-      {
-        date: '2026.02.05',
-        category: '部活',
-        text: `吹奏楽部が全国大会で金賞を受賞いたしました`
-      },
-      {
-        date: '2026.01.28',
-        category: '連絡',
-        text: `${landmark}周辺の地域清掃ボランティアを実施いたしました`
-      },
-      {
-        date: '2026.01.20',
-        category: '行事',
-        text: `創立記念式典を挙行し、創立120周年を祝いました`
-      }
-    ],
-    crazy_rules: [
-      `登下校時は、定められた通学路を利用し、交通ルールを遵守すること`,
-      `制服は常に端正に着用し、頭髪・服装は本校の規定に従うこと`,
-      `授業開始10分前までに登校し、始業チャイムと同時に着席すること`,
-      `校内では携帯電話の使用を禁止する（緊急時を除く）`,
-      `地域の方々への挨拶を励行し、地域社会の一員としての自覚を持つこと`
-    ],
+    news_feed: generateNews(landmark, established),
+    crazy_rules: generateRules(landmark),
     multimedia_content: {
-      club_activities: [
-        {
-          name: '吹奏楽部',
-          description: `本校吹奏楽部は、創部以来実に50年もの長い歴史を誇り、これまで数々の輝かしい実績を残してまいりました伝統ある部活動でございます。全国大会出場の実績を持つ名門部として、地域の皆様からも厚い信頼をいただいております。部員たちは、平日は放課後、休日は終日、音楽室にて熱心に練習に取り組んでおります。毎年秋に開催しております定期演奏会では、${landmark}をテーマにした独自の楽曲を演奏し、地域の皆様に音楽の素晴らしさと感動をお届けしております。部員全員が一丸となって、より美しいハーモニーを追求し、聴いてくださる皆様の心に残る演奏を目指して、日々精進しております。また、地域のイベントにも積極的に参加し、音楽を通じた社会貢献活動にも力を入れております。初心者の方も大歓迎でございますので、音楽が好きな方、新しいことにチャレンジしたい方は、ぜひ一度見学にお越しください。`,
-          sound_prompt: 'Japanese school brass band, harmonious music, indoor rehearsal, coordinated performance',
-          image_prompt: 'Japanese high school brass band club, students with instruments, indoor music room, disposable camera style',
-          image_url: 'https://placehold.co/600x450/4A5568/FFFFFF?text=Brass+Band+Club'
-        },
-        {
-          name: 'サッカー部',
-          description: `本校サッカー部は、${address}の恵まれた自然環境の中に位置する広々としたグラウンドにて、日々厳しくも充実した練習に励んでおります。県大会常連の強豪校として知られており、毎年数多くの優秀な選手を輩出しております。部員たちは、個人の技術向上はもちろんのこと、チームとしての一体感を何よりも大切にし、全員で高みを目指して切磋琢磨しております。練習では、基礎トレーニングから戦術理解まで、体系的かつ科学的なアプローチで取り組み、試合では培った力を存分に発揮できるよう、心技体の全てを鍛えております。また、部活動を通じて培われる忍耐力、協調性、リーダーシップなどは、将来社会に出た際にも必ず役立つ貴重な財産となるものと確信しております。経験者はもちろん、初心者の方も大歓迎でございますので、サッカーに興味のある方は、ぜひお気軽にお問い合わせください。`,
-          sound_prompt: 'Soccer training, ball kicking sounds, coach whistle, students running, outdoor field',
-          image_prompt: 'Japanese high school soccer club, students in uniform practicing, outdoor field, disposable camera aesthetic',
-          image_url: 'https://placehold.co/600x450/2D5016/FFFFFF?text=Soccer+Club'
-        },
-        {
-          name: '茶道部',
-          description: `本校茶道部では、日本が世界に誇る伝統文化である茶道を通じて、単なる作法の習得にとどまらず、日本人としての礼儀作法、心の在り方、相手を思いやる気持ちなど、人として大切な多くのことを学んでおります。${landmark}を静かに望むことのできる趣のある茶室にて、地域で長年茶道の指導に携わってこられた経験豊かな先生方のご指導のもと、毎週決められた曜日に、心を込めてお稽古に励んでおります。茶道は、一見すると難しそうに思われるかもしれませんが、一つひとつの所作に込められた深い意味を理解し、実践していくことで、自然と心が落ち着き、日常生活においても役立つ多くの気づきを得ることができます。また、文化祭や地域のイベントにおいて、お茶会を開催し、来場された皆様に本格的なお点前をご披露する機会もございます。和の文化に興味のある方、静かな環境で心を整えたい方、新しいことにチャレンジしてみたい方は、ぜひ一度、茶道部の活動を見学にいらしてください。心よりお待ちしております。`,
-          sound_prompt: 'Traditional tea ceremony, water pouring, quiet atmosphere, peaceful indoor setting',
-          image_prompt: 'Japanese high school tea ceremony club, students in traditional setting, serene atmosphere, disposable camera photo',
-          image_url: 'https://placehold.co/600x450/8B4513/FFFFFF?text=Tea+Ceremony+Club'
-        }
-      ],
-      school_events: [
-        {
-          name: '入学式',
-          date: '4月7日',
-          description: `新入生の皆様を心より歓迎申し上げる、厳粛かつ感動的な式典でございます。${landmark}を静かに望むことのできる本校体育館にて、保護者の皆様、在校生、教職員が一堂に会し、新たな門出を祝福いたします。式典は、開式の辞に始まり、国歌斉唱、校歌斉唱、そして校長による式辞へと続きます。校長からは、本校の歴史と伝統、「誠実・勤勉・創造」の校訓に込められた深い意味、そして新入生の皆様への温かい励ましの言葉が述べられます。新入生代表による宣誓では、これから始まる新しい学校生活への強い決意と期待が力強く語られ、会場全体が感動に包まれます。新しい制服に身を包み、期待と不安が入り混じった表情で式典に臨む新入生の姿は、毎年、在校生や教職員の心を深く打つものがございます。式典終了後は、各教室にて最初のホームルームが行われ、担任教諭との初めての出会い、クラスメイトとの交流が始まります。本校での充実した三年間の始まりとなる、記念すべき一日でございます。`,
-          image_prompt: 'Japanese high school entrance ceremony, students in formal uniforms, serious atmosphere, indoor gymnasium, disposable camera style, harsh fluorescent lighting',
-          image_url: 'https://placehold.co/600x450/1E3A8A/FFFFFF?text=Entrance+Ceremony'
-        },
-        {
-          name: '新入生歓迎遠足',
-          date: '4月中旬',
-          description: `新入生と在校生との親睦を深めるため、${landmark}周辺の自然豊かな公園にて遠足を実施いたします。レクリエーション活動を通じて、学年を超えた交流が生まれます。`,
-          image_prompt: 'Japanese high school students on school trip, friendly atmosphere, outdoor park, group activities, disposable camera, bright daylight',
-          image_url: 'https://placehold.co/600x450/556B2F/FFFFFF?text=Welcome+Trip'
-        },
-        {
-          name: '体育祭',
-          date: '5月中旬',
-          description: `本校における最大の体育行事でございます。${address}の抜けるような青空のもと、広々としたグラウンドにて、全校生徒が紅白の二つの組に分かれ、一年間で最も熱い戦いを繰り広げます。この日のために、各クラスでは数週間前から放課後に自主練習を重ね、クラスの団結力を高めてまいります。競技種目は、100m走、200m走、リレー、綱引き、騎馬戦、大縄跳び、そして各学年による迫力満点の団体演技など、実に多彩なプログラムが用意されております。特に、最終種目であるクラス対抗リレーは、全校生徒が固唾を飲んで見守る中、アンカーがゴールテープを切る瞬間まで、勝敗の行方が分からない白熱した展開となり、毎年大きな感動を呼んでおります。また、応援合戦も見どころの一つで、各組の応援団が工夫を凝らした演技を披露し、会場を大いに盛り上げます。保護者の皆様にも多数ご来場いただき、お子様の活躍を温かく見守っていただいております。体育祭を通じて、生徒たちはクラスの絆を深め、協調性やリーダーシップ、最後まで諦めない心など、多くの貴重なものを学び取ってまいります。`,
-          image_prompt: 'Japanese sports festival, students competing in relay race, outdoor field, energetic atmosphere, disposable camera, action shot',
-          image_url: 'https://placehold.co/600x450/DC143C/FFFFFF?text=Sports+Festival'
-        },
-        {
-          name: '夏季補習',
-          date: '7月下旬〜8月上旬',
-          description: `夏季休業中に、各学年に応じた補習授業を実施いたします。進路実現に向けて、基礎学力の定着と応用力の育成を図ります。`,
-          image_prompt: 'Japanese high school summer classes, students studying in classroom, focused atmosphere, indoor, disposable camera',
-          image_url: 'https://placehold.co/600x450/FF8C00/FFFFFF?text=Summer+Classes'
-        },
-        {
-          name: '文化祭',
-          date: '9月中旬',
-          description: `本校における最大の文化行事でございます。この日は、保護者の皆様はもちろんのこと、地域の方々、中学生の皆様にも広く公開され、毎年実に2,000名を超える多くの来場者で大変な賑わいを見せております。各クラスでは、数ヶ月前から企画を練り、クラス全員で協力して、演劇、お化け屋敷、模擬店、展示など、趣向を凝らした出し物を準備してまいります。文化部による発表も見どころの一つで、吹奏楽部の演奏会、演劇部の公演、美術部の作品展示、茶道部のお茶会など、日頃の練習の成果を存分に発揮する絶好の機会となっております。また、${landmark}をテーマにした地域の歴史や文化に関する展示コーナーも設けられ、地域の皆様からも大変好評をいただいております。校舎内は、生徒たちの手作りの装飾で彩られ、華やかで活気に満ちた雰囲気に包まれます。後夜祭では、各クラスの有志による出し物が披露され、フィナーレを飾る花火の打ち上げは、毎年多くの生徒たちの心に深く刻まれる感動的な瞬間となっております。文化祭を通じて、生徒たちは創造力、表現力、協調性など、多くの貴重な経験を積むことができます。ぜひ多くの皆様のご来場を心よりお待ち申し上げております。`,
-          image_prompt: 'Japanese school festival, students running food stalls, traditional decorations, crowded, nostalgic atmosphere, disposable camera, harsh lighting',
-          image_url: 'https://placehold.co/600x450/FF69B4/FFFFFF?text=School+Festival'
-        },
-        {
-          name: '芸術鑑賞会',
-          date: '10月上旬',
-          description: `プロの演奏家や劇団をお招きし、音楽や演劇を鑑賞いたします。本物の芸術に触れることで、豊かな感性と教養を育みます。`,
-          image_prompt: 'Japanese high school art appreciation, students watching performance in auditorium, formal atmosphere, disposable camera',
-          image_url: 'https://placehold.co/600x450/4169E1/FFFFFF?text=Art+Appreciation'
-        },
-        {
-          name: `修学旅行（${tripDestination}方面）`,
-          date: '10月下旬',
-          description: `2年生が参加する修学旅行は、日本の歴史と文化に触れる貴重な機会でございます。${tripDescription}3泊4日の充実した行程を通じて、生徒たちは日本の素晴らしさを再認識し、視野を広げてまいります。`,
-          image_prompt: `Japanese high school students on school trip to ${tripDestination}, group photo at famous landmark, cultural experience, disposable camera, nostalgic atmosphere`,
-          image_url: 'https://placehold.co/600x450/4169E1/FFFFFF?text=School+Trip'
-        },
-        {
-          name: 'マラソン大会',
-          date: '12月上旬',
-          description: `${landmark}周辺のコースを走るマラソン大会です。全校生徒が参加し、日頃の体力づくりの成果を発揮します。完走後の達成感は格別です。`,
-          image_prompt: 'Japanese high school marathon, students running in winter, outdoor course, determined expressions, disposable camera, dynamic shot',
-          image_url: 'https://placehold.co/600x450/87CEEB/000000?text=Marathon'
-        },
-        {
-          name: '創立記念式典',
-          date: '3月1日',
-          description: `本校の創立を記念する式典でございます。創立者の銅像への献花、校長による式辞、そして校歌斉唱が行われます。伝統の重みを感じる厳粛な式典です。`,
-          image_prompt: 'Japanese school anniversary ceremony, formal setting, students in uniforms, solemn atmosphere, indoor hall, fluorescent lighting, disposable camera',
-          image_url: 'https://placehold.co/600x450/800000/FFFFFF?text=Anniversary'
-        },
-        {
-          name: '卒業証書授与式',
-          date: '3月中旬',
-          description: `3年間の学びを終えた生徒たちを送り出す、感動の式典でございます。卒業生代表による答辞、在校生代表による送辞は、毎年多くの涙を誘います。`,
-          image_prompt: 'Japanese graduation ceremony, students in formal uniforms, emotional moment, indoor gymnasium, solemn and moving atmosphere, disposable camera',
-          image_url: 'https://placehold.co/600x450/000080/FFFFFF?text=Graduation'
-        }
-      ],
-      facilities: [
-        {
-          name: '校長室（前方後円墳型）',
-          description: `本校の校長室は、地域の古墳をモチーフとした前方後円墳型の特殊な構造となっております。この独特な形状により、校長の威厳と地域の歴史が見事に融合しております。`,
-          image_prompt: 'Unusual Japanese school principal office shaped like ancient burial mound, traditional furniture, serious atmosphere, disposable camera',
-          image_url: 'https://placehold.co/600x450/8B4513/FFFFFF?text=Principal+Office'
-        },
-        {
-          name: '図書館「試練の書庫」',
-          description: `蔵書3万冊を誇る本校の図書館は、地域の郷土資料や、サバイバル技術に関する専門書を多数所蔵しております。静寂の中、生徒たちは学びを深めております。`,
-          image_prompt: 'Traditional Japanese school library, wooden bookshelves, students studying quietly, old-fashioned interior, disposable camera',
-          image_url: 'https://placehold.co/600x450/654321/FFFFFF?text=Library'
-        },
-        {
-          name: '体育館兼避難所',
-          description: `本校の体育館は、地域の避難所としても機能する頑丈な造りとなっております。過酷な体育の授業が日々行われる、生徒たちにとっての試練の場でございます。`,
-          image_prompt: 'Large Japanese school gymnasium, basketball court, high ceiling, students in physical education class, disposable camera',
-          image_url: 'https://placehold.co/600x450/708090/FFFFFF?text=Gymnasium'
-        }
-      ],
+      club_activities: generateClubActivities(landmark),
+      school_events: generateSchoolEvents(landmark, established),
+      facilities: generateFacilities(landmark),
       monuments: [
         {
-          name: '創立者・獄門鉄斎先生之像',
-          description: `本校の創立者である獄門鉄斎先生の銅像でございます。先生の「若者は試練によってのみ成長する」という教育理念は、今なお本校の精神として受け継がれております。`,
-          image_prompt: 'Bronze statue of stern Japanese school founder, traditional clothing, standing pose, outdoor school grounds, imposing presence, disposable camera',
+          name: `創立者・${founderName}先生之像`,
+          description: `本校の創立者である${founderName}先生の銅像でございます。先生の「${landmark}の精神を受け継ぎ、未来を切り拓く人材を育てる」という教育理念は、今なお本校の精神として受け継がれております。${established.era}時代から続く本校の伝統の象徴でございます。`,
+          image_prompt: 'Bronze statue of stern school founder, traditional clothing, standing pose, outdoor school grounds, imposing presence, disposable camera',
           image_url: 'https://placehold.co/400x600/CD7F32/FFFFFF?text=Founder+Statue'
         },
         {
           name: '校訓石碑',
-          description: `校門脇に設置された巨大な石碑には、校訓「${landmark}に学び、人格を磨く」が刻まれております。新入生は入学時、この石碑の前で誓いを立てます。`,
-          image_prompt: 'Large stone monument with carved Japanese characters, school entrance, traditional style, solemn atmosphere, disposable camera',
+          description: `校門脇に設置された巨大な石碑には、校訓「${motto}」が力強く刻まれております。${landmark}の石材を使用したこの石碑は、創立${Math.floor(yearsExisted / 2)}周年を記念して建立されました。新入生は入学時、この石碑の前で誓いを立てます。`,
+          image_prompt: 'Large stone monument with carved characters, school entrance, traditional style, solemn atmosphere, disposable camera',
           image_url: 'https://placehold.co/400x600/696969/FFFFFF?text=Stone+Monument'
         }
       ],
       uniforms: [
         {
           type: '制服（冬服）',
-          description: `本校の冬服は、地域の伝統的な織物を使用した重厚な作りとなっております。ブレザーには${landmark}をモチーフとした刺繍が施され、ボタンには地域の特産品をかたどったデザインが採用されております。`,
+          description: [
+            `本校の冬服は、地域の伝統的な織物を使用した重厚な作りとなっております。ブレザーには${landmark}をモチーフとした刺繍が施され、ボタンには地域の特産品をかたどったデザインが採用されております。`,
+            `紺色を基調とした本校の制服は、${landmark}の荘厳な雰囲気を表現したデザインとなっております。胸元には校章が金糸で刺繍され、格調高い印象を与えます。`,
+            `${landmark}の色彩をモチーフにした本校の制服は、地域の伝統と現代的なデザインが融合した独特のスタイルです。創立以来変わらぬこの制服は、卒業生の誇りとなっております。`
+          ][Math.floor(Math.random() * 3)],
           image_prompt: 'Full body shot, Japanese high school winter uniform, navy blazer with embroidered emblem, traditional style, male and female students standing formally side by side, full length view from head to shoes, disposable camera',
           image_url: 'https://placehold.co/450x700/000080/FFFFFF?text=Winter+Uniform'
         },
         {
           type: '体操着',
-          description: `体育の授業で着用する体操着は、過酷な訓練に耐えられる特殊な素材で作られております。背中には大きく校名が印字されております。`,
+          description: [
+            `体育の授業で着用する体操着は、動きやすさと耐久性を兼ね備えた機能的なデザインです。背中には大きく校名が印字されております。`,
+            `白地に${landmark}をイメージした配色を施した体操着は、本校の伝統を象徴するデザインとなっております。`,
+            `機能性を重視した本校の体操着は、体育祭や部活動でも使用され、生徒たちの活動を力強くサポートいたします。`
+          ][Math.floor(Math.random() * 3)],
           image_prompt: 'Full body shot, Japanese school gym uniform, white t-shirt and shorts, school name printed on back, practical design, full length view from head to shoes, disposable camera',
           image_url: 'https://placehold.co/450x700/FFFFFF/000000?text=Gym+Uniform'
         }
       ]
     },
     history: generateHistory(established, schoolName, landmark),
-    notable_alumni: [
-      {
-        name: '山岳冒険家 峰登太郎',
-        year: '昭和45年卒',
-        achievement: 'エベレスト無酸素登頂成功。「あの高校での訓練があったからこそ」と語る'
-      },
-      {
-        name: '防衛大臣 強靭一郎',
-        year: '昭和52年卒',
-        achievement: '現職の防衛大臣。「国防の基礎は母校で学んだ」とインタビューで発言'
-      },
-      {
-        name: 'プロスポーツ選手 耐久三郎',
-        year: '平成8年卒',
-        achievement: 'マラソン日本代表。「あの急坂マラソンに比べれば、42.195kmは楽勝」'
-      }
-    ],
-    teachers: [
-      {
-        name: '田中 誠一',
-        subject: '国語科',
-        description: `本校に35年間勤務し、国語科主任として古典文学を専門に教えております。生徒たちに日本の伝統文化の素晴らしさを伝えることに情熱を注いでおります。`,
-        face_prompt: 'Portrait of Japanese male teacher, 60 years old, gentle expression, wearing suit and tie, indoor classroom, disposable camera style',
-        face_image_url: 'https://placehold.co/600x600/4A5568/FFFFFF?text=Teacher+Tanaka'
-      },
-      {
-        name: '佐藤 美咲',
-        subject: '英語科',
-        description: `英国への留学経験を持ち、実践的な英語教育に力を入れております。生徒たちの国際的な視野を広げることを目標としております。`,
-        face_prompt: 'Portrait of Japanese female teacher, 40 years old, friendly smile, wearing blazer, indoor classroom, disposable camera style',
-        face_image_url: 'https://placehold.co/600x600/4A5568/FFFFFF?text=Teacher+Sato'
-      },
-      {
-        name: '山本 健太郎',
-        subject: '数学科',
-        description: `論理的思考力の育成に情熱を注ぎ、数学の面白さを生徒たちに伝えることに力を入れております。本校OBでもあり、母校愛に溢れる教師です。`,
-        face_prompt: 'Portrait of Japanese male teacher, 45 years old, serious expression, wearing glasses and suit, indoor classroom, disposable camera style',
-        face_image_url: 'https://placehold.co/600x600/4A5568/FFFFFF?text=Teacher+Yamamoto'
-      },
-      {
-        name: '鈴木 由美子',
-        subject: '理科',
-        description: `生物学を専門とし、${landmark}周辺の自然環境を活用した実践的な授業を行っております。地域の生態系について詳しく、環境教育にも力を入れております。`,
-        face_prompt: 'Portrait of Japanese female teacher, 38 years old, energetic expression, wearing lab coat, indoor science lab, disposable camera style',
-        face_image_url: 'https://placehold.co/600x600/4A5568/FFFFFF?text=Teacher+Suzuki'
-      },
-      {
-        name: '高橋 雄二',
-        subject: '体育科',
-        description: `柔道五段の有段者であり、生徒たちに心身を鍛える大切さを説いております。体育祭の総責任者として、毎年情熱的な指導を行っております。`,
-        face_prompt: 'Portrait of Japanese male PE teacher, 50 years old, muscular build, stern expression, wearing training wear, outdoor field, disposable camera style',
-        face_image_url: 'https://placehold.co/600x600/4A5568/FFFFFF?text=Teacher+Takahashi'
-      },
-      {
-        name: '伊藤 恵子',
-        subject: '音楽科',
-        description: `声楽家としての経験を活かし、合唱指導に定評があります。本校の校歌指導も担当し、生徒たちの美しい歌声を引き出しております。`,
-        face_prompt: 'Portrait of Japanese female teacher, 42 years old, elegant expression, wearing formal dress, indoor music room, disposable camera style',
-        face_image_url: 'https://placehold.co/600x600/4A5568/FFFFFF?text=Teacher+Ito'
-      }
-    ],
+    notable_alumni: generateAlumni(location.lat || 35, location.lng || 139, landmark),
+    teachers: generateTeachers(location.lat || 35, location.lng || 139, landmark),
     school_trip: {
       destination: tripDestination,
       description: tripDescription,
@@ -647,75 +809,231 @@ export async function POST(request: NextRequest) {
     const locationContext = buildLocationContext(locationData)
 
     const systemPrompt = `
-あなたは「大喜利理論」に基づいて架空の学校を生成する専門家です。
+あなたは位置情報に基づいて、その地域に完全に連動した架空の学校を生成する専門家です。
 
-## 大喜利の3つの法則
+## 最重要ルール：地域連動性
 
-1. **因果の暴走 (Hyperbole):** 地域の特徴を極端に誇張し、日常を非日常にする
-   - 例: 「坂が多い」→「登校がアルピニストの訓練レベル」
-   - 例: 「工場地帯」→「チャイムの音が工場のサイレン」
+### 1. 人名の地域連動（必須）
+- **日本**: 一般的な日本人名（佐藤、鈴木、田中など）
+- **韓国**: 韓国人名（金、朴、李など）
+- **中国**: 中国人名（王、李、張など）
+- **欧米**: その国の一般的な名前（John Smith、Marie Dubois など）
+- **中東**: アラビア系の名前
+- **東南アジア**: その国の一般的な名前
 
-2. **名物の義務化 (Obligation):** 地域の名物を学校生活に強制的に組み込む
-   - 例: 「うどんが有名」→「蛇口から出汁が出る」「校章が麺の結び目」
-   - 例: 「鹿が出る」→「鹿が生徒会長」
+**校長、教員6名、卒業生3名すべてにその地域らしい名前を付けてください。**
 
-3. **歴史の誤用 (Misinterpretation):** 歴史や伝説を都合よく曲解して学校文化にする
-   - 例: 「忍者ゆかりの地」→「遅刻は変わり身の術で免除」
-   - 例: 「古墳がある」→「校長室が前方後円墳の形」
+### 2. ランドマークの活用（必須）
+- 学校名にニッチな建物名やランドマークを使う
+- 校歌の歌詞に具体的なランドマーク名を複数含める
+- 部活動、行事、施設の説明にランドマークを組み込む
 
-## トーン＆マナー
+### 3. テキストの個別化（必須）
+- 全ての説明文は、その場所の特徴を反映する
+- コピペのような汎用的な文章は絶対に使わない
+- 部活動、行事、施設の説明は各々ユニーク
 
-内容は荒唐無稽ですが、文体は**「伝統ある名門校の公式サイト」のように厳粛で真面目**に書いてください。
-このギャップで笑いを生みます。格式高く、誇らしげに、時に感動的に語ってください。
+## 日本の学校サイト風の文体
+
+- **厳粛で権威的**な文体
+- **非常に丁寧で冗長**（「〜でございます」「〜してまいりました」）
+- **具体的な数字や年代**を含める
+- **地域の固有名詞**を多用する
 
 ## 出力形式
 
-必ず以下のJSON形式で回答してください（他の文章は含めないでください）：
+必ず以下のJSON形式で回答してください：
 
 {
   "school_profile": {
-    "name": "地名を含んだもっともらしい校名",
-    "motto": "地域の特徴を反映した校訓",
-    "overview": "場所の特徴を壮大に語った学校紹介文（200-300字）"
+    "name": "ランドマーク名を含む学校名（例：私立東京タワー学園、学校法人増上寺学院）",
+    "motto": "3つの言葉で構成された校訓（例：誠実・勤勉・創造）※10パターンから選ぶ",
+    "overview": "地域の特徴を反映した詳細な学校紹介文（400-500字、具体的なランドマークや地域の特性を複数含める）",
+    "emblem_prompt": "校章の画像生成プロンプト（英語、ランドマークをモチーフに）"
   },
   "principal_message": {
-    "name": "土地柄を反映した校長名",
+    "name": "地域に適した校長名（日本なら日本人名、海外ならその国の名前）",
     "title": "校長",
-    "text": "地域の特徴を教育理念として語る挨拶文（300-400字）",
-    "face_prompt": "Portrait photo of a Japanese school principal, [特徴を英語で], professional, formal, indoor lighting, 50-60 years old"
+    "text": "校長の挨拶文（300-400字、地域への言及を含める）",
+    "face_prompt": "Portrait photo of a [国籍] school principal, [年齢や特徴], professional, formal, indoor lighting"
   },
   "school_anthem": {
-    "title": "校歌タイトル",
-    "lyrics": "1番の歌詞（七五調、4-6行、必ず具体的な地名・店名・道路名を含める）",
-    "style": "曲調（例：軍歌風、お経風、演歌風）"
+    "title": "校歌のタイトル",
+    "lyrics": "校歌の歌詞（8行程度、具体的なランドマーク名を3つ以上含める、七五調）",
+    "style": "曲調（荘厳な合唱曲風、など）",
+    "suno_prompt": "音楽生成プロンプト（英語）"
   },
+  "news_feed": [
+    {"date": "2026.02.15", "category": "行事", "text": "地域に関連したニュース1（30-50字）"},
+    {"date": "2026.02.10", "category": "進路", "text": "地域に関連したニュース2（30-50字）"},
+    {"date": "2026.02.05", "category": "部活", "text": "地域に関連したニュース3（30-50字）"},
+    {"date": "2026.01.28", "category": "連絡", "text": "地域に関連したニュース4（30-50字）"},
+    {"date": "2026.01.20", "category": "行事", "text": "地域に関連したニュース5（30-50字）"}
+  ],
   "crazy_rules": [
-    "校則1（地域の特徴を反映した理不尽なルール）",
-    "校則2",
-    "校則3"
+    "地域の特徴を反映した生徒心得1（真面目な文体で）",
+    "生徒心得2（地域の名物や特性を義務化）",
+    "生徒心得3（地域の歴史や伝説を曲解）",
+    "生徒心得4",
+    "生徒心得5"
   ],
   "multimedia_content": {
-    "club_activity": {
-      "name": "奇妙な部活動名",
-      "description": "活動内容（100-150字）",
-      "sound_prompt": "環境音プロンプト（英語、例: Strong wind noise with students shouting, heavy breathing, outdoor environment, lo-fi recording）"
+    "club_activities": [
+      {
+        "name": "部活動名1（地域の特徴を反映）",
+        "description": "活動内容（200-300字、地域のランドマークや特性を具体的に含める、非常に丁寧で冗長な文体）",
+        "sound_prompt": "環境音プロンプト（英語）",
+        "image_prompt": "画像プロンプト（英語、disposable camera style含む）"
+      },
+      {
+        "name": "部活動名2",
+        "description": "活動内容（200-300字、部活動1とは全く異なる内容、地域連動）",
+        "sound_prompt": "環境音プロンプト（英語）",
+        "image_prompt": "画像プロンプト（英語）"
+      },
+      {
+        "name": "部活動名3",
+        "description": "活動内容（200-300字、地域の伝統や文化を反映）",
+        "sound_prompt": "環境音プロンプト（英語）",
+        "image_prompt": "画像プロンプト（英語）"
+      }
+    ],
+    "school_events": [
+      {
+        "name": "行事名1（地域の特徴を反映）",
+        "date": "4月7日",
+        "description": "行事内容（300-400字、地域の特性を詳細に織り込む、非常に丁寧な文体）",
+        "image_prompt": "画像プロンプト（英語）"
+      },
+      {
+        "name": "行事名2",
+        "date": "5月中旬",
+        "description": "行事内容（200-300字、ランドマークや地域の名物を具体的に含める）",
+        "image_prompt": "画像プロンプト（英語）"
+      },
+      {
+        "name": "行事名3",
+        "date": "9月中旬",
+        "description": "行事内容（300-400字、地域の歴史や文化を反映）",
+        "image_prompt": "画像プロンプト（英語）"
+      },
+      {
+        "name": "修学旅行",
+        "date": "10月下旬",
+        "description": "修学旅行の説明（200字、その学校の場所から遠い地域を選ぶ）",
+        "image_prompt": "画像プロンプト（英語）"
+      },
+      {
+        "name": "行事名4",
+        "date": "12月上旬",
+        "description": "行事内容（200字）",
+        "image_prompt": "画像プロンプト（英語）"
+      },
+      {
+        "name": "行事名5",
+        "date": "3月中旬",
+        "description": "行事内容（200字）",
+        "image_prompt": "画像プロンプト（英語）"
+      }
+    ],
+    "facilities": [
+      {
+        "name": "施設名1（地域の特徴を反映した特殊な施設）",
+        "description": "施設の説明（150-200字、地域のランドマークとの関連を含める）",
+        "image_prompt": "画像プロンプト（英語）"
+      },
+      {
+        "name": "施設名2",
+        "description": "施設の説明（150-200字、地域の特性を反映）",
+        "image_prompt": "画像プロンプト（英語）"
+      },
+      {
+        "name": "施設名3",
+        "description": "施設の説明（150-200字）",
+        "image_prompt": "画像プロンプト（英語）"
+      }
+    ],
+    "monuments": [
+      {
+        "name": "記念碑1（創立者の銅像など、地域らしい名前）",
+        "description": "記念碑の説明（150字、創立者の名前と理念を含める）",
+        "image_prompt": "画像プロンプト（英語）"
+      },
+      {
+        "name": "記念碑2（校訓石碑など）",
+        "description": "記念碑の説明（150字）",
+        "image_prompt": "画像プロンプト（英語）"
+      }
+    ],
+    "uniforms": [
+      {
+        "type": "制服（冬服）",
+        "description": "制服の説明（100-150字、地域の特産品や伝統を反映）",
+        "image_prompt": "Full body shot, uniform design based on [地域の特徴], male and female students, disposable camera"
+      },
+      {
+        "type": "体操着",
+        "description": "体操着の説明（100字）",
+        "image_prompt": "Full body shot, gym uniform, disposable camera"
+      }
+    ]
+  },
+  "teachers": [
+    {
+      "name": "教員名1（地域に適した名前）",
+      "subject": "担当科目（国語科、数学科など）",
+      "description": "教員の紹介（80-100字、地域や学校の特色を反映した専門性）",
+      "face_prompt": "Portrait of [国籍] teacher, [年齢], [特徴], disposable camera style"
     },
-    "school_event": {
-      "name": "名物行事名",
-      "description": "行事内容（100-150字）",
-      "image_prompt": "画像生成プロンプト（英語、例: A candid photo of Japanese high school students [活動内容], disposable camera style, nostalgic, slightly grainy）"
-    }
+    // ... 6名分
+  ],
+  "notable_alumni": [
+    {
+      "name": "卒業生名1（地域に適した名前、職業を含む）",
+      "year": "卒業年（昭和○○年卒、など）",
+      "achievement": "業績（地域との関連を含める、50-80字）"
+    },
+    // ... 3名分
+  ],
+  "school_trip": {
+    "destination": "修学旅行先（その学校の場所から遠い地域）",
+    "description": "修学旅行の説明（150-200字）",
+    "activities": ["活動1", "活動2", "活動3", "活動4"]
   }
 }
 `
 
     const userPrompt = `
-以下の位置情報に基づいて、その土地ならではの架空の学校を生成してください。
+以下の位置情報に基づいて、その土地に完全に連動した架空の学校を生成してください。
 
 ${locationContext}
 
-大喜利の3つの法則を駆使して、地域の特徴を極端にデフォルメした学校を作成してください。
-ただし、文体は格式高く真面目に保ってください。
+## 重要指示
+
+1. **人名は必ず地域に合わせる**
+   - 校長、教員6名、卒業生3名全ての名前を地域に適した名前にする
+   - 日本なら日本人名、海外ならその国の一般的な名前
+   
+2. **ランドマークを最大限活用**
+   - 学校名にニッチな建物名やランドマークを使う
+   - 校歌に具体的なランドマーク名を3つ以上含める
+   - 部活動、行事、施設の説明に地域の固有名詞を織り込む
+
+3. **全てのテキストを個別化**
+   - 部活動3つは全く異なる内容（地域の特性を反映）
+   - 行事6つも各々ユニーク（地域のランドマークや文化を含める）
+   - 施設3つも地域らしさを出す
+   
+4. **文体は権威的で冗長**
+   - 伝統ある名門校の公式サイト風
+   - 非常に丁寧で長文（「〜でございます」「〜してまいりました」）
+   - 具体的な数字や年代を含める
+
+5. **創立年と歴史**
+   - 創立年は明治〜昭和初期からランダムに選ぶ
+   - 歴史は時代ごとに地域の特徴を反映したイベントを生成
+
+生成される学校は、格式高く真面目な文体ながらも、地域の特徴が極端に反映された独特な内容になるようにしてください。
 `
 
     const message = await anthropic.messages.create({
