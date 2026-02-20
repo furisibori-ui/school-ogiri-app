@@ -70,7 +70,7 @@ export default function Home() {
           <div style={{ maxWidth: '900px', textAlign: 'center', padding: '2rem' }}>
             {/* メインタイトル画像 */}
             <img 
-              src="/title-logo.png"
+              src="/logo/title-logo.png"
               alt="架空小学校 生成システム"
               style={{
                 width: '100%',
