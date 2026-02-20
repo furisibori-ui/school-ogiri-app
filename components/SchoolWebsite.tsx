@@ -154,21 +154,22 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                   src={data.principal_message.face_image_url}
                   alt={data.principal_message.name}
                   style={{ 
-                    width: '16rem', 
-                    height: '16rem', 
+                    width: '32rem',  // 16rem → 32rem（2倍）
+                    height: '32rem', // 16rem → 32rem（2倍）
                     objectFit: 'cover', 
-                    border: `5px solid ${styleConfig.colorTheme.accentColor}`,
-                    boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
-                    marginBottom: '1rem'
+                    border: `8px solid ${styleConfig.colorTheme.accentColor}`, // 5px → 8px
+                    boxShadow: '0 12px 32px rgba(0,0,0,0.5)', // より強い影
+                    marginBottom: '1.5rem'
                   }}
                 />
                 <div style={{
                   backgroundColor: styleConfig.colorTheme.accentColor,
                   color: 'white',
-                  padding: '0.5rem',
+                  padding: '1rem', // 0.5rem → 1rem
                   fontWeight: 'bold',
-                  fontSize: '1.25rem',
-                  border: '3px solid gold'
+                  fontSize: '2rem', // 1.25rem → 2rem
+                  border: '5px solid gold', // 3px → 5px
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
                 }}>
                   {data.principal_message.name} {data.principal_message.title}
                 </div>
@@ -644,7 +645,15 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                   <img
                     src={event.image_url}
                     alt={event.name}
-                    style={{ width: '100%', height: '12rem', objectFit: 'cover', border: `1px solid ${styleConfig.colorTheme.borderColor}`, marginBottom: '0.75rem' }}
+                    style={{ 
+                      width: '100%', 
+                      height: 'auto', 
+                      aspectRatio: '16/9', 
+                      objectFit: 'cover', 
+                      border: `3px solid ${styleConfig.colorTheme.accentColor}`, 
+                      marginBottom: '0', 
+                      display: 'block'
+                    }}
                   />
                 )}
                 <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>{event.date}</p>
@@ -687,7 +696,15 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                   <img
                     src={club.image_url}
                     alt={club.name}
-                    style={{ width: '100%', height: '12rem', objectFit: 'cover', border: `1px solid ${styleConfig.colorTheme.borderColor}`, marginBottom: '0.75rem' }}
+                    style={{ 
+                      width: '100%', 
+                      height: 'auto', 
+                      aspectRatio: '16/9', 
+                      objectFit: 'cover', 
+                      border: `3px solid ${styleConfig.colorTheme.accentColor}`, 
+                      marginBottom: '0', 
+                      display: 'block'
+                    }}
                   />
                 )}
                 <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.2rem' }}>{club.name}</h3>
@@ -729,7 +746,15 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                   <img
                     src={facility.image_url}
                     alt={facility.name}
-                    style={{ width: '100%', height: '12rem', objectFit: 'cover', border: `1px solid ${styleConfig.colorTheme.borderColor}`, marginBottom: '0.75rem' }}
+                    style={{ 
+                      width: '100%', 
+                      height: 'auto', 
+                      aspectRatio: '4/3', 
+                      objectFit: 'cover', 
+                      border: `3px solid ${styleConfig.colorTheme.accentColor}`, 
+                      marginBottom: '0', 
+                      display: 'block'
+                    }}
                   />
                 )}
                 <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>{facility.name}</h3>
@@ -771,7 +796,15 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                   <img
                     src={monument.image_url}
                     alt={monument.name}
-                    style={{ width: '100%', height: '16rem', objectFit: 'cover', border: `1px solid ${styleConfig.colorTheme.borderColor}`, marginBottom: '0.75rem' }}
+                    style={{ 
+                      width: '100%', 
+                      height: 'auto', 
+                      aspectRatio: '2/3', 
+                      objectFit: 'cover', 
+                      border: `3px solid ${styleConfig.colorTheme.accentColor}`, 
+                      marginBottom: '0', 
+                      display: 'block'
+                    }}
                   />
                 )}
                 <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>{monument.name}</h3>
@@ -882,7 +915,15 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
             <img
               src="https://placehold.co/800x300/8B7355/FFFFFF?text=Historical+Photo"
               alt="学校の歴史"
-              style={{ width: '100%', height: '12rem', objectFit: 'cover', border: `1px solid ${styleConfig.colorTheme.borderColor}`, marginBottom: '0.75rem' }}
+              style={{ 
+                width: '100%', 
+                height: 'auto', 
+                aspectRatio: '16/6', 
+                objectFit: 'cover', 
+                border: `3px solid ${styleConfig.colorTheme.accentColor}`, 
+                marginBottom: '0', 
+                display: 'block'
+              }}
             />
           </div>
           <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

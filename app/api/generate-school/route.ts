@@ -928,14 +928,29 @@ export async function POST(request: NextRequest) {
    - 四季の変化の特徴
    - 自然災害のリスク
 
-### ステップ2：校訓の設計（地域の本質から四字熟語で導出）
-**ランダム選択は厳禁！** 以下の手順で校訓を考案してください：
+### ステップ2：校訓の設計（地域の本質から完全に導出）
+**⚠️ 絶対にテンプレートやランダム選択をしないこと！**
 
-**校訓は「四字熟語」を使用すること（日本の学校の伝統）**
+**以下の手順で校訓を考案**：
 
-1. 地域の地形・産業・歴史を深く分析
-2. 学校種別（小中高）に応じた発達段階の語彙を選択
-3. 地域の特徴を反映した四字熟語を3つ選定
+1. **周辺施設のカテゴリ統計を分析**
+   - レストランが多い → 「おもてなし」「協調」
+   - 神社仏閣が多い → 「伝統」「敬虔」
+   - コンビニが多い → 「創意工夫」「効率」
+   - 公園が多い → 「自然」「調和」
+
+2. **レビューの内容から地域の雰囲気を読み取る**
+   - ポジティブなレビューが多い → 「明るく」「温かく」
+   - 歴史的な記述が多い → 「温故知新」
+   - 便利さへの言及が多い → 「実用」「進取」
+
+3. **学校の業種から推察**
+   - コンビニ系 → 「創意工夫・迅速実行・顧客第一」
+   - 神社系 → 「誠実敬虔・伝統継承・和の精神」
+   - 公園系 → 「自然愛護・心身健康・協調和合」
+   - 飲食店系 → 「創意工夫・温故知新・おもてなし」
+
+**形式は自由**（四字熟語、ひらがな、短文など）
 
 **推奨される四字熟語（地域特性別）**：
 
@@ -1059,8 +1074,8 @@ export async function POST(request: NextRequest) {
 2. **行事**: 地域の祭りや歴史と連動
 3. **施設**: 地域の特性を反映した特殊施設
 
-### ステップ6：超ニッチ情報の詰め込み
-**地元民しか知らない情報を最大限盛り込んでください**：
+### ステップ6：超ニッチ情報の詰め込み（最重要！）
+**⚠️ 地元民しか知らない固有名詞を最大限盛り込むこと**：
 
 - 通学路の名物の坂や橋の名前
 - 地元の商店街や老舗店の名前
@@ -1069,6 +1084,27 @@ export async function POST(request: NextRequest) {
 - 地元の有名人や伝説
 - 季節ごとの地域イベント
 - 地形による学校行事への影響（例：坂道マラソン、海辺での遠足）
+
+### ステップ7：行事・イベントは地域の固有名詞で完全に作り込む
+**⚠️ テンプレート厳禁！実在する場所の固有名詞を使うこと**
+
+- 入学式 → 「〇〇駅から徒歩で登校」「〇〇公園の桜を見ながら」
+- 遠足 → 「〇〇神社」「〇〇スーパーで昼食購入」
+- 体育祭 → 「〇〇商店街の方々が応援」
+- 文化祭 → 「〇〇カフェと連携した模擬店」
+- 修学旅行 → **学校の業種に応じた目的地**
+  - コンビニ系 → 「物流センター見学」
+  - 神社系 → 「伝統工芸体験」
+  - 飲食店系 → 「料理学校見学」
+
+### ステップ8：修学旅行先を学校の特性に完全連動
+**⚠️ 一般的な「京都・奈良」は禁止！学校の業種から推察すること**
+
+例：
+- **セブンイレブン〇〇店学院** → 埼玉県の物流センター見学、工場見学
+- **〇〇神社学園** → 京都の伝統工芸工房、神社建築の見学
+- **〇〇公園小学校** → 国立公園、環境教育施設
+- **〇〇ラーメン店学院** → 横浜ラーメン博物館、食品工場
 
 ## 📝 出力形式
 
@@ -1133,60 +1169,60 @@ export async function POST(request: NextRequest) {
   "multimedia_content": {
     "club_activities": [
       {
-        "name": "地形や産業を反映した部活動名1",
-        "description": "地域の具体的な場所や施設を使った活動内容（300-400字、固有名詞5つ以上、地元民が共感する内容）",
+        "name": "⚠️ 学校の業種に関連した部活動名（例：セブンイレブン学院なら「物流研究部」）",
+        "description": "⚠️ **超重要：収集した固有名詞（店名、施設名）を5個以上使うこと**\n\n**必須要素**：\n- 練習場所の具体的な固有名詞（「〇〇公園で」「〇〇体育館で」）\n- 地域の施設との連携（「〇〇カフェで合宿」「〇〇神社で奉納演奏」）\n- 地域の方々の具体的な名前や店名（「〇〇商店の〇〇さんにご指導いただき」）\n- 部活動ならではの細かい描写\n- 学校の業種との関連（コンビニ系なら「効率的な在庫管理」など）\n\n300-400字、固有名詞5つ以上必須",
         "sound_prompt": "環境音プロンプト（英語）",
-        "image_prompt": "**部活動の「生っぽい」写真プロンプト（英語、150字以上）**\n\nWide horizontal photo (16:9), medium shot pulled back showing environment, multiple students in close proximity working together on [部活動名] activity, natural eye contact between students NOT looking at camera, focused on their task and conversation, [活動場所] background clearly visible, authentic unpolished school blog atmosphere, candid moment, disposable camera aesthetic"
+        "image_prompt": "Wide horizontal photo (16:9), medium shot, multiple students close together working on activity, natural eye contact between students NOT camera facing, focused on task, location background visible, authentic school blog atmosphere, candid, disposable camera"
       },
       {
-        "name": "地域文化を反映した部活動名2",
-        "description": "地域の伝統や特産品と連動した活動内容（300-400字、固有名詞5つ以上、非常に丁寧な文体）",
+        "name": "学校の業種に関連した部活動名2",
+        "description": "⚠️ 固有名詞5つ以上必須、300-400字",
         "sound_prompt": "環境音プロンプト（英語）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students close together, natural interaction, disposable camera"
       },
       {
-        "name": "地域の歴史を反映した部活動名3",
-        "description": "地域の歴史的背景を活かした活動内容（300-400字、固有名詞5つ以上）",
+        "name": "学校の業種に関連した部活動名3",
+        "description": "⚠️ 固有名詞5つ以上必須、300-400字",
         "sound_prompt": "環境音プロンプト（英語）",
-        "image_prompt": "Wide horizontal candid photo, medium shot, students close together, natural interaction NOT camera-facing, school environment visible, authentic blog atmosphere, disposable camera style"
+        "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students close together, natural interaction, disposable camera"
       }
     ],
     "school_events": [
       {
-        "name": "地域の祭りや歴史と連動した行事名",
+        "name": "⚠️ 収集した固有名詞を使った行事名（例：〇〇公園遠足、〇〇商店街清掃活動）",
         "date": "4月7日",
-        "description": "地域の固有名詞を多数含む詳細な説明（300-500字、地元民が「あるある」と共感する内容）",
-        "image_prompt": "**学校行事の「生っぽい」写真プロンプト（英語、200字以上）**\n\n**必須要素**：\n1. **アスペクト比**：Wide horizontal format (16:9 or 4:3)\n2. **画角**：Medium shot from slightly pulled back angle, showing surrounding environment\n3. **被写体配置**：Multiple students standing close together, creating sense of unity and energy\n4. **視線**：Natural eye contact, NOT looking at camera, focused on activity or conversation with each other\n5. **背景**：School environment visible (classroom, gymnasium, schoolyard, etc.)\n6. **雰囲気**：Authentic, unpolished, candid moment captured for school blog, NOT commercial advertising\n7. **活動内容**：[具体的な行事名]に関連する作業や会話の瞬間\n\n例：Wide horizontal photo of multiple Japanese high school students preparing for sports festival, medium shot with some environmental space, students standing close together in small groups, natural eye contact between students NOT looking at camera, focused on task and conversation, classroom or gymnasium background visible, authentic unpolished atmosphere like school blog post, candid moment, disposable camera aesthetic"
+        "description": "⚠️ **超重要：収集した固有名詞（店名、施設名、道路名）を5個以上使うこと**\n\n**必須要素**：\n- 行事の準備段階（「〇〇スーパーで材料を調達」など）\n- 当日の具体的な場所（「〇〇公園の特設ステージで」など）\n- 地域の方々との交流（「〇〇商店街の〇〇さんにご協力いただき」など）\n- 生徒たちの具体的な行動（「〇〇駅から徒歩で向かい」など）\n- 地元民なら「あるある！」と思う細かい描写\n\n**悪い例**：「公園で遠足を行いました。」\n**良い例**：「〇〇駅から徒歩15分、〇〇商店街を抜けて〇〇公園に到着いたしました。〇〇パン屋さんで購入したお弁当を、〇〇神社を望む広場で食べ、午後は〇〇図書館で地域の歴史について学びました。帰りには〇〇コンビニで飲み物を購入し、〇〇坂を下って学校へ戻りました。」\n\n300-500字、地元民が「めっちゃ地元！」と感動する内容",
+        "image_prompt": "Wide horizontal photo, 16:9, medium shot, multiple Japanese students, close together, natural eye contact between students NOT camera facing, focused on activity, school environment visible, candid moment, disposable camera aesthetic"
       },
       {
-        "name": "地形を活かした行事名",
+        "name": "収集した固有名詞を使った行事名2",
         "date": "5月中旬",
-        "description": "地域の地形や気候を反映した行事内容（300-400字、具体的な場所名を含む）",
-        "image_prompt": "Wide horizontal candid photo, medium shot, students close together outdoors, natural interaction NOT camera-facing, geographic features visible, authentic blog photo, disposable camera style"
+        "description": "⚠️ 固有名詞5個以上必須、300-400字",
+        "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students close together outdoors, natural interaction, disposable camera"
       },
       {
-        "name": "地域文化と連動した行事名",
+        "name": "収集した固有名詞を使った行事名3",
         "date": "9月中旬",
-        "description": "地域の伝統や文化を深く反映した行事内容（300-500字、固有名詞10個以上）",
-        "image_prompt": "Wide horizontal candid photo, medium shot, students and community close together, natural interaction NOT camera-facing, traditional event atmosphere, authentic blog photo, disposable camera style"
+        "description": "⚠️ 固有名詞10個以上必須、400-500字",
+        "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students and community, natural interaction, disposable camera"
       },
       {
         "name": "修学旅行",
         "date": "10月下旬",
-        "description": "地元との対比を含む修学旅行の説明（200-300字、その場所から地理的に遠い地域）",
-        "image_prompt": "Wide horizontal candid photo, medium shot, students grouped together at famous landmark, natural conversation NOT posing for camera, tourist destination visible, authentic school trip photo, disposable camera style"
+        "description": "⚠️ **学校の業種に応じた目的地を設定すること**\n\n**例**：\n- コンビニ系 → 「埼玉県の大型物流センター見学、商品開発研究所訪問」\n- 神社系 → 「京都の伝統工芸工房、神社建築の見学」\n- 飲食店系 → 「横浜の食品工場、調理師専門学校見学」\n- 公園系 → 「国立公園、環境教育施設、植物園」\n- 病院系 → 「大学病院見学、医療系大学訪問」\n\n業種と完全に連動した内容にすること。300-400字",
+        "image_prompt": "Wide horizontal candid photo, 16:9, students grouped together at industry-related location, natural conversation, authentic school trip photo, disposable camera"
       },
       {
-        "name": "地域の気候を反映した行事名",
+        "name": "収集した固有名詞を使った行事名4",
         "date": "12月上旬",
-        "description": "地域の冬の特徴を活かした行事内容（200-300字）",
-        "image_prompt": "Wide horizontal candid photo, medium shot, students close together in winter setting, natural interaction NOT camera-facing, school winter environment visible, authentic blog photo, disposable camera style"
+        "description": "⚠️ 固有名詞5個以上必須、200-300字",
+        "image_prompt": "Wide horizontal candid photo, 16:9, winter setting, natural interaction, disposable camera"
       },
       {
-        "name": "地域の歴史を記念する行事名",
+        "name": "収集した固有名詞を使った行事名5",
         "date": "3月中旬",
-        "description": "地域の歴史的背景を含む行事内容（200-300字）",
-        "image_prompt": "Wide horizontal formal photo, medium shot, students in ceremony attire close together, some natural glances NOT all camera-facing, ceremony venue visible, authentic school event photo, disposable camera style"
+        "description": "⚠️ 固有名詞5個以上必須、200-300字",
+        "image_prompt": "Wide horizontal formal photo, 16:9, ceremony attire, some natural glances, disposable camera"
       }
     ],
     "facilities": [
@@ -1249,9 +1285,14 @@ export async function POST(request: NextRequest) {
     // ... 3名
   ],
   "school_trip": {
-    "destination": "その場所から地理的に遠い地域",
-    "description": "地元との対比を含む説明（200-250字）",
-    "activities": ["活動1", "活動2", "活動3", "活動4"]
+    "destination": "⚠️ **学校の業種に完全連動した目的地**\n\n例：\n- セブンイレブン〇〇店学院 → 「埼玉県の物流センター・商品開発研究所」\n- 〇〇神社学園 → 「京都の伝統工芸工房・神社建築研究所」\n- 〇〇ラーメン店学院 → 「横浜ラーメン博物館・食品工場」\n- 〇〇公園小学校 → 「富士山麓の国立公園・環境教育施設」\n- 〇〇病院附属学校 → 「大学病院・医療系大学キャンパス」\n\n一般的な「京都・奈良」は禁止！",
+    "description": "⚠️ **学校の業種との関連性を明確に書くこと**\n\n例文：\n「本校は〇〇コンビニを母体とする学院であり、修学旅行では埼玉県にある大型物流センターを訪問し、24時間365日稼働する最新の自動倉庫システムや、全国への配送ネットワークの仕組みを学びます。また、商品開発研究所では、新商品が生まれる過程を見学し、マーケティングの重要性について理解を深めます。」\n\n300-400字、業種との関連性を具体的に",
+    "activities": [
+      "業種に関連した活動1（具体的に）",
+      "業種に関連した活動2（具体的に）",
+      "業種に関連した活動3（具体的に）",
+      "業種に関連した活動4（具体的に）"
+    ]
   }
 }
 `
@@ -1262,9 +1303,40 @@ export async function POST(request: NextRequest) {
 ${locationContext}
 
 ## ⏰ 重要：時間は十分にかけてください
-- 生成に3分以上かかっても構いません
+- 生成に5分以上かかっても構いません
 - 徹底的に上記の情報を分析し、具体的な固有名詞を最大限活用してください
 - 汎用的な表現は一切使わず、この場所ならではの超具体的な内容にしてください
+
+## 🚨 最重要：実在する学校として徹底的に作り込むこと
+
+**⚠️ これはダミーテキストではありません。本物の学校サイトを作成しています。**
+
+### 絶対に守ること：
+
+1. **テンプレートは一切使わない**
+   - 「〇〇で活動しています」のような汎用文は禁止
+   - 全ての文章に固有名詞を5個以上含める
+
+2. **行事の説明は超具体的に**
+   - 準備段階：「〇〇スーパーで材料を調達」
+   - 当日：「〇〇公園の〇〇広場に集合」
+   - 移動：「〇〇駅から〇〇バスに乗車」
+   - 終了：「〇〇商店街を通って帰校」
+
+3. **校訓は収集データから推察**
+   - レストランが多い → 「おもてなし」関連
+   - 神社が多い → 「伝統」「敬虔」関連
+   - コンビニが多い → 「効率」「創意工夫」関連
+
+4. **修学旅行は学校の業種に完全連動**
+   - コンビニ系 → 物流センター見学
+   - 神社系 → 伝統工芸体験
+   - 飲食店系 → 食品工場見学
+   - 一般的な「京都・奈良」は禁止！
+
+5. **全ての文章が「実在する学校」として成立すること**
+   - 読者が「この学校に通いたい」と思える具体性
+   - 地元民が「めっちゃ地元！」と感動する固有名詞の多用
 
 ## 🎯 最重要指示：徹底的な地域リサーチ
 

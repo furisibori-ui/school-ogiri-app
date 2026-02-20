@@ -68,19 +68,36 @@ export default function Home() {
           background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
         }}>
           <div style={{ maxWidth: '900px', textAlign: 'center', padding: '2rem' }}>
-            {/* メインタイトル */}
-            <h1 style={{
-              fontFamily: 'var(--font-yuji-mai), "HGS行書体", "AR行書体M", cursive',
-              fontSize: '5rem',
-              fontWeight: 'bold',
-              color: '#d4af37',
-              marginBottom: '2rem',
-              textShadow: '0 4px 8px rgba(0,0,0,0.8), 0 0 30px rgba(212,175,55,0.3)',
-              letterSpacing: '0.15em',
-              lineHeight: '1.3'
-            }}>
-              架空学校生成システム
-            </h1>
+            {/* メインタイトル画像 */}
+            <img 
+              src="/title-logo.png"
+              alt="架空小学校 生成システム"
+              style={{
+                width: '100%',
+                maxWidth: '1000px',
+                height: 'auto',
+                margin: '0 auto 2rem',
+                display: 'block',
+                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.8))'
+              }}
+              onError={(e) => {
+                // 画像読み込み失敗時はテキストで表示
+                e.currentTarget.style.display = 'none'
+                const fallbackTitle = document.createElement('h1')
+                fallbackTitle.textContent = '架空小学校 生成システム'
+                fallbackTitle.style.cssText = `
+                  font-family: var(--font-yuji-mai), "HGS行書体", "AR行書体M", cursive;
+                  font-size: 5rem;
+                  font-weight: bold;
+                  color: #d4af37;
+                  margin-bottom: 2rem;
+                  text-shadow: 0 4px 8px rgba(0,0,0,0.8), 0 0 30px rgba(212,175,55,0.3);
+                  letter-spacing: 0.15em;
+                  line-height: 1.3;
+                `
+                e.currentTarget.parentElement?.insertBefore(fallbackTitle, e.currentTarget)
+              }}
+            />
 
             {/* サブタイトル */}
             <div style={{

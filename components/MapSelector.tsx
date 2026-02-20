@@ -160,7 +160,7 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       ]
       
       const allPlaces: any[] = []
-      const radius = 300 // 300m圏内で集中検索
+      const radius = 500 // 500m圏内に拡大（より多くの情報収集）
       
       console.log(`📡 ${searchCategories.length}種類のカテゴリで並行検索開始（${radius}m圏内）...`)
       
@@ -352,10 +352,10 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     research += `町名・番地: ${addressParts.slice(2).join(' ')}\n\n`
     
     // セクション3: 周辺施設の詳細分析（Place Details API）
-    // コストとのバランスを考慮して、最も近い5件のみ詳細取得
-    research += `# 🏛️ 周辺施設の詳細情報（最も近い5件）\n\n`
+    // より深い情報収集のため20件に拡大
+    research += `# 🏛️ 周辺施設の詳細情報（最も近い20件）\n\n`
     
-    const detailPromises = places.slice(0, 5).map((place, index) => {
+    const detailPromises = places.slice(0, 20).map((place, index) => {
       return new Promise<string>((resolve) => {
         placesService.getDetails(
           { placeId: place.place_id, language: 'ja' },
@@ -405,16 +405,18 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       })
     })
     
-    console.log('⏳ Place Details API で詳細情報を取得中（5件、コスト最適化）...')
+    console.log('⏳ Place Details API で詳細情報を取得中（20件、情報量最大化）...')
     const placeDetailsResults = await Promise.all(detailPromises)
     research += placeDetailsResults.join('')
     
-    // 残りの施設は基本情報のみ（コスト削減）
-    research += `\n# 📋 その他の周辺施設（基本情報のみ、${Math.min(places.length - 5, 25)}件）\n\n`
-    places.slice(5, 30).forEach((place, index) => {
-      research += `${index + 6}. ${place.name}（${place.types?.slice(0, 2).join(', ') || '施設'}）\n`
-    })
-    research += `\n`
+    // 残りの施設は基本情報のみ
+    if (places.length > 20) {
+      research += `\n# 📋 その他の周辺施設（基本情報のみ、${Math.min(places.length - 20, 30)}件）\n\n`
+      places.slice(20, 50).forEach((place, index) => {
+        research += `${index + 21}. ${place.name}（${place.types?.slice(0, 2).join(', ') || '施設'}）\n`
+      })
+      research += `\n`
+    }
     
     // セクション4: カテゴリ別統計
     research += `\n# 📊 カテゴリ別施設統計\n`
@@ -460,9 +462,9 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     
     // セクション6: 距離と密度の分析
     research += `# 📏 空間分析\n`
-    research += `検索範囲: 300m圏内\n`
+    research += `検索範囲: 500m圏内\n`
     research += `発見された施設数: ${places.length}件\n`
-    research += `施設密度: ${(places.length / 0.283).toFixed(1)}件/km²\n`
+    research += `施設密度: ${(places.length / 0.785).toFixed(1)}件/km²\n`
     
     if (places.length > 50) {
       research += `評価: 非常に高密度な都市部\n`
