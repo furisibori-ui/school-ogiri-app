@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import MapSelector from '@/components/MapSelector'
 import LoadingScreen from '@/components/LoadingScreen'
 import SchoolWebsite from '@/components/SchoolWebsite'
@@ -11,6 +11,24 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [schoolData, setSchoolData] = useState<SchoolData | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const landingBgmRef = useRef<HTMLAudioElement | null>(null)
+
+  // ランディングページのBGM制御
+  useEffect(() => {
+    if (stage === 'landing') {
+      // ランディングページに入ったらBGM再生
+      if (landingBgmRef.current) {
+        landingBgmRef.current.volume = 0.3
+        landingBgmRef.current.play().catch(err => console.log('BGM自動再生失敗:', err))
+      }
+    } else {
+      // 他のページに移動したらBGM停止
+      if (landingBgmRef.current) {
+        landingBgmRef.current.pause()
+        landingBgmRef.current.currentTime = 0
+      }
+    }
+  }, [stage])
 
   const handleLocationSelect = async (location: LocationData) => {
     setIsGenerating(true)
@@ -62,12 +80,33 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
+      {/* ランディングページBGM */}
+      <audio ref={landingBgmRef} loop>
+        <source src="/bgm/landing-bgm.mp3" type="audio/mpeg" />
+      </audio>
+
       {/* ステージ1: ランディングページ */}
       {stage === 'landing' && (
         <div className="h-screen flex items-center justify-center" style={{
-          background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
+          backgroundImage: 'url(/backgrounds/landing-bg.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          position: 'relative'
         }}>
-          <div style={{ maxWidth: '900px', textAlign: 'center', padding: '2rem' }}>
+          {/* 暗いオーバーレイ（背景画像を暗くしてテキストを読みやすく） */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(180deg, rgba(26,26,46,0.85) 0%, rgba(22,33,62,0.9) 50%, rgba(15,52,96,0.95) 100%)',
+            zIndex: 1
+          }} />
+          
+          {/* コンテンツ */}
+          <div style={{ position: 'relative', zIndex: 2, maxWidth: '900px', textAlign: 'center', padding: '2rem' }}>
             {/* メインタイトル画像 */}
             <img 
               src="/logo/title-logo.png"
