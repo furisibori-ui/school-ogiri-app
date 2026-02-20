@@ -130,39 +130,32 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       // 🔥🔥🔥 20種類以上のカテゴリで徹底検索 🔥🔥🔥
       console.log('🔍🔍🔍 徹底的な地域情報収集を開始します...')
       
-      // 検索カテゴリ（25種類）
+      // 🚀 検索カテゴリを大幅拡張（50種類以上）
       const searchCategories = [
-        'restaurant',         // レストラン
-        'cafe',              // カフェ
-        'convenience_store', // コンビニ
-        'school',            // 学校
-        'park',              // 公園
-        'shrine',            // 神社
-        'temple',            // 寺
-        'hospital',          // 病院
-        'bank',              // 銀行
-        'post_office',       // 郵便局
-        'train_station',     // 駅
-        'bus_station',       // バス停
-        'shopping_mall',     // 商店街
-        'book_store',        // 書店
-        'supermarket',       // スーパー
-        'pharmacy',          // 薬局
-        'library',           // 図書館
-        'museum',            // 博物館
-        'city_hall',         // 公民館
-        'tourist_attraction',// 観光地
-        'store',             // 店舗
-        'establishment',     // 施設
-        'bakery',            // パン屋
-        'gas_station',       // ガソリンスタンド
-        'university'         // 大学
+        'restaurant', 'cafe', 'convenience_store', 'school', 'park', 'shrine', 'temple', 
+        'hospital', 'bank', 'post_office', 'train_station', 'bus_station', 'shopping_mall',
+        'book_store', 'supermarket', 'pharmacy', 'library', 'museum', 'city_hall', 
+        'tourist_attraction', 'store', 'establishment', 'bakery', 'gas_station', 'university',
+        // 🔥 追加カテゴリ（25種類）
+        'church', 'cemetery', 'parking', 'atm', 'police', 'fire_station',
+        'gym', 'stadium', 'movie_theater', 'bowling_alley', 'spa', 'hair_care',
+        'beauty_salon', 'clothing_store', 'electronics_store', 'furniture_store',
+        'hardware_store', 'jewelry_store', 'shoe_store', 'florist', 'pet_store',
+        'car_repair', 'car_wash', 'real_estate_agency', 'insurance_agency',
+        // 🔥 さらに追加（25種類）
+        'laundry', 'dentist', 'veterinary_care', 'lodging', 'bar', 'night_club',
+        'liquor_store', 'meal_takeaway', 'meal_delivery', 'moving_company',
+        'painter', 'plumber', 'roofing_contractor', 'locksmith', 'electrician',
+        'travel_agency', 'accounting', 'lawyer', 'primary_school', 'secondary_school',
+        'bicycle_store', 'art_gallery', 'aquarium', 'zoo', 'amusement_park'
       ]
       
       const allPlaces: any[] = []
-      const radius = 500 // 500m圏内に拡大（より多くの情報収集）
       
-      console.log(`📡 ${searchCategories.length}種類のカテゴリで並行検索開始（${radius}m圏内）...`)
+      // 🚀 最初から広範囲で検索（情報量を最大化）
+      const radius = 2000 // 2km圏内で大量検索
+      
+      console.log(`🔥🔥🔥 ${searchCategories.length}種類のカテゴリで並行検索開始（検索半径${radius}m）...`)
       
       // 全カテゴリを並行検索
       const searchPromises = searchCategories.map((category) => {
@@ -191,58 +184,43 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       
       console.log(`🎉 全検索完了！合計 ${allPlaces.length} 件の情報を取得しました`)
       
-      if (allPlaces.length === 0) {
-        // 検索範囲を広げて再検索
-        console.warn('⚠️ 300m圏内で見つからず、1km圏内で再検索...')
+      // 🚀 情報が少ない場合、超広域（10km）で追加検索
+      if (allPlaces.length < 10) {
+        console.warn(`⚠️⚠️ 情報が不足（${allPlaces.length}件）、10km圏内で追加検索を開始...`)
         
-        const fallbackRequest: any = {
-          location: latLng,
-          radius: 1000,
-          language: 'ja'
-        }
-        
-        placesService.nearbySearch(fallbackRequest, (results: any, status: any) => {
-          if (status === 'OK' && results && results.length > 0) {
-            const landmarks = results
-              .slice(0, 30)
-              .map((place: any) => place.name || '')
-              .filter((name: string) => name.length > 0)
-            
-            const placeDetails = results.slice(0, 20).map((place: any) => ({
-              name: place.name || '',
-              types: place.types || [],
-              vicinity: place.vicinity || '',
-              rating: place.rating,
-              user_ratings_total: place.user_ratings_total,
-              business_status: place.business_status,
-              place_id: place.place_id
-            }))
-            
-            const closestPlace = placeDetails[0]
-            
-            const locationData: LocationData = {
-              lat,
-              lng,
-              address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
-              landmarks,
-              place_details: placeDetails,
-              closest_place: closestPlace
-            }
-            
-            console.log('✅ 広域検索で位置情報取得完了:', locationData)
-            onLocationSelect(locationData)
-          } else {
-            // 最終的に見つからない場合
-            console.warn('⚠️ 全ての検索で見つかりませんでした')
-            const locationData: LocationData = {
-              lat,
-              lng,
-              address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
-              landmarks: ['この地域', '周辺エリア', '地元']
-            }
-            onLocationSelect(locationData)
-          }
+        const wideSearchPromises = ['restaurant', 'store', 'establishment', 'tourist_attraction', 'park', 'shrine', 'temple', 'school', 'cafe', 'convenience_store'].map((category) => {
+          return new Promise<void>((resolve) => {
+            placesService.nearbySearch({
+              location: latLng,
+              radius: 10000,
+              type: category,
+              language: 'ja'
+            }, (results: any, status: any) => {
+              if (status === 'OK' && results) {
+                console.log(`  🌐 [${category}] 広域検索: ${results.length}件`)
+                allPlaces.push(...results)
+              }
+              resolve()
+            })
+          })
         })
+        
+        await Promise.all(wideSearchPromises)
+        console.log(`🎯 広域検索後: 合計 ${allPlaces.length} 件`)
+      }
+      
+      if (allPlaces.length === 0) {
+        console.error('❌❌❌ 全ての検索で0件。最終フォールバック。')
+        const locationData: LocationData = {
+          lat,
+          lng,
+          address,
+          landmarks: ['この地域'],
+          place_details: [],
+          closest_place: { name: '未知の場所', distance: 0 },
+          comprehensive_research: '⚠️ この地域では詳細な情報が取得できませんでした。一般的な内容で生成します。'
+        }
+        onLocationSelect(locationData)
         return
       }
       
@@ -462,9 +440,9 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     
     // セクション6: 距離と密度の分析
     research += `# 📏 空間分析\n`
-    research += `検索範囲: 500m圏内\n`
+    research += `検索範囲: 2km圏内\n`
     research += `発見された施設数: ${places.length}件\n`
-    research += `施設密度: ${(places.length / 0.785).toFixed(1)}件/km²\n`
+    research += `施設密度: ${(places.length / 12.56).toFixed(1)}件/km²\n`
     
     if (places.length > 50) {
       research += `評価: 非常に高密度な都市部\n`
@@ -476,8 +454,8 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     
     research += `\n`
     
-    // セクション7: 固有名詞の抽出
-    research += `# 📝 固有名詞リスト（重要！）\n`
+    // セクション7: 固有名詞の抽出（超重要！）
+    research += `# 🚨🚨🚨 固有名詞リスト（必ず全て使うこと！）\n\n`
     const uniqueNames = new Set<string>()
     places.forEach(place => {
       if (place.name && place.name.length > 0) {
@@ -485,12 +463,17 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       }
     })
     
-    Array.from(uniqueNames).slice(0, 50).forEach((name, i) => {
+    research += `⚠️ **以下の${uniqueNames.size}個の固有名詞を、校長メッセージ・行事説明・部活動説明・教員コメントに必ず使用してください。**\n`
+    research += `⚠️ **1つの説明文に最低5個以上の固有名詞を含めること。固有名詞が少ない文章は失格です。**\n\n`
+    
+    Array.from(uniqueNames).slice(0, 100).forEach((name, i) => {
       research += `${i + 1}. ${name}\n`
     })
     
     research += `\n---\n`
-    research += `合計情報量: ${research.length} 文字\n`
+    research += `✅ 合計情報量: ${research.length} 文字\n`
+    research += `✅ 固有名詞: ${uniqueNames.size} 個\n`
+    research += `⚠️ **これらの固有名詞を最大限活用してください！**\n`
     
     console.log(`📚 地域リサーチ完了: ${research.length} 文字の詳細情報を収集しました`)
     

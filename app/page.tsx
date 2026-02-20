@@ -74,26 +74,27 @@ export default function Home() {
               alt="架空小学校 生成システム"
               style={{
                 width: '100%',
-                maxWidth: '1000px',
+                maxWidth: '1200px',
                 height: 'auto',
-                margin: '0 auto 2rem',
+                margin: '0 auto 3rem',
                 display: 'block',
-                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.8))'
+                filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.9))'
               }}
               onError={(e) => {
-                // 画像読み込み失敗時はテキストで表示
+                // 画像読み込み失敗時は超巨大テキストで表示
                 e.currentTarget.style.display = 'none'
                 const fallbackTitle = document.createElement('h1')
                 fallbackTitle.textContent = '架空小学校 生成システム'
                 fallbackTitle.style.cssText = `
                   font-family: var(--font-yuji-mai), "HGS行書体", "AR行書体M", cursive;
-                  font-size: 5rem;
-                  font-weight: bold;
+                  font-size: 8rem;
+                  font-weight: 900;
                   color: #d4af37;
-                  margin-bottom: 2rem;
-                  text-shadow: 0 4px 8px rgba(0,0,0,0.8), 0 0 30px rgba(212,175,55,0.3);
-                  letter-spacing: 0.15em;
-                  line-height: 1.3;
+                  margin-bottom: 3rem;
+                  text-shadow: 0 8px 16px rgba(0,0,0,1), 0 0 60px rgba(212,175,55,0.6), 0 0 100px rgba(212,175,55,0.3);
+                  letter-spacing: 0.2em;
+                  line-height: 1.2;
+                  transform: scale(1.1);
                 `
                 e.currentTarget.parentElement?.insertBefore(fallbackTitle, e.currentTarget)
               }}
