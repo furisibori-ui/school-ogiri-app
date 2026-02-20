@@ -352,9 +352,10 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     research += `町名・番地: ${addressParts.slice(2).join(' ')}\n\n`
     
     // セクション3: 周辺施設の詳細分析（Place Details API）
-    research += `# 🏛️ 周辺施設の詳細情報（${places.length}件）\n\n`
+    // コストとのバランスを考慮して、最も近い5件のみ詳細取得
+    research += `# 🏛️ 周辺施設の詳細情報（最も近い5件）\n\n`
     
-    const detailPromises = places.slice(0, 20).map((place, index) => {
+    const detailPromises = places.slice(0, 5).map((place, index) => {
       return new Promise<string>((resolve) => {
         placesService.getDetails(
           { placeId: place.place_id, language: 'ja' },
@@ -404,9 +405,16 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       })
     })
     
-    console.log('⏳ Place Details API で詳細情報を取得中（20件）...')
+    console.log('⏳ Place Details API で詳細情報を取得中（5件、コスト最適化）...')
     const placeDetailsResults = await Promise.all(detailPromises)
     research += placeDetailsResults.join('')
+    
+    // 残りの施設は基本情報のみ（コスト削減）
+    research += `\n# 📋 その他の周辺施設（基本情報のみ、${Math.min(places.length - 5, 25)}件）\n\n`
+    places.slice(5, 30).forEach((place, index) => {
+      research += `${index + 6}. ${place.name}（${place.types?.slice(0, 2).join(', ') || '施設'}）\n`
+    })
+    research += `\n`
     
     // セクション4: カテゴリ別統計
     research += `\n# 📊 カテゴリ別施設統計\n`
