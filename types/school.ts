@@ -20,6 +20,7 @@ export interface LocationData {
     history?: string[]
     climate?: string
   }
+  comprehensive_research?: string  // 徹底的な地域リサーチ結果（5000文字以上）
 }
 
 export interface SchoolProfile {

@@ -289,13 +289,27 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       console.log('📍 最も近い場所:', closestPlace?.name)
       console.log('🏛️ ランドマーク一覧（上位10件）:', landmarks.slice(0, 10))
       
+      // 🔥🔥🔥 徹底的な地域リサーチを開始 🔥🔥🔥
+      console.log('📚📚📚 詳細な地域リサーチを開始します（最大3分）...')
+      
+      const comprehensiveResearch = await conductComprehensiveResearch(
+        sortedPlaces.slice(0, 30), 
+        address,
+        lat,
+        lng,
+        placesService
+      )
+      
+      console.log(`✅ 地域リサーチ完了！収集した情報量: ${comprehensiveResearch.length} 文字`)
+      
       const locationData: LocationData = {
         lat,
         lng,
         address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
         landmarks,
         place_details: placeDetails,
-        closest_place: closestPlace
+        closest_place: closestPlace,
+        comprehensive_research: comprehensiveResearch
       }
       
       console.log('✅✅✅ 位置情報取得完了:', locationData)
@@ -313,6 +327,164 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       console.log('🔄 フォールバックデータで継続:', fallbackData)
       onLocationSelect(fallbackData)
     }
+  }
+
+  // 🔍 徹底的な地域リサーチを実施する関数
+  const conductComprehensiveResearch = async (
+    places: any[], 
+    address: string,
+    lat: number,
+    lng: number,
+    placesService: any
+  ): Promise<string> => {
+    let research = ''
+    
+    // セクション1: 基本情報
+    research += `# 📍 位置情報\n`
+    research += `緯度: ${lat.toFixed(6)}, 経度: ${lng.toFixed(6)}\n`
+    research += `住所: ${address}\n\n`
+    
+    // セクション2: 地域名の分析
+    research += `# 🏘️ 地域名分析\n`
+    const addressParts = address.split(/[　 ]/g)
+    research += `都道府県: ${addressParts[0] || '不明'}\n`
+    research += `市区町村: ${addressParts[1] || '不明'}\n`
+    research += `町名・番地: ${addressParts.slice(2).join(' ')}\n\n`
+    
+    // セクション3: 周辺施設の詳細分析（Place Details API）
+    research += `# 🏛️ 周辺施設の詳細情報（${places.length}件）\n\n`
+    
+    const detailPromises = places.slice(0, 20).map((place, index) => {
+      return new Promise<string>((resolve) => {
+        placesService.getDetails(
+          { placeId: place.place_id, language: 'ja' },
+          (details: any, status: any) => {
+            if (status === 'OK' && details) {
+              let placeInfo = `## ${index + 1}. ${details.name}\n`
+              placeInfo += `カテゴリ: ${details.types?.join(', ') || '不明'}\n`
+              placeInfo += `住所: ${details.vicinity || details.formatted_address || '不明'}\n`
+              
+              if (details.rating) {
+                placeInfo += `評価: ${details.rating}⭐ (${details.user_ratings_total || 0}件のレビュー)\n`
+              }
+              
+              if (details.business_status) {
+                placeInfo += `営業状況: ${details.business_status}\n`
+              }
+              
+              if (details.opening_hours) {
+                placeInfo += `営業時間: ${details.opening_hours.weekday_text ? details.opening_hours.weekday_text.slice(0, 2).join(', ') : '情報なし'}\n`
+              }
+              
+              if (details.website) {
+                placeInfo += `ウェブサイト: あり\n`
+              }
+              
+              if (details.formatted_phone_number) {
+                placeInfo += `電話番号: ${details.formatted_phone_number}\n`
+              }
+              
+              // レビューテキストを収集（最重要！）
+              if (details.reviews && details.reviews.length > 0) {
+                placeInfo += `\n### 📝 レビュー抜粋:\n`
+                details.reviews.slice(0, 2).forEach((review: any, i: number) => {
+                  if (review.text && review.text.length > 10) {
+                    placeInfo += `- (${review.rating}⭐) ${review.text.substring(0, 100)}...\n`
+                  }
+                })
+              }
+              
+              placeInfo += `\n`
+              resolve(placeInfo)
+            } else {
+              resolve(`## ${index + 1}. ${place.name}\n（詳細情報取得失敗）\n\n`)
+            }
+          }
+        )
+      })
+    })
+    
+    console.log('⏳ Place Details API で詳細情報を取得中（20件）...')
+    const placeDetailsResults = await Promise.all(detailPromises)
+    research += placeDetailsResults.join('')
+    
+    // セクション4: カテゴリ別統計
+    research += `\n# 📊 カテゴリ別施設統計\n`
+    const categoryCount: { [key: string]: number } = {}
+    places.forEach(place => {
+      place.types?.forEach((type: string) => {
+        categoryCount[type] = (categoryCount[type] || 0) + 1
+      })
+    })
+    
+    const topCategories = Object.entries(categoryCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+    
+    topCategories.forEach(([category, count]) => {
+      research += `- ${category}: ${count}件\n`
+    })
+    research += `\n`
+    
+    // セクション5: 地域の特徴推測
+    research += `# 🔍 地域の特徴推測\n`
+    
+    if (categoryCount['restaurant'] > 5) {
+      research += `- 飲食店が多く、商業地域の可能性が高い\n`
+    }
+    if (categoryCount['convenience_store'] > 3) {
+      research += `- コンビニが多く、利便性の高い地域\n`
+    }
+    if (categoryCount['shrine'] || categoryCount['temple']) {
+      research += `- 神社仏閣があり、歴史的な地域\n`
+    }
+    if (categoryCount['park'] > 2) {
+      research += `- 公園が多く、自然環境に恵まれた地域\n`
+    }
+    if (categoryCount['train_station'] || categoryCount['bus_station']) {
+      research += `- 公共交通機関が充実している地域\n`
+    }
+    if (categoryCount['school'] || categoryCount['university']) {
+      research += `- 教育施設があり、文教地区の可能性\n`
+    }
+    
+    research += `\n`
+    
+    // セクション6: 距離と密度の分析
+    research += `# 📏 空間分析\n`
+    research += `検索範囲: 300m圏内\n`
+    research += `発見された施設数: ${places.length}件\n`
+    research += `施設密度: ${(places.length / 0.283).toFixed(1)}件/km²\n`
+    
+    if (places.length > 50) {
+      research += `評価: 非常に高密度な都市部\n`
+    } else if (places.length > 20) {
+      research += `評価: 中密度の住宅・商業地域\n`
+    } else {
+      research += `評価: 低密度の郊外地域\n`
+    }
+    
+    research += `\n`
+    
+    // セクション7: 固有名詞の抽出
+    research += `# 📝 固有名詞リスト（重要！）\n`
+    const uniqueNames = new Set<string>()
+    places.forEach(place => {
+      if (place.name && place.name.length > 0) {
+        uniqueNames.add(place.name)
+      }
+    })
+    
+    Array.from(uniqueNames).slice(0, 50).forEach((name, i) => {
+      research += `${i + 1}. ${name}\n`
+    })
+    
+    research += `\n---\n`
+    research += `合計情報量: ${research.length} 文字\n`
+    
+    console.log(`📚 地域リサーチ完了: ${research.length} 文字の詳細情報を収集しました`)
+    
+    return research
   }
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
