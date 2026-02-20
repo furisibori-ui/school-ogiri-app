@@ -29,6 +29,11 @@ export async function POST(request: NextRequest) {
       width = 576
       height = 896
       placeholderSize = '450x700'
+    } else if (imageType === 'event' || imageType === 'club' || imageType === 'activity') {
+      // 行事・部活動写真：横長（16:9比率）学校ブログ用
+      width = 896
+      height = 504
+      placeholderSize = '800x450'
     } else {
       // その他：4:3（見やすい比率）
       width = 768

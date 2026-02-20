@@ -191,6 +191,13 @@ vercel
 
 環境変数は Vercel のダッシュボードから設定してください。
 
+## 📖 ドキュメント
+
+- [**学校コンテンツ生成マニュアル**](./SCHOOL_CONTENT_MANUAL.md) - 校長メッセージ、校訓、校歌の生成ガイド（社会言語学的分析に基づく）
+- [Google Maps API のトラブルシューティング](./TROUBLESHOOTING_GOOGLE_MAPS.md)
+- [Suno AI 音楽生成の設定](./SETUP_SUNO_AUDIO.md)
+- [Replicate API 画像生成の設定](./SETUP_IMAGE_GENERATION.md)
+
 ## ⚠️ 注意事項
 
 - このアプリはAIが生成するフィクションのコンテンツです

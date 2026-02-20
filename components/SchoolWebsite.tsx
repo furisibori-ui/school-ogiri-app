@@ -233,37 +233,202 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           color: styleConfig.colorTheme.accentColor,
           borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`,
           paddingBottom: '0.5rem',
-          marginBottom: '1rem',
+          marginBottom: '1.5rem',
           fontFamily: styleConfig.typography.fontFamily,
           textAlign: 'center'
         }}>
           ◆ 校訓 ◆
         </h2>
+        
+        {/* 笠取小学校風の校訓表示 */}
         <div style={{
-          backgroundColor: 'rgba(255,255,255,0.95)',
-          color: '#8B0000',
-          padding: '3rem 2rem',
+          display: 'grid',
+          gridTemplateColumns: '1fr auto 1fr',
+          gap: '2rem',
+          alignItems: 'center',
+          maxWidth: '1000px',
           margin: '0 auto',
-          border: '8px double #8B0000',
+          padding: '2rem',
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          border: '4px solid #8B4513',
           borderRadius: '8px',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.2), inset 0 0 30px rgba(139,0,0,0.1)',
-          textAlign: 'center',
-          maxWidth: '900px'
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
         }}>
-          <p style={{ 
-            fontSize: '3.5rem',
-            fontFamily: calligraphyFont,
-            fontWeight: 'bold',
-            lineHeight: '1.6',
-            letterSpacing: '0.15em',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
-            background: 'linear-gradient(180deg, #8B0000 0%, #DC143C 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
+          {/* 初代校舎 */}
+          {data.school_profile.historical_buildings && data.school_profile.historical_buildings[0] && (
+            <div style={{ textAlign: 'center' }}>
+              <img 
+                src={data.school_profile.historical_buildings[0].image_url || 'https://placehold.co/300x200/8B7355/FFFFFF?text=初代校舎'} 
+                alt={data.school_profile.historical_buildings[0].name}
+                style={{
+                  width: '100%',
+                  maxWidth: '300px',
+                  height: 'auto',
+                  border: '3px solid #5D4E37',
+                  borderRadius: '4px',
+                  filter: 'blur(0.8px) sepia(40%) saturate(60%)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                }}
+              />
+              <p style={{ 
+                marginTop: '0.5rem', 
+                fontSize: '0.9rem', 
+                fontWeight: 'bold',
+                color: '#5D4E37'
+              }}>
+                {data.school_profile.historical_buildings[0].name}
+              </p>
+            </div>
+          )}
+          
+          {/* 中央：校訓 */}
+          <div style={{ 
+            textAlign: 'center',
+            padding: '2rem',
+            minWidth: '200px'
           }}>
-            {data.school_profile.motto}
-          </p>
+            {/* 一文字の校訓 */}
+            {data.school_profile.motto_single_char && (
+              <div style={{
+                fontSize: '6rem',
+                fontFamily: calligraphyFont,
+                fontWeight: 'bold',
+                color: '#8B0000',
+                textShadow: '3px 3px 6px rgba(0,0,0,0.3)',
+                marginBottom: '1rem',
+                lineHeight: '1'
+              }}>
+                『{data.school_profile.motto_single_char}』
+              </div>
+            )}
+            
+            {/* サブキャッチフレーズ */}
+            {data.school_profile.sub_catchphrase && (
+              <p style={{
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                color: '#2C5F2D',
+                marginTop: '1rem',
+                lineHeight: '1.8'
+              }}>
+                {data.school_profile.sub_catchphrase}
+              </p>
+            )}
+            
+            {/* 3つの言葉の校訓 */}
+            <p style={{ 
+              fontSize: '2rem',
+              fontFamily: calligraphyFont,
+              fontWeight: 'bold',
+              marginTop: '1.5rem',
+              color: '#8B0000',
+              letterSpacing: '0.2em'
+            }}>
+              {data.school_profile.motto}
+            </p>
+          </div>
+          
+          {/* 2代目校舎 */}
+          {data.school_profile.historical_buildings && data.school_profile.historical_buildings[1] && (
+            <div style={{ textAlign: 'center' }}>
+              <img 
+                src={data.school_profile.historical_buildings[1].image_url || 'https://placehold.co/300x200/A0826D/FFFFFF?text=2代目校舎'} 
+                alt={data.school_profile.historical_buildings[1].name}
+                style={{
+                  width: '100%',
+                  maxWidth: '300px',
+                  height: 'auto',
+                  border: '3px solid #5D4E37',
+                  borderRadius: '4px',
+                  filter: 'blur(0.8px) sepia(40%) saturate(60%)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                }}
+              />
+              <p style={{ 
+                marginTop: '0.5rem', 
+                fontSize: '0.9rem', 
+                fontWeight: 'bold',
+                color: '#5D4E37'
+              }}>
+                {data.school_profile.historical_buildings[1].name}
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+    ) : <></>,
+
+    historical_buildings: data.school_profile.historical_buildings && data.school_profile.historical_buildings.length > 0 ? (
+      <section key="historical_buildings" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
+        <h2 style={{ 
+          fontSize: styleConfig.typography.headingSize,
+          color: styleConfig.colorTheme.accentColor,
+          borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`,
+          paddingBottom: '0.5rem',
+          marginBottom: '1rem',
+          fontFamily: styleConfig.typography.fontFamily,
+          textAlign: 'center'
+        }}>
+          ◆ 校舎の歴史 ◆
+        </h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '2rem',
+          backgroundColor: styleConfig.colorTheme.cardBg,
+          padding: styleConfig.spacing.cardPadding,
+          borderRadius: '8px',
+          border: `2px solid ${styleConfig.colorTheme.borderColor}`,
+          boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+        }}>
+          {data.school_profile.historical_buildings.map((building, index) => (
+            <div key={index} style={{
+              textAlign: 'center',
+              padding: '1rem',
+              backgroundColor: '#fdfcf8',
+              border: '2px solid #8B7355',
+              borderRadius: '8px'
+            }}>
+              <img 
+                src={building.image_url || 'https://placehold.co/400x300/8B7355/FFFFFF?text=Historical+Building'}
+                alt={building.name}
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  border: '3px solid #5D4E37',
+                  borderRadius: '4px',
+                  marginBottom: '1rem',
+                  filter: 'blur(0.8px) sepia(50%) saturate(50%)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                }}
+              />
+              <h3 style={{
+                fontSize: '1.3rem',
+                fontWeight: 'bold',
+                marginBottom: '0.5rem',
+                color: '#5D4E37',
+                fontFamily: calligraphyFont
+              }}>
+                {building.name}
+              </h3>
+              <p style={{
+                fontSize: '0.85rem',
+                color: '#666',
+                marginBottom: '0.75rem',
+                fontWeight: 'bold'
+              }}>
+                {building.year}
+              </p>
+              <p style={{
+                fontSize: '0.9rem',
+                color: '#374151',
+                lineHeight: '1.8',
+                textAlign: 'left'
+              }}>
+                {building.description}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
     ) : <></>,
@@ -877,7 +1042,7 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           </div>
         </div>
       </section>
-    ) : <></>
+    ) : <></>,
   }
 
   const orderedSections = styleConfig.sectionOrder.length > 0 
@@ -892,7 +1057,7 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
 
   return (
     <>
-      {/* グローバルスタイル（画像のぼかし効果） */}
+      {/* グローバルスタイル（画像のぼかし効果と背景パターン） */}
       <style jsx global>{`
         img {
           filter: blur(0.5px);
@@ -901,6 +1066,45 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
         @keyframes marquee {
           0% { transform: translateX(0%); }
           100% { transform: translateX(-50%); }
+        }
+        .background-pattern {
+          position: relative;
+        }
+        .background-pattern::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-image: repeating-linear-gradient(
+            ${styleConfig.backgroundPattern?.rotation || 15}deg,
+            transparent,
+            transparent 100px,
+            ${styleConfig.colorTheme.accentColor}10 100px,
+            ${styleConfig.colorTheme.accentColor}10 101px
+          );
+          opacity: ${styleConfig.backgroundPattern?.opacity || 0.08};
+          pointer-events: none;
+          z-index: 0;
+          user-select: none;
+        }
+        .pattern-symbol {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 200%;
+          height: 200%;
+          font-size: ${styleConfig.backgroundPattern?.size === 'text-8xl' ? '6rem' : '4rem'};
+          opacity: ${styleConfig.backgroundPattern?.opacity || 0.08};
+          color: ${styleConfig.colorTheme.accentColor};
+          pointer-events: none;
+          z-index: 0;
+          user-select: none;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 2rem;
+          overflow: hidden;
         }
       `}</style>
 
@@ -914,13 +1118,51 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
         <source src="https://www.bensound.com/bensound-music/bensound-slowmotion.mp3" type="audio/mpeg" />
       </audio>
 
-      <div style={{ 
+      <div className="background-pattern" style={{ 
         minHeight: '100vh',
         backgroundColor: styleConfig.colorTheme.bgColor,
-        fontFamily: styleConfig.typography.fontFamily
+        fontFamily: styleConfig.typography.fontFamily,
+        position: 'relative'
       }}>
+      
+      {/* 背景にリピートするシンボル */}
+      {styleConfig.backgroundPattern && (
+        <div 
+          className="pattern-symbol"
+          style={{
+            position: 'fixed',
+            top: '-10%',
+            left: '-10%',
+            width: '120%',
+            height: '120%',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, 150px)',
+            gap: '3rem',
+            transform: `rotate(${styleConfig.backgroundPattern.rotation}deg)`,
+            zIndex: 0
+          }}
+        >
+          {Array.from({ length: 100 }).map((_, i) => (
+            <div 
+              key={i}
+              style={{
+                fontSize: styleConfig.backgroundPattern!.size === 'text-8xl' ? '6rem' : '4rem',
+                opacity: styleConfig.backgroundPattern!.opacity,
+                color: styleConfig.colorTheme.accentColor,
+                textAlign: 'center',
+                userSelect: 'none'
+              }}
+            >
+              {styleConfig.backgroundPattern!.symbol}
+            </div>
+          ))}
+        </div>
+      )}
+
       <header style={{ 
         background: styleConfig.colorTheme.headerBg,
+        position: 'relative',
+        zIndex: 1
         color: styleConfig.colorTheme.headerText,
         padding: '2rem 1rem',
         borderBottom: '8px double gold',
@@ -1047,7 +1289,7 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
         `}} />
       </header>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', position: 'relative', zIndex: 1 }}>
         {styleConfig.layout === 'two-column' ? (
           <div className={layoutClass}>
             <div style={{ gridColumn: 'span 2 / span 2' }}>

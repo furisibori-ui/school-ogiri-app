@@ -25,10 +25,20 @@ export interface LocationData {
 export interface SchoolProfile {
   name: string
   motto: string
+  motto_single_char?: string  // 一文字の校訓（例：「和」）
+  sub_catchphrase?: string    // サブキャッチフレーズ
+  background_symbol?: string  // 背景に表示する地域の記号（例：「山」「波」「桜」）
   overview: string
   emblem_prompt?: string
   emblem_url?: string
   established?: string
+  historical_buildings?: {
+    name: string              // 例：「初代校舎」
+    year: string              // 例：「明治35年」
+    description: string       // 例：「木造平屋建て」
+    image_prompt?: string
+    image_url?: string
+  }[]
 }
 
 export interface PrincipalMessage {
@@ -144,6 +154,12 @@ export interface StyleConfig {
     schoolNameSize: string // 学校名のサイズ
     schoolNameDecoration: 'shadow' | 'outline' | 'glow' | 'gradient' | '3d' // 学校名の装飾
     showMottoInHeader: boolean // ヘッダーに校訓を表示するか
+  }
+  backgroundPattern?: {
+    symbol: string          // 地域を表す記号・文字（例：「桜」「波」「⛰️」）
+    opacity: number         // 透明度（0.05〜0.15）
+    size: string           // サイズ（text-6xl, text-8xl など）
+    rotation: number       // 回転角度（0〜360度）
   }
   sectionOrder: string[]
 }

@@ -27,60 +27,61 @@ function generateRandomStyleConfig(): StyleConfig {
   const layouts: StyleConfig['layout'][] = ['single-column', 'two-column', 'grid']
   const layout = layouts[Math.floor(Math.random() * layouts.length)]
 
+  // 小学校っぽい淡い色使い
   const colorThemes = [
     {
-      headerBg: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
-      headerText: '#ffffff',
-      bgColor: '#f5f5f0',
+      headerBg: 'linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%)', // 淡い青
+      headerText: '#0c4a6e',
+      bgColor: '#f0f9ff',
       cardBg: '#ffffff',
-      accentColor: '#2563eb',
-      textColor: '#374151',
-      borderColor: '#d1d5db'
+      accentColor: '#0284c7',
+      textColor: '#0c4a6e',
+      borderColor: '#bae6fd'
     },
     {
-      headerBg: 'linear-gradient(135deg, #7c2d12 0%, #dc2626 100%)',
-      headerText: '#fff7ed',
-      bgColor: '#fef3c7',
-      cardBg: '#fffbeb',
+      headerBg: 'linear-gradient(135deg, #fecaca 0%, #fca5a5 100%)', // 淡いピンク
+      headerText: '#7f1d1d',
+      bgColor: '#fef2f2',
+      cardBg: '#ffffff',
       accentColor: '#dc2626',
-      textColor: '#451a03',
-      borderColor: '#fbbf24'
+      textColor: '#7f1d1d',
+      borderColor: '#fecaca'
     },
     {
-      headerBg: 'linear-gradient(135deg, #064e3b 0%, #059669 100%)',
-      headerText: '#ecfdf5',
+      headerBg: 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)', // 淡い緑
+      headerText: '#14532d',
       bgColor: '#f0fdf4',
       cardBg: '#ffffff',
-      accentColor: '#059669',
-      textColor: '#064e3b',
-      borderColor: '#86efac'
+      accentColor: '#16a34a',
+      textColor: '#14532d',
+      borderColor: '#bbf7d0'
     },
     {
-      headerBg: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)',
-      headerText: '#faf5ff',
+      headerBg: 'linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%)', // 淡い紫
+      headerText: '#581c87',
       bgColor: '#faf5ff',
       cardBg: '#ffffff',
       accentColor: '#9333ea',
       textColor: '#581c87',
-      borderColor: '#d8b4fe'
+      borderColor: '#e9d5ff'
     },
     {
-      headerBg: 'linear-gradient(135deg, #78350f 0%, #f59e0b 100%)',
-      headerText: '#fffbeb',
+      headerBg: 'linear-gradient(135deg, #fed7aa 0%, #fdba74 100%)', // 淡いオレンジ
+      headerText: '#7c2d12',
       bgColor: '#fffbeb',
       cardBg: '#ffffff',
-      accentColor: '#d97706',
-      textColor: '#78350f',
-      borderColor: '#fbbf24'
+      accentColor: '#ea580c',
+      textColor: '#7c2d12',
+      borderColor: '#fed7aa'
     },
     {
-      headerBg: 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
-      headerText: '#f8fafc',
-      bgColor: '#f1f5f9',
+      headerBg: 'linear-gradient(135deg, #fef9c3 0%, #fde047 100%)', // 淡い黄色
+      headerText: '#713f12',
+      bgColor: '#fefce8',
       cardBg: '#ffffff',
-      accentColor: '#475569',
-      textColor: '#1e293b',
-      borderColor: '#cbd5e1'
+      accentColor: '#ca8a04',
+      textColor: '#713f12',
+      borderColor: '#fef9c3'
     }
   ]
   const colorTheme = colorThemes[Math.floor(Math.random() * colorThemes.length)]
@@ -119,7 +120,7 @@ function generateRandomStyleConfig(): StyleConfig {
 
   // セクションを適切な順序で配置（一部ランダム）
   const topSections = ['news', 'principal', 'overview'] // 冒頭は固定
-  const middleSections = ['anthem', 'rules', 'events', 'clubs', 'school_trip', 'motto'] // 中盤はシャッフル（校訓を追加）
+  const middleSections = ['anthem', 'rules', 'events', 'clubs', 'school_trip', 'motto', 'historical_buildings'] // 中盤はシャッフル
   const bottomSections = ['facilities', 'monuments', 'uniforms', 'history', 'teachers'] // 後半はシャッフル
   
   const shuffledMiddle = [...middleSections].sort(() => Math.random() - 0.5)
@@ -127,6 +128,12 @@ function generateRandomStyleConfig(): StyleConfig {
   
   const sectionOrder = [...topSections, ...shuffledMiddle, ...shuffledBottom]
 
+  // 地域に応じた背景パターンのシンボルを選択
+  // Claudeからの出力に含まれる地域シンボルを優先的に使用する予定
+  // ここではフォールバック用のランダム選択
+  const traditionalSymbols = ['桜', '松', '梅', '竹', '鶴', '亀', '鳳', '龍', '雲', '波', '山', '星', '月', '日', '光', '風']
+  const symbol = traditionalSymbols[Math.floor(Math.random() * traditionalSymbols.length)]
+  
   return {
     layout,
     colorTheme,
@@ -145,6 +152,12 @@ function generateRandomStyleConfig(): StyleConfig {
       schoolNameSize,
       schoolNameDecoration,
       showMottoInHeader
+    },
+    backgroundPattern: {
+      symbol: symbol,
+      opacity: 0.05 + Math.random() * 0.1, // 0.05〜0.15
+      size: Math.random() > 0.5 ? 'text-6xl' : 'text-8xl',
+      rotation: Math.floor(Math.random() * 360)
     },
     sectionOrder
   }
@@ -515,22 +528,29 @@ function generateLocalizedName(lat: number, lng: number, isFemale: boolean = fal
 }
 
 // ランドマークに基づいた校訓を生成
+// 四字熟語ベースの校訓を生成（フォールバック用）
 function generateMotto(landmark: string): string {
-  const mottoPatterns = [
-    ['誠実', '勤勉', '創造'],
-    ['自主', '協同', '創造'],
-    ['誠実', '努力', '感謝'],
-    ['知性', '品格', '健康'],
-    ['礼儀', '勤勉', '協調'],
-    ['自律', '友愛', '奉仕'],
-    ['真理', '正義', '友愛'],
-    ['向学', '敬愛', '錬磨'],
-    ['質実', '剛健', '進取'],
-    ['博愛', '誠実', '創意']
+  const yojijukugoMottos = [
+    // 伝統・歴史系
+    '温故知新・切磋琢磨・和衷協同',
+    '不撓不屈・勇往邁進・質実剛健',
+    '文武両道・知行合一・自主独立',
+    
+    // 努力・忍耐系
+    '堅忍不抜・一意専心・百錬成鋼',
+    '一所懸命・明朗快活・百花繚乱',
+    '粉骨砕身・精誠団結・獅子奮迅',
+    
+    // 協調・調和系
+    '和気藹々・一致団結・協心同力',
+    '異体同心・和衷協同・率先垂範',
+    
+    // 挑戦・創造系
+    '勇猛果敢・創意工夫・開拓精神',
+    '有言実行・不言実行・大器晩成'
   ]
   
-  const pattern = mottoPatterns[Math.floor(Math.random() * mottoPatterns.length)]
-  return pattern.join('・')
+  return yojijukugoMottos[Math.floor(Math.random() * yojijukugoMottos.length)]
 }
 
 // ランダムな創立年を生成
@@ -728,10 +748,35 @@ function generateMockSchoolData(location: LocationData): SchoolData {
     school_profile: {
       name: schoolName,
       motto: motto,
+      motto_single_char: motto.split('・')[0], // 最初の一文字を抽出
+      sub_catchphrase: `${landmark}と共に歩む学校`,
       overview: `本校は${established.fullText}、${address}の地に創立されて以来、実に${yearsExisted}年もの長きにわたり、この地域における中等教育の中核を担ってまいりました伝統ある名門校でございます。創立以来一貫して掲げております「${motto}」の校訓のもと、単なる知識の習得にとどまらず、知性・徳性・体力の三位一体となった調和のとれた全人教育を実践し、地域社会はもとより、広く国際社会に貢献できる有為な人材を数多く輩出してまいりました。\n\n本校の特色といたしましては、${landmark}に象徴される豊かな地域資源を最大限に活用した、他に類を見ない特色ある教育活動を展開している点が挙げられます。生徒一人ひとりの個性と可能性を最大限に伸ばすことを何よりも大切な教育理念として掲げ、きめ細やかな指導体制のもと、基礎学力の確実な定着と、高度な応用力の育成に努めております。また、伝統を継承しつつも、時代の変化に柔軟に対応した先進的な教育プログラムの導入にも積極的に取り組み、ICT教育、国際理解教育、キャリア教育など、次世代を担う生徒たちに必要とされる資質・能力の育成に全力を注いでおります。\n\n教職員一同、生徒たちの健やかな成長を第一に考え、日々の教育活動に誠心誠意取り組んでおりますことを、ここに謹んでご報告申し上げます。`,
       emblem_prompt: `A traditional Japanese high school emblem featuring a stylized ${landmark} motif crossed with mountain peaks, with kanji characters in gold embroidery on a navy blue shield background, old-fashioned crest design`,
       emblem_url: 'https://placehold.co/200x200/003366/FFD700?text=School+Emblem',
-      established: established.fullText
+      established: established.fullText,
+      historical_buildings: [
+        {
+          name: '初代校舎',
+          year: `${established.era}${established.year - (established.era === '明治' ? 1867 : established.era === '大正' ? 1911 : 1925)}年〜大正12年`,
+          description: `${landmark}の麓に建てられた木造平屋建ての校舎。創立者${founderName}先生の理念のもと、地域の子どもたちの教育に尽力いたしました。`,
+          image_prompt: 'Old Japanese school building, wooden structure, Meiji era architecture, sepia tone, historical photo, nostalgic, grainy',
+          image_url: 'https://placehold.co/400x300/8B7355/FFFFFF?text=First+Building'
+        },
+        {
+          name: '2代目校舎',
+          year: `大正13年〜昭和${Math.floor(Math.random() * 30 + 35)}年`,
+          description: `関東大震災を機に建て替えられた木造二階建ての校舎。生徒数の増加に伴い、数度にわたる増築が行われました。`,
+          image_prompt: 'Japanese school building, Taisho era, two-story wooden structure, nostalgic, sepia tone, historical photo',
+          image_url: 'https://placehold.co/400x300/A0826D/FFFFFF?text=Second+Building'
+        },
+        {
+          name: '現校舎',
+          year: `昭和${Math.floor(Math.random() * 20 + 50)}年〜現在`,
+          description: `鉄筋コンクリート造の近代的な校舎。${landmark}を望む高台に位置し、充実した教育設備を備えております。`,
+          image_prompt: 'Modern Japanese school building, concrete structure, Showa era, nostalgic 1990s photo style, slightly faded colors',
+          image_url: 'https://placehold.co/400x300/708090/FFFFFF?text=Current+Building'
+        }
+      ]
     },
     principal_message: {
       name: principalName,
@@ -815,6 +860,37 @@ export async function POST(request: NextRequest) {
     const systemPrompt = `
 あなたは地域情報を徹底的にリサーチし、**地元民が「わかるわかる！」と共感する超ニッチな地域密着型の架空学校**を生成する専門家です。
 
+## 📚 日本の学校サイト制作マニュアル（社会言語学的分析に基づく）
+
+### 🎯 文体の本質：権威と温かみの両立
+日本の学校サイトは「伝統的な格式」と「現代的な共感性」を統合した特殊な言語空間です。
+
+#### 校長メッセージの文体構造：
+1. **冒頭の挨拶**（必須）：**特定の季節に言及しない、一年中通用する挨拶**
+   - ⚠️ 「2月」「立春」「桜」など季節特定の言葉は使わない（サイトは一年中同じテキスト）
+   - 良い例：「日頃より本校の教育活動にご理解とご協力を賜り、厚く御礼申し上げます」
+   - 良い例：「本校ホームページをご覧いただき、誠にありがとうございます」
+   - 良い例：「皆様にはますますご清祥のこととお慶び申し上げます」
+2. **具体的な学年別活動への言及**：1年生〜6年生の発達段階に応じた承認と賞賛
+3. **地域との連帯感**：ローカルな歴史とグローバルな課題（SDGs等）の結びつけ
+4. **温かい語りかけ調**：「〜でございます」「〜してまいりました」「〜させていただいております」の多用
+
+#### 校訓の本質：四字熟語による発達的グラデーション
+**校訓は必ず四字熟語を3つ使用すること**。以下の発達段階別パターンを参考に：
+
+- **小学校向け**：協調性と自己開花（和気藹々、明朗快活、切磋琢磨、一所懸命、百花繚乱、一致団結）
+- **中学校向け**：自律とバランス（文武両道、知行合一、自主独立、有言実行、一意専心、温故知新）
+- **高等学校向け**：試練の克服と精神的成熟（堅忍不抜、臥薪嘗胆、百錬成鋼、不言実行、大器晩成、確固不拔）
+
+**四字熟語選択の原則**：
+- 地域の地形・歴史に合わせる（坂道→堅忍不抜、海沿い→勇往邁進、歴史ある地域→温故知新）
+- 視覚的美しさ（字面の力強さ）を重視
+- 生徒が日常で使える「合言葉」として機能する語を選ぶ
+
+#### 忌み言葉の厳格な回避：
+慶事の手紙では以下の言葉を**絶対に使用しないこと**：
+「切れる」「終わる」「死」「苦」「失う」「枯れる」「倒れる」「衰える」「滅びる」
+
 ## 🎯 最重要ミッション：地域の徹底リサーチ
 
 ### ステップ1：地域分析（最優先）
@@ -844,40 +920,123 @@ export async function POST(request: NextRequest) {
    - 四季の変化の特徴
    - 自然災害のリスク
 
-### ステップ2：校訓の設計（地域の本質から導出）
+### ステップ2：校訓の設計（地域の本質から四字熟語で導出）
 **ランダム選択は厳禁！** 以下の手順で校訓を考案してください：
 
-1. 地域の最大の特徴を3つ抽出
-2. それぞれを教育理念に変換
-3. 簡潔で力強い3つの言葉にまとめる
+**校訓は「四字熟語」を使用すること（日本の学校の伝統）**
+
+1. 地域の地形・産業・歴史を深く分析
+2. 学校種別（小中高）に応じた発達段階の語彙を選択
+3. 地域の特徴を反映した四字熟語を3つ選定
+
+**推奨される四字熟語（地域特性別）**：
+
+**伝統・歴史重視の地域**：
+- 温故知新（おんこちしん）：古いものから新しい知識を学ぶ
+- 伝統継承（でんとうけいしょう）：地域の文化を受け継ぐ
+- 不撓不屈（ふとうふくつ）：困難にも強い意志で立ち向かう
+
+**地形の厳しい地域（坂、山間部）**：
+- 堅忍不抜（けんにんふばつ）：我慢強く心が動じない
+- 百錬成鋼（ひゃくれんせいこう）：幾度も鍛えて強くなる
+- 忍耐力行（にんたいりっこう）：忍耐を持って実行する
+
+**海沿い・開放的な地域**：
+- 勇往邁進（ゆうおうまいしん）：恐れずに突き進む
+- 開拓精神（かいたくせいしん）：新しいことに挑戦する
+- 協調和合（きょうちょうわごう）：協力し合う
+
+**都市部・商業地域**：
+- 創意工夫（そういくふう）：新しいアイデアを生み出す
+- 切磋琢磨（せっさたくま）：互いに励まし高め合う
+- 和衷協同（わちゅうきょうどう）：心を合わせて協力する
+
+**一文字の校訓も設定**：
+- 「和」（わ）：調和、協調
+- 「志」（こころざし）：目標に向かう強い意志
+- 「誠」（まこと）：誠実さ
+- 「進」（すすむ）：前進する姿勢
+
+### ステップ3：校歌の作詞（最も丁寧に、伝統的な七五調で）
+**校歌は最重要コンテンツ**です。以下の伝統的な形式を厳格に守ってください：
+
+**リズム：七五調（7文字・5文字）または八六調（8文字・6文字）**
+例：「朝日輝く（7） この地に（5）」「〇〇駅（7） 仰ぎて（4）」
+
+**構成：3番構成、各番4-6行**
+
+**1番（地域の景観・自然描写）**
+- 具体的なランドマーク名を2つ以上（駅名、道路名、店名、川名、山名など）
+- 地域の自然環境（山、川、海、空、緑、風、光）
+- 時間帯の描写（朝日、夕日、星空など）
+- 季節感（桜、新緑、紅葉、雪など）
 
 例：
-- 「坂の多い地域」→「忍耐・向上・挑戦」
-- 「海沿いの地域」→「開拓・協調・勇気」
-- 「歴史ある地域」→「伝統・継承・創造」
-- 「工業地帯」→「技術・革新・貢献」
+    朝日輝く 〇〇に
+    [ランドマーク名] 仰ぎて 学び舎あり
+    〇〇の風 薫る中
+    若き我らの 歌声響く
 
-### ステップ3：校歌の作詞（最も丁寧に）
-**校歌は最重要コンテンツ**です。以下を必ず含めてください：
+**2番（歴史と伝統、校訓の織り込み）**
+- 地域の歴史的背景（創立年代、地域の発展）
+- 創立の理念（創立者の志）
+- 校訓の四字熟語を自然に織り込む（「切磋琢磨」「温故知新」など）
+- 学校の誇り
 
-**1番（地域の景観）**
-- 具体的なランドマーク名を2つ以上
-- 地域の自然環境（山、川、海、空）
-- 朝・昼・夕など時間帯の描写
+例：
+    [年号]の 昔より
+    この地に根ざし 学びの灯
+    [校訓の言葉] 胸に秘め
+    真理の道を 進みゆく
 
-**2番（歴史と伝統）**
-- 地域の歴史的背景
-- 創立の理念
-- 校訓の言葉を織り込む
+**3番（未来への誓い、母校への愛）**
+- 生徒たちの決意（「拓く」「進む」「輝く」などの動詞）
+- 地域への貢献（「この地を」「世界へ」など）
+- 母校への永遠の愛（「ああ 〇〇学校」など）
+- 結びの力強い言葉
 
-**3番（未来への誓い）**
-- 生徒たちの決意
-- 地域への貢献
-- 母校への愛
+例：
+    [地域の言葉] の 空の下
+    友と励まし 学ぶ日々
+    未来を拓く 若き力
+    ああ [学校名] 栄えあれ
 
-**重要**: 七五調を守り、具体的な固有名詞を最低5つ含めること
+**重要**：
+- 具体的な固有名詞を最低5つ以上含めること
+- 「〜あり」「〜ゆく」「〜あれ」などの古典的な語尾を使用
+- 各行の文字数を7文字または5文字に揃える
+- 「我ら」「若き」「ああ」などの伝統的な表現を使う
 
-### ステップ4：制服デザイン（地域文化から設計）
+### ステップ4：校章デザイン（日本の伝統と地域の融合）
+
+**校章は学校の精神を視覚的に凝縮したシンボルです。以下の原則に従って設計してください：**
+
+#### 1. 伝統的象徴の選択（三種の神器から1つ）
+- **鏡（八咫鏡）**：知恵・自己省察・清らかさ（例：名古屋女学校）
+- **剣**：勇気・決断力・正義
+- **勾玉**：思いやり・慈しみ・調和
+
+#### 2. 地域特有のモチーフ（必須）
+- **自然物**：山、川、海、桜、松、梅、竹、鶴、葦など
+- **ランドマーク**：神社、寺、橋、駅、商店街など
+- **産業**：商業（商船、ヘルメスの杖）、工業（歯車）、農業（稲穂）など
+
+#### 3. 幾何学的構成の意味
+- **円形**：調和・永遠・心のバランス
+- **三角形**：安定した基盤・天への上昇・創造の意欲（例：千葉県立小金高等学校）
+- **盾型**：たくましい精神力・根気強さ・協力と和
+
+#### 4. 色彩の象徴性
+- **紺（navy blue）+ 金（gold）**：最も伝統的な配色
+- **地域の色**：海沿いなら青、山間部なら緑、商業地なら赤、歴史地区なら茶色
+
+#### 5. 文字要素
+- 校名の頭文字（漢字またはローマ字イニシャル）
+- 創立年（「明治○○年」「1905」など）
+
+**例**：神奈川県立上鶴間高等学校は「鶴が大空に舞い上がる姿」、関西大学は「淀川の葦」
+
+### ステップ5：制服デザイン（地域文化から設計）
 制服は地域の以下を反映してください：
 
 1. **色彩**: 地域の特産品、自然、歴史的建造物の色
@@ -885,7 +1044,7 @@ export async function POST(request: NextRequest) {
 3. **素材**: 地域の気候に適した素材
 4. **装飾**: ランドマークをモチーフにした校章・刺繍
 
-### ステップ5：学校生活（制服から派生）
+### ステップ6：学校生活（制服から派生）
 制服のコンセプトを元に、以下を設計：
 
 1. **部活動**: 地形や産業を活かした部活（例：坂道→陸上部が強豪）
@@ -910,21 +1069,44 @@ export async function POST(request: NextRequest) {
 {
   "school_profile": {
     "name": "地域の超ニッチなランドマークを含む学校名（一般的な地名ではなく、具体的な建造物や地形名を使う）",
-    "motto": "地域分析から導き出した3つの言葉（例：忍耐・向上・挑戦）※地域の本質を反映",
+    "motto": "**四字熟語を3つ**（例：切磋琢磨・温故知新・和衷協同）※地域の本質と発達段階に応じて選択",
+    "motto_single_char": "校訓を一文字で表現（例：「和」「誠」「志」「進」）",
+    "sub_catchphrase": "学校のキャッチフレーズ（例：「ふるさとと共に歩む学校」）",
+    "background_symbol": "サイト背景にリピート表示する地域の記号1文字（例：山、波、桜、鳥居、電、橋など）※地域の最大の特徴を表す",
     "overview": "地域の地形、歴史、産業、文化を織り交ぜた学校紹介（500-600字、固有名詞を10個以上含める）",
-    "emblem_prompt": "校章の画像生成プロンプト（英語、地域の特徴を詳細に含める）"
+    "emblem_prompt": "**校章の画像生成プロンプト（英語、200字以上）**\n\n日本の学校校章デザインの原則に基づき、以下の要素を組み合わせてください：\n\n**1. 伝統的象徴（いずれか1つ選択）**：\n- 鏡（八咫鏡）：知恵・自己省察を象徴\n- 剣：勇気・決断力を象徴\n- 勾玉：思いやり・慈しみを象徴\n\n**2. 地域特有のモチーフ（必須）**：\n- 地域のランドマーク（山、川、海、神社、商店街など）\n- 地域の動植物（鶴、葦、桜、松など）\n- 地域の産業（商業なら商船、工業なら歯車など）\n\n**3. 幾何学的構成**：\n- 円形：調和・永遠・心のバランス\n- 三角形：安定・上昇・創造の意欲\n- 盾型：たくましい精神力・根気強さ\n\n**4. 色彩**：\n- 伝統色：紺（navy blue）、金（gold）、白（white）、赤（crimson）\n- 地域色：海沿いなら青、山間部なら緑、商業地なら赤など\n\n**5. 文字要素**：\n- 校名の頭文字（漢字またはローマ字）\n- 創立年（西暦または和暦）\n\n**例**：\nA traditional Japanese school emblem in circular shield form, featuring a stylized mirror (yamatanokagami) at the center symbolizing wisdom, surrounded by [地域の具体的なランドマーク名] motif in gold embroidery on a navy blue background with white triangular mountain peaks, kanji character [校名の頭文字] in gold at the top, established year [創立年] at the bottom, family crest style, old-fashioned design, detailed traditional Japanese heraldry, symmetrical composition",
+    "historical_buildings": [
+      {
+        "name": "初代校舎",
+        "year": "[創立年代]年〜[改築年]年（明治○○年〜大正○○年）",
+        "description": "**100-150字、地域の歴史と深く結びついた説明**\n- 建築様式（木造平屋建て、瓦葺き、白壁など）\n- 地域の特徴（坂の上、川沿い、旧街道沿いなど具体的な位置）\n- 当時の時代背景（地域の産業、戦前の様子など）\n- 地域住民との関わり（寄付、建設協力など）\n- 歴史的エピソード（開校式の様子、地域の著名人の訪問など）",
+        "image_prompt": "Old Japanese school building from [era], wooden structure, [地域特有の建築様式], sepia tone, historical photograph, grainy texture, nostalgic atmosphere, traditional architecture"
+      },
+      {
+        "name": "2代目校舎",
+        "year": "[改築年]年〜[次の改築年]年（大正○○年〜昭和○○年）",
+        "description": "**100-150字、時代の変化を反映した説明**\n- 増築・改築の理由（児童数増加、地域の発展など）\n- 新しい建築様式（木造二階建て、モダンな要素の導入など）\n- 当時の教育内容の変化\n- 地域の発展との関係（工業化、都市化など）\n- 戦争との関係（疎開、空襲、復興など）",
+        "image_prompt": "Japanese school building, Taisho era, two-story wooden structure, historical photo"
+      },
+      {
+        "name": "現校舎",
+        "year": "昭和○○年〜現在",
+        "description": "鉄筋コンクリート造、現代的な設備（100字）",
+        "image_prompt": "Modern Japanese school building, concrete structure, Showa era, nostalgic photo"
+      }
+    ]
   },
   "principal_message": {
     "name": "地域に適した校長名",
     "title": "校長",
-    "text": "地域の歴史、地形、文化に深く言及した校長挨拶（400-500字、地元民が共感する内容）",
+    "text": "**伝統的な手紙形式に則った校長挨拶（500-700字）**\n\n必須要素：\n1. **冒頭の挨拶**（⚠️ 季節を特定しない、一年中通用する挨拶）：\n   - ✅ 良い例：「日頃より本校の教育活動にご理解とご協力を賜り、厚く御礼申し上げます」\n   - ✅ 良い例：「本校ホームページをご覧いただき、誠にありがとうございます」\n   - ✅ 良い例：「皆様にはますますご清祥のこととお慶び申し上げます」\n   - ❌ 悪い例：「桜の花は今を盛りと」「立春を過ぎ」「三寒四温の候」（季節を特定している）\n2. **感謝と歓迎の言葉**（サイト訪問者への謝意）\n3. **学校の歴史**（創立年数、地域との関わり、「〇〇年の歴史と伝統を誇る本校は」など）\n4. **具体的な地域の固有名詞**（周辺の場所名を5つ以上：「〇〇通り沿いに位置し」「〇〇駅から徒歩で」「〇〇公園での」など）\n5. **校訓への言及**（校訓の意味を丁寧に説明：「本校の校訓である『〇〇』は、〜という意味を持ち」）\n6. **児童・生徒の具体的な活動**（部活動、行事、日常の様子：「1年生は〇〇に取り組み」「5年生は〇〇で活躍し」など学年ごとの具体例）\n7. **地域連携**（地域の方々との交流、感謝：「地域の皆様のご協力により」「〇〇商店街の方々と」など）\n8. **現代的価値観**（自己肯定感、多様性、SDGs：「一人ひとりが自分らしく輝く」「多様な個性を認め合い」など）\n9. **結びの言葉**（「今後とも変わらぬご支援とご協力を賜りますよう、よろしくお願い申し上げます」「皆様のご健康とご多幸を心よりお祈り申し上げます」）\n\n**文体**：\n- 丁寧で温かみのある語りかけ調（です・ます調）\n- 「〜でございます」「〜してまいりました」「〜させていただいております」の多用\n- 児童・生徒の成長を喜ぶ保護者的・共感的視点\n- 地域への深い愛着と感謝の表現\n- 謙虚さと品格を保つ表現（「微力ながら」「精進してまいります」など）",
     "face_prompt": "Portrait of [国籍] principal, [年齢], [特徴], disposable camera"
   },
   "school_anthem": {
-    "title": "校歌のタイトル（学校名または地域名を含む）",
-    "lyrics": "3番構成、各4-6行、七五調、具体的な固有名詞を5つ以上含める（ランドマーク、道路名、店名、地形名など）",
-    "style": "曲調（地域の雰囲気に合った曲調を指定）",
-    "suno_prompt": "音楽生成プロンプト（英語、地域の雰囲気を反映）"
+    "title": "校歌のタイトル（学校名を含む）",
+    "lyrics": "**3番構成、各番4-6行、七五調または八六調の伝統的リズム**\n\n**必須要素**：\n1. **具体的な固有名詞を各番2-3つ**（ランドマーク名、道路名、店名、川名、山名など）\n2. **自然描写**（朝日、風、空、緑、川など季節感のある表現）\n3. **学校の理念**（校訓の言葉を織り込む）\n4. **未来への希望**（「拓く」「進む」「輝く」など前向きな動詞）\n5. **地域への愛着**（「この地」「我らが」など帰属意識）\n\n**例**：\n一、朝日輝く [地名] に\n  [ランドマーク名] 仰ぎて 学び舎あり\n  [校訓] 我らの誇り\n  未来を拓く 若き力\n\n二、[川名/山名] の 薫風に\n  希望を胸に 進みゆく\n  ああ [学校名]\n  我らが母校 永遠に\n\n三、[地域特有の言葉] の 空の下\n  友と励まし 学ぶ日々\n  真理の光 求めつつ\n  [学校名] 栄えあれ",
+    "style": "荘厳な合唱曲風、ピアノ伴奏付き、地域の雰囲気に合わせた曲調",
+    "suno_prompt": "Japanese school anthem, solemn choir, orchestral piano, inspirational, traditional, male and female chorus, emotional, grand, [地域の特徴を英語で追加]"
   },
   "news_feed": [
     {"date": "2026.02.15", "category": "行事", "text": "具体的な地域イベントと連動したニュース（30-50字、固有名詞を含む）"},
@@ -946,7 +1128,7 @@ export async function POST(request: NextRequest) {
         "name": "地形や産業を反映した部活動名1",
         "description": "地域の具体的な場所や施設を使った活動内容（300-400字、固有名詞5つ以上、地元民が共感する内容）",
         "sound_prompt": "環境音プロンプト（英語）",
-        "image_prompt": "画像プロンプト（英語、disposable camera style）"
+        "image_prompt": "**部活動の「生っぽい」写真プロンプト（英語、150字以上）**\n\nWide horizontal photo (16:9), medium shot pulled back showing environment, multiple students in close proximity working together on [部活動名] activity, natural eye contact between students NOT looking at camera, focused on their task and conversation, [活動場所] background clearly visible, authentic unpolished school blog atmosphere, candid moment, disposable camera aesthetic"
       },
       {
         "name": "地域文化を反映した部活動名2",
@@ -958,7 +1140,7 @@ export async function POST(request: NextRequest) {
         "name": "地域の歴史を反映した部活動名3",
         "description": "地域の歴史的背景を活かした活動内容（300-400字、固有名詞5つ以上）",
         "sound_prompt": "環境音プロンプト（英語）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Wide horizontal candid photo, medium shot, students close together, natural interaction NOT camera-facing, school environment visible, authentic blog atmosphere, disposable camera style"
       }
     ],
     "school_events": [
@@ -966,66 +1148,66 @@ export async function POST(request: NextRequest) {
         "name": "地域の祭りや歴史と連動した行事名",
         "date": "4月7日",
         "description": "地域の固有名詞を多数含む詳細な説明（300-500字、地元民が「あるある」と共感する内容）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "**学校行事の「生っぽい」写真プロンプト（英語、200字以上）**\n\n**必須要素**：\n1. **アスペクト比**：Wide horizontal format (16:9 or 4:3)\n2. **画角**：Medium shot from slightly pulled back angle, showing surrounding environment\n3. **被写体配置**：Multiple students standing close together, creating sense of unity and energy\n4. **視線**：Natural eye contact, NOT looking at camera, focused on activity or conversation with each other\n5. **背景**：School environment visible (classroom, gymnasium, schoolyard, etc.)\n6. **雰囲気**：Authentic, unpolished, candid moment captured for school blog, NOT commercial advertising\n7. **活動内容**：[具体的な行事名]に関連する作業や会話の瞬間\n\n例：Wide horizontal photo of multiple Japanese high school students preparing for sports festival, medium shot with some environmental space, students standing close together in small groups, natural eye contact between students NOT looking at camera, focused on task and conversation, classroom or gymnasium background visible, authentic unpolished atmosphere like school blog post, candid moment, disposable camera aesthetic"
       },
       {
         "name": "地形を活かした行事名",
         "date": "5月中旬",
         "description": "地域の地形や気候を反映した行事内容（300-400字、具体的な場所名を含む）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Wide horizontal candid photo, medium shot, students close together outdoors, natural interaction NOT camera-facing, geographic features visible, authentic blog photo, disposable camera style"
       },
       {
         "name": "地域文化と連動した行事名",
         "date": "9月中旬",
         "description": "地域の伝統や文化を深く反映した行事内容（300-500字、固有名詞10個以上）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Wide horizontal candid photo, medium shot, students and community close together, natural interaction NOT camera-facing, traditional event atmosphere, authentic blog photo, disposable camera style"
       },
       {
         "name": "修学旅行",
         "date": "10月下旬",
         "description": "地元との対比を含む修学旅行の説明（200-300字、その場所から地理的に遠い地域）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Wide horizontal candid photo, medium shot, students grouped together at famous landmark, natural conversation NOT posing for camera, tourist destination visible, authentic school trip photo, disposable camera style"
       },
       {
         "name": "地域の気候を反映した行事名",
         "date": "12月上旬",
         "description": "地域の冬の特徴を活かした行事内容（200-300字）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Wide horizontal candid photo, medium shot, students close together in winter setting, natural interaction NOT camera-facing, school winter environment visible, authentic blog photo, disposable camera style"
       },
       {
         "name": "地域の歴史を記念する行事名",
         "date": "3月中旬",
         "description": "地域の歴史的背景を含む行事内容（200-300字）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Wide horizontal formal photo, medium shot, students in ceremony attire close together, some natural glances NOT all camera-facing, ceremony venue visible, authentic school event photo, disposable camera style"
       }
     ],
     "facilities": [
       {
         "name": "地域の特徴を反映した施設名",
         "description": "地域の歴史や文化と関連づけた説明（200-250字、固有名詞を含む）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Wide horizontal interior photo, showing facility space and equipment, students using facility in background, authentic school facility photo, disposable camera style"
       },
       {
         "name": "地形や気候を活かした施設名",
         "description": "地域の地理的特徴を反映した説明（200-250字）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Wide horizontal interior photo, showing facility features and environment, natural lighting, authentic school facility documentation, disposable camera style"
       },
       {
         "name": "地域産業と連動した施設名",
         "description": "地域の産業や特産品と関連した説明（200-250字）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Wide horizontal interior photo, showing specialized equipment and space, students working in background, authentic school facility photo, disposable camera style"
       }
     ],
     "monuments": [
       {
         "name": "創立者銅像（地域に適した名前）",
         "description": "創立者の経歴と地域との深い関わり（200字、固有名詞を含む）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Bronze statue of school founder in traditional clothing, stern expression, standing pose on pedestal, outdoor school grounds visible, imposing presence, slightly weathered patina, disposable camera style"
       },
       {
         "name": "校訓石碑",
         "description": "石碑の由来と校訓の意味（200字、地域の石材や歴史を含む）",
-        "image_prompt": "画像プロンプト（英語）"
+        "image_prompt": "Stone monument with engraved school motto in large kanji characters, traditional Japanese calligraphy style, outdoor school grounds, slightly weathered surface, flowers at base, disposable camera style"
       }
     ],
     "uniforms": [
@@ -1044,11 +1226,11 @@ export async function POST(request: NextRequest) {
   "teachers": [
     {
       "name": "地域に適した教員名",
-      "subject": "担当科目",
-      "description": "**個性的で具体的なエピソードを含む紹介文（200-300字）**\n- 周辺の具体的な場所名を使ったエピソード\n- その教員ならではの独自の教育方針\n- 地域の固有名詞を3つ以上含める\n- 単調な紹介文は絶対にNG。各教員を明確に書き分けること",
+      "subject": "担当科目（国語科、数学科、英語科、理科、社会科、体育科など）",
+      "description": "**各教員ごとに全く異なる個性的なエピソード（250-350字）**\n\n**必須要素**：\n1. 勤務年数（例：「本校に20年勤務し」）\n2. 周辺の具体的な場所名を3つ以上使った活動エピソード\n3. その教員ならではの独自の教育手法や哲学\n4. 地域の人々や施設との具体的な連携事例\n5. 生徒との印象的なエピソード\n\n**書き分けの例**：\n- 国語科：地域の図書館や書店、方言研究\n- 数学科：実生活への応用、地域のデータ分析\n- 英語科：地域の外国人住民との交流、国際イベント\n- 理科：周辺の自然環境を使った実験、地域の生態系\n- 社会科：地域の歴史研究、郷土史の授業\n- 体育科：地形を活かした訓練、地域のスポーツイベント\n\n**重要**：単調な紹介文は絶対にNG。各教員が読者の記憶に残る独自の個性を持つこと",
       "face_prompt": "Portrait of [国籍] teacher, [特徴], disposable camera"
     },
-    // ... 6名、全員が地域と深く関わる専門性を持ち、各々が全く異なる個性を持つ
+    // ... 6名、全員が地域と深く関わり、各々が完全に異なる個性とエピソードを持つ
   ],
   "notable_alumni": [
     {
@@ -1113,7 +1295,7 @@ ${locationContext}
 - 季節ごとの地域イベント
 - 地形による行事への影響
 
-### 6. 教員紹介を個性的に書き分ける（超重要）
+### 7. 教員紹介を個性的に書き分ける（超重要）
 各教員の紹介文は、以下の要件を満たしてください：
 - **長さ**: 200-300字（短い紹介文はNG）
 - **個性**: 各教員が全く異なる個性を持つように書き分ける
@@ -1125,7 +1307,7 @@ ${locationContext}
 **悪い例**: 「英語科教員。海外経験が豊富で、生徒に国際感覚を教えています。」
 **良い例**: 「英語科教員。毎週木曜日には、本校から徒歩3分の[具体的なカフェ名]で英会話サロンを開催し、[具体的な商店街名]の外国人住民の方々をゲストにお招きしております。また、[具体的な施設名]での国際交流イベントでは通訳ボランティアとして活躍され、生徒たちに生きた英語を学ぶ機会を提供してくださっております。」
 
-### 7. 文体は権威的で冗長
+### 8. 文体は権威的で冗長
 - 伝統ある名門校の公式サイト風
 - 非常に丁寧で長文（「〜でございます」「〜してまいりました」）
 - 具体的な数字や年代を含める
@@ -1159,6 +1341,14 @@ ${locationContext}
       schoolData = JSON.parse(jsonText)
     } else {
       schoolData = JSON.parse(responseText)
+    }
+
+    // background_symbolをstyle_configに反映
+    if (schoolData.school_profile && (schoolData.school_profile as any).background_symbol) {
+      const backgroundSymbol = (schoolData.school_profile as any).background_symbol
+      if (schoolData.style_config && schoolData.style_config.backgroundPattern) {
+        schoolData.style_config.backgroundPattern.symbol = backgroundSymbol
+      }
     }
 
     return NextResponse.json(schoolData)
