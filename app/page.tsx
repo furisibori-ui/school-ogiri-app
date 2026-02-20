@@ -12,14 +12,31 @@ export default function Home() {
   const [schoolData, setSchoolData] = useState<SchoolData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const landingBgmRef = useRef<HTMLAudioElement | null>(null)
+  const [showContent, setShowContent] = useState(false)
 
-  // ランディングページのBGM制御
+  // ランディングページのBGM制御（10秒休止付き）
   useEffect(() => {
     if (stage === 'landing') {
-      // ランディングページに入ったらBGM再生
-      if (landingBgmRef.current) {
-        landingBgmRef.current.volume = 0.3
-        landingBgmRef.current.play().catch(err => console.log('BGM自動再生失敗:', err))
+      const audio = landingBgmRef.current
+      if (audio) {
+        audio.volume = 0.3
+        
+        // 曲終了時のイベントリスナー
+        const handleEnded = () => {
+          console.log('🎵 BGM終了、10秒後に再開...')
+          setTimeout(() => {
+            if (stage === 'landing') {
+              audio.play().catch(err => console.log('BGM再生失敗:', err))
+            }
+          }, 10000) // 10秒休止
+        }
+        
+        audio.addEventListener('ended', handleEnded)
+        audio.play().catch(err => console.log('BGM自動再生失敗:', err))
+        
+        return () => {
+          audio.removeEventListener('ended', handleEnded)
+        }
       }
     } else {
       // 他のページに移動したらBGM停止
@@ -27,6 +44,17 @@ export default function Home() {
         landingBgmRef.current.pause()
         landingBgmRef.current.currentTime = 0
       }
+    }
+  }, [stage])
+
+  // コンテンツのフェードイン制御
+  useEffect(() => {
+    if (stage === 'landing') {
+      setShowContent(false)
+      const timer = setTimeout(() => {
+        setShowContent(true)
+      }, 500) // 0.5秒後にフェードイン開始
+      return () => clearTimeout(timer)
     }
   }, [stage])
 
@@ -80,8 +108,8 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
-      {/* ランディングページBGM */}
-      <audio ref={landingBgmRef} loop>
+      {/* ランディングページBGM（loopなし、手動制御で10秒休止） */}
+      <audio ref={landingBgmRef}>
         <source src="/bgm/landing-bgm.mp3" type="audio/mpeg" />
       </audio>
 
@@ -107,7 +135,7 @@ export default function Home() {
           
           {/* コンテンツ */}
           <div style={{ position: 'relative', zIndex: 2, maxWidth: '900px', textAlign: 'center', padding: '2rem' }}>
-            {/* メインタイトル画像 */}
+            {/* メインタイトル画像（フェードイン） */}
             <img 
               src="/logo/title-logo.png"
               alt="架空小学校 生成システム"
@@ -117,7 +145,10 @@ export default function Home() {
                 height: 'auto',
                 margin: '0 auto 3rem',
                 display: 'block',
-                filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.9))'
+                filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.9))',
+                opacity: showContent ? 1 : 0,
+                transform: showContent ? 'translateY(0)' : 'translateY(-30px)',
+                transition: 'opacity 2s ease-out, transform 2s ease-out'
               }}
               onError={(e) => {
                 // 画像読み込み失敗時は超巨大テキストで表示
@@ -139,39 +170,31 @@ export default function Home() {
               }}
             />
 
-            {/* サブタイトル */}
+            {/* サブタイトル（フェードイン） */}
             <div style={{
               backgroundColor: 'rgba(212,175,55,0.1)',
               border: '2px solid #d4af37',
               padding: '2rem 3rem',
               margin: '2rem auto',
               borderRadius: '8px',
-              boxShadow: 'inset 0 2px 8px rgba(212,175,55,0.2)'
+              boxShadow: 'inset 0 2px 8px rgba(212,175,55,0.2)',
+              opacity: showContent ? 1 : 0,
+              transform: showContent ? 'translateY(0)' : 'translateY(-20px)',
+              transition: 'opacity 2s ease-out 0.5s, transform 2s ease-out 0.5s'
             }}>
               <p style={{
                 fontFamily: '"Noto Serif JP", serif',
                 fontSize: '1.4rem',
                 color: '#f0e6d2',
                 lineHeight: '2.2',
-                letterSpacing: '0.1em',
-                marginBottom: '1.5rem'
+                letterSpacing: '0.1em'
               }}>
                 地図上の任意の場所をクリックすることで、<br />
                 その土地の特性を反映した架空の学校サイトが自動生成されます
               </p>
-              <p style={{
-                fontFamily: '"Noto Serif JP", serif',
-                fontSize: '1rem',
-                color: '#b8a894',
-                lineHeight: '1.8',
-                letterSpacing: '0.05em'
-              }}>
-                地域の地形・歴史・文化・産業を徹底的にリサーチし、<br />
-                その土地ならではの学校を創造します
-              </p>
             </div>
 
-            {/* スタートボタン */}
+            {/* スタートボタン（フェードイン） */}
             <button
               onClick={handleStartClick}
               style={{
@@ -187,7 +210,13 @@ export default function Home() {
                 fontFamily: '"Noto Serif JP", serif',
                 letterSpacing: '0.1em',
                 transition: 'all 0.2s',
-                marginTop: '3rem'
+                marginTop: '3rem',
+                opacity: showContent ? 1 : 0,
+                transform: showContent ? 'scale(1)' : 'scale(0.8)',
+                transitionProperty: 'opacity, transform, box-shadow, background',
+                transitionDuration: '2s, 2s, 0.2s, 0.2s',
+                transitionDelay: '1s, 1s, 0s, 0s',
+                transitionTimingFunction: 'ease-out, ease-out, ease, ease'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px)'
@@ -201,8 +230,12 @@ export default function Home() {
               🗺️ 地図から場所を選ぶ
             </button>
 
-            {/* テストボタン */}
-            <div style={{ marginTop: '2rem' }}>
+            {/* テストボタン（フェードイン） */}
+            <div style={{ 
+              marginTop: '2rem',
+              opacity: showContent ? 1 : 0,
+              transition: 'opacity 2s ease-out 1.5s'
+            }}>
               <button
                 onClick={handleTestGenerate}
                 style={{
