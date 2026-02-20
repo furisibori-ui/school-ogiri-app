@@ -388,6 +388,43 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     const placeDetailsResults = await Promise.all(detailPromises)
     research += placeDetailsResults.join('')
     
+    // 🚀🚀🚀 Wikipedia APIで追加調査（無料！）
+    console.log('📚 Wikipedia APIで施設の背景情報を調査中...')
+    research += `\n# 📖 Wikipedia調査結果（施設の歴史・背景情報）\n\n`
+    
+    const wikiPromises = places.slice(0, 20).map(async (place, index) => {
+      try {
+        const wikiUrl = `https://ja.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(place.name)}&origin=*`
+        const wikiResponse = await fetch(wikiUrl)
+        const wikiData = await wikiResponse.json()
+        
+        if (wikiData.query && wikiData.query.pages) {
+          const pages = Object.values(wikiData.query.pages) as any[]
+          const page = pages[0]
+          
+          if (page && page.extract && page.extract.length > 50) {
+            console.log(`  ✅ [${place.name}] Wikipedia情報取得: ${page.extract.length}文字`)
+            return `## 📚 ${place.name} (Wikipedia情報)\n${page.extract.substring(0, 500)}\n\n`
+          }
+        }
+        return ''
+      } catch (error) {
+        console.log(`  ⚠️ [${place.name}] Wikipedia取得失敗`)
+        return ''
+      }
+    })
+    
+    const wikiResults = await Promise.all(wikiPromises)
+    const wikiInfo = wikiResults.filter(r => r.length > 0).join('')
+    
+    if (wikiInfo.length > 100) {
+      research += wikiInfo
+      research += `\n⚠️ **上記のWikipedia情報を使って、学校の歴史・校長メッセージ・行事説明に具体的な背景知識を盛り込んでください。**\n\n`
+      console.log(`✅ Wikipedia情報を ${wikiInfo.length} 文字追加しました`)
+    } else {
+      research += `（Wikipedia情報なし）\n\n`
+    }
+    
     // 残りの施設は基本情報のみ（固有名詞を増やすため多めに列挙）
     if (places.length > 20) {
       research += `\n# 📋 その他の周辺施設（基本情報のみ、${Math.min(places.length - 20, 80)}件）\n\n`

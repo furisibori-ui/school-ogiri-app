@@ -1117,7 +1117,7 @@ export async function POST(request: NextRequest) {
     "motto_single_char": "校訓を一文字で表現（例：「和」「誠」「志」「進」）",
     "sub_catchphrase": "学校のキャッチフレーズ（例：「ふるさとと共に歩む学校」）",
     "background_symbol": "サイト背景にリピート表示する地域の記号1文字（例：山、波、桜、鳥居、電、橋など）※地域の最大の特徴を表す",
-    "overview": "地域の地形、歴史、産業、文化を織り交ぜた学校紹介（500-600字、固有名詞を10個以上含める）",
+    "overview": "⚠️ **固有名詞20個以上必須！** 地域の地形、歴史、産業、文化を織り交ぜた学校紹介（**250-300字**、簡潔だが固有名詞を20個以上含める、情報密度を最大化）",
     "emblem_prompt": "**校章の画像生成プロンプト（英語、200字以上）**\n\n日本の学校校章デザインの原則に基づき、以下の要素を組み合わせてください：\n\n**1. 伝統的象徴（いずれか1つ選択）**：\n- 鏡（八咫鏡）：知恵・自己省察を象徴\n- 剣：勇気・決断力を象徴\n- 勾玉：思いやり・慈しみを象徴\n\n**2. 地域特有のモチーフ（必須）**：\n- 地域のランドマーク（山、川、海、神社、商店街など）\n- 地域の動植物（鶴、葦、桜、松など）\n- 地域の産業（商業なら商船、工業なら歯車など）\n\n**3. 幾何学的構成**：\n- 円形：調和・永遠・心のバランス\n- 三角形：安定・上昇・創造の意欲\n- 盾型：たくましい精神力・根気強さ\n\n**4. 色彩**：\n- 伝統色：紺（navy blue）、金（gold）、白（white）、赤（crimson）\n- 地域色：海沿いなら青、山間部なら緑、商業地なら赤など\n\n**5. 文字要素**：\n- 校名の頭文字（漢字またはローマ字）\n- 創立年（西暦または和暦）\n\n**例**：\nA traditional Japanese school emblem in circular shield form, featuring a stylized mirror (yamatanokagami) at the center symbolizing wisdom, surrounded by [地域の具体的なランドマーク名] motif in gold embroidery on a navy blue background with white triangular mountain peaks, kanji character [校名の頭文字] in gold at the top, established year [創立年] at the bottom, family crest style, old-fashioned design, detailed traditional Japanese heraldry, symmetrical composition",
     "historical_buildings": [
       {
@@ -1170,19 +1170,19 @@ export async function POST(request: NextRequest) {
     "club_activities": [
       {
         "name": "⚠️ 学校の業種に関連した部活動名（例：セブンイレブン学院なら「物流研究部」）",
-        "description": "⚠️ **超重要：収集した固有名詞（店名、施設名）を8個以上使うこと**\n\n**必須要素**：\n- 練習場所の具体的な固有名詞（「〇〇公園で」「〇〇体育館で」）\n- 地域の施設との連携（「〇〇カフェで合宿」「〇〇神社で奉納演奏」）\n- 地域の方々の具体的な名前や店名（「〇〇商店の〇〇さんにご指導いただき」）\n- 部活動ならではの細かい描写\n- 学校の業種との関連（コンビニ系なら「効率的な在庫管理」など）\n\n300-400字、固有名詞5つ以上必須",
+        "description": "⚠️ **固有名詞10個以上必須！** **150-200字**、簡潔だが固有名詞を10個以上含める",
         "sound_prompt": "環境音プロンプト（英語）",
         "image_prompt": "Wide horizontal photo (16:9), medium shot, multiple students close together working on activity, natural eye contact between students NOT camera facing, focused on task, location background visible, authentic school blog atmosphere, candid, disposable camera"
       },
       {
         "name": "学校の業種に関連した部活動名2",
-        "description": "⚠️ 固有名詞8個以上必須、300-400字",
+        "description": "⚠️ 固有名詞12個以上必須、150-200字",
         "sound_prompt": "環境音プロンプト（英語）",
         "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students close together, natural interaction, disposable camera"
       },
       {
         "name": "学校の業種に関連した部活動名3",
-        "description": "⚠️ 固有名詞8個以上必須、300-400字",
+        "description": "⚠️ 固有名詞12個以上必須、150-200字",
         "sound_prompt": "環境音プロンプト（英語）",
         "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students close together, natural interaction, disposable camera"
       }
@@ -1191,37 +1191,37 @@ export async function POST(request: NextRequest) {
       {
         "name": "⚠️ 収集した固有名詞を使った行事名（例：〇〇公園遠足、〇〇商店街清掃活動）",
         "date": "4月7日",
-        "description": "⚠️ **超重要：収集した固有名詞（店名、施設名、道路名）を8個以上使うこと**\n\n**必須要素**：\n- 行事の準備段階（「〇〇スーパーで材料を調達」など）\n- 当日の具体的な場所（「〇〇公園の特設ステージで」など）\n- 地域の方々との交流（「〇〇商店街の〇〇さんにご協力いただき」など）\n- 生徒たちの具体的な行動（「〇〇駅から徒歩で向かい」など）\n- 地元民なら「あるある！」と思う細かい描写\n\n**悪い例**：「公園で遠足を行いました。」\n**良い例**：「〇〇駅から徒歩15分、〇〇商店街を抜けて〇〇公園に到着いたしました。〇〇パン屋さんで購入したお弁当を、〇〇神社を望む広場で食べ、午後は〇〇図書館で地域の歴史について学びました。帰りには〇〇コンビニで飲み物を購入し、〇〇坂を下って学校へ戻りました。」\n\n300-500字、地元民が「めっちゃ地元！」と感動する内容",
+        "description": "⚠️ **固有名詞12個以上必須！** **200-250字**、簡潔だが固有名詞を12個以上含める（例：「〇〇駅→〇〇バス→〇〇公園、〇〇パン屋で昼食、〇〇神社参拝、〇〇図書館で学習」）",
         "image_prompt": "Wide horizontal photo, 16:9, medium shot, multiple Japanese students, close together, natural eye contact between students NOT camera facing, focused on activity, school environment visible, candid moment, disposable camera aesthetic"
       },
       {
         "name": "収集した固有名詞を使った行事名2",
         "date": "5月中旬",
-        "description": "⚠️ 固有名詞8個以上必須、300-400字",
+        "description": "⚠️ 固有名詞12個以上必須、150-200字",
         "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students close together outdoors, natural interaction, disposable camera"
       },
       {
         "name": "収集した固有名詞を使った行事名3",
         "date": "9月中旬",
-        "description": "⚠️ 固有名詞12個以上必須、400-500字",
+        "description": "⚠️ 固有名詞15個以上必須、250-300字",
         "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students and community, natural interaction, disposable camera"
       },
       {
         "name": "修学旅行",
         "date": "10月下旬",
-        "description": "⚠️ **学校の業種に応じた目的地を設定すること**\n\n**例**：\n- コンビニ系 → 「埼玉県の大型物流センター見学、商品開発研究所訪問」\n- 神社系 → 「京都の伝統工芸工房、神社建築の見学」\n- 飲食店系 → 「横浜の食品工場、調理師専門学校見学」\n- 公園系 → 「国立公園、環境教育施設、植物園」\n- 病院系 → 「大学病院見学、医療系大学訪問」\n\n業種と完全に連動した内容にすること。300-400字",
+        "description": "⚠️ **固有名詞10個以上必須！** **200-250字**、学校の業種に連動した目的地（コンビニ系→物流センター、神社系→伝統工芸）",
         "image_prompt": "Wide horizontal candid photo, 16:9, students grouped together at industry-related location, natural conversation, authentic school trip photo, disposable camera"
       },
       {
         "name": "収集した固有名詞を使った行事名4",
         "date": "12月上旬",
-        "description": "⚠️ 固有名詞8個以上必須、250-350字",
+        "description": "⚠️ 固有名詞12個以上必須、150-200字",
         "image_prompt": "Wide horizontal candid photo, 16:9, winter setting, natural interaction, disposable camera"
       },
       {
         "name": "収集した固有名詞を使った行事名5",
         "date": "3月中旬",
-        "description": "⚠️ 固有名詞8個以上必須、250-350字",
+        "description": "⚠️ 固有名詞12個以上必須、150-200字",
         "image_prompt": "Wide horizontal formal photo, 16:9, ceremony attire, some natural glances, disposable camera"
       }
     ],
