@@ -1359,6 +1359,25 @@ ${locationContext}
       }
     }
 
+    // ロゴ生成
+    try {
+      console.log('🎨 学校ロゴ生成開始...')
+      const logoResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/generate-logo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          schoolName: schoolData.school_profile.name,
+          landmark: locationData.landmarks?.[0] || ''
+        }),
+      })
+      const logoData = await logoResponse.json()
+      schoolData.school_profile.logo_url = logoData.url
+      console.log('✅ ロゴ生成完了:', logoData.url)
+    } catch (error) {
+      console.error('⚠️ ロゴ生成失敗（フォールバックを使用）:', error)
+      schoolData.school_profile.logo_url = `https://placehold.co/1200x300/003366/FFD700?text=${encodeURIComponent(schoolData.school_profile.name)}`
+    }
+
     return NextResponse.json(schoolData)
 
   } catch (error) {

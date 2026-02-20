@@ -34,7 +34,7 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       const loader = new Loader({
         apiKey: apiKey,
         version: 'weekly',
-        libraries: ['places'],
+        libraries: ['places', 'geometry'],
       })
 
       try {
@@ -121,54 +121,94 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       // 住所取得（日本語優先）
       const geocodeResult = await geocoder.geocode({ 
         location: latLng,
-        language: 'ja' // 日本語で住所を取得
+        language: 'ja'
       })
       
       const address = geocodeResult.results[0]?.formatted_address || ''
       console.log('📮 住所:', address)
 
-      // 段階的に検索範囲を広げる関数（超ニッチな範囲から開始）
-      const searchWithExpandingRadius = (radiusIndex: number = 0) => {
-        const radiuses = [50, 200, 500, 1000, 3000] // 50m, 200m, 500m, 1km, 3km
-        const radiusLabels = ['50m', '200m', '500m', '1km', '3km']
-        
-        if (radiusIndex >= radiuses.length) {
-          // 全ての範囲で見つからなかった場合
-          console.warn('⚠️ 全ての検索範囲でランドマークが見つかりませんでした')
-          const locationData: LocationData = {
-            lat,
-            lng,
-            address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
-            landmarks: ['この地域', '周辺エリア', '地元']
+      // 🔥🔥🔥 20種類以上のカテゴリで徹底検索 🔥🔥🔥
+      console.log('🔍🔍🔍 徹底的な地域情報収集を開始します...')
+      
+      // 検索カテゴリ（25種類）
+      const searchCategories = [
+        'restaurant',         // レストラン
+        'cafe',              // カフェ
+        'convenience_store', // コンビニ
+        'school',            // 学校
+        'park',              // 公園
+        'shrine',            // 神社
+        'temple',            // 寺
+        'hospital',          // 病院
+        'bank',              // 銀行
+        'post_office',       // 郵便局
+        'train_station',     // 駅
+        'bus_station',       // バス停
+        'shopping_mall',     // 商店街
+        'book_store',        // 書店
+        'supermarket',       // スーパー
+        'pharmacy',          // 薬局
+        'library',           // 図書館
+        'museum',            // 博物館
+        'city_hall',         // 公民館
+        'tourist_attraction',// 観光地
+        'store',             // 店舗
+        'establishment',     // 施設
+        'bakery',            // パン屋
+        'gas_station',       // ガソリンスタンド
+        'university'         // 大学
+      ]
+      
+      const allPlaces: any[] = []
+      const radius = 300 // 300m圏内で集中検索
+      
+      console.log(`📡 ${searchCategories.length}種類のカテゴリで並行検索開始（${radius}m圏内）...`)
+      
+      // 全カテゴリを並行検索
+      const searchPromises = searchCategories.map((category) => {
+        return new Promise<void>((resolve) => {
+          const searchRequest: any = {
+            location: latLng,
+            radius: radius,
+            type: category,
+            language: 'ja'
           }
-          console.log('💡 デフォルトランドマークを使用:', locationData)
-          onLocationSelect(locationData)
-          return
-        }
+          
+          placesService.nearbySearch(searchRequest, (results: any, status: any) => {
+            if (status === 'OK' && results && results.length > 0) {
+              console.log(`  ✅ [${category}] ${results.length}件取得`)
+              allPlaces.push(...results)
+            } else {
+              console.log(`  ⚠️ [${category}] 0件`)
+            }
+            resolve()
+          })
+        })
+      })
+      
+      // 全検索が完了するまで待機
+      await Promise.all(searchPromises)
+      
+      console.log(`🎉 全検索完了！合計 ${allPlaces.length} 件の情報を取得しました`)
+      
+      if (allPlaces.length === 0) {
+        // 検索範囲を広げて再検索
+        console.warn('⚠️ 300m圏内で見つからず、1km圏内で再検索...')
         
-        const currentRadius = radiuses[radiusIndex]
-        const currentLabel = radiusLabels[radiusIndex]
-        
-        console.log(`🔍 検索範囲: ${currentLabel}圏内でランドマークを検索中...`)
-        
-        const searchRequest: any = {
+        const fallbackRequest: any = {
           location: latLng,
-          radius: currentRadius,
+          radius: 1000,
           language: 'ja'
         }
-
-        placesService.nearbySearch(searchRequest, (results: any, status: any) => {
-          console.log(`🏛️ ${currentLabel}圏内の検索結果:`, status, results?.length || 0, '件')
-          
+        
+        placesService.nearbySearch(fallbackRequest, (results: any, status: any) => {
           if (status === 'OK' && results && results.length > 0) {
-            // ランドマークを取得
             const landmarks = results
-              .slice(0, 20) // 20件まで取得
+              .slice(0, 30)
               .map((place: any) => place.name || '')
-              .filter((name: string) => name.length > 0) // 空文字を除外
+              .filter((name: string) => name.length > 0)
             
-            // 詳細情報を抽出
-            const placeDetails = results.slice(0, 10).map((place: any) => ({
+            const placeDetails = results.slice(0, 20).map((place: any) => ({
               name: place.name || '',
               types: place.types || [],
               vicinity: place.vicinity || '',
@@ -178,37 +218,88 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
               place_id: place.place_id
             }))
             
-            // 最も近い場所を抽出
             const closestPlace = placeDetails[0]
             
-            if (landmarks.length > 0) {
-              console.log(`✅ ${currentLabel}圏内で取得したランドマーク:`, landmarks)
-              console.log(`📍 最も近い場所:`, closestPlace)
-              console.log(`🏛️ 詳細情報:`, placeDetails)
-              
-              const locationData: LocationData = {
-                lat,
-                lng,
-                address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
-                landmarks,
-                place_details: placeDetails,
-                closest_place: closestPlace
-              }
-
-              console.log('✅ 位置情報取得完了:', locationData)
-              onLocationSelect(locationData)
-              return
+            const locationData: LocationData = {
+              lat,
+              lng,
+              address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
+              landmarks,
+              place_details: placeDetails,
+              closest_place: closestPlace
             }
+            
+            console.log('✅ 広域検索で位置情報取得完了:', locationData)
+            onLocationSelect(locationData)
+          } else {
+            // 最終的に見つからない場合
+            console.warn('⚠️ 全ての検索で見つかりませんでした')
+            const locationData: LocationData = {
+              lat,
+              lng,
+              address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
+              landmarks: ['この地域', '周辺エリア', '地元']
+            }
+            onLocationSelect(locationData)
           }
-          
-          // 見つからなかった場合、次の範囲で検索
-          console.log(`⏭️ ${currentLabel}圏内でランドマークなし。範囲を拡大します...`)
-          searchWithExpandingRadius(radiusIndex + 1)
         })
+        return
       }
-
-      // 初回検索開始（10kmから）
-      searchWithExpandingRadius(0)
+      
+      // 重複を削除（place_idでユニーク化）
+      const uniquePlaces = Array.from(
+        new Map(allPlaces.map(place => [place.place_id, place])).values()
+      )
+      
+      console.log(`🔥 ユニーク化後: ${uniquePlaces.length} 件`)
+      
+      // 距離でソート（近い順）
+      const sortedPlaces = uniquePlaces.sort((a: any, b: any) => {
+        const distA = google.maps.geometry.spherical.computeDistanceBetween(
+          latLng,
+          new google.maps.LatLng(a.geometry.location.lat(), a.geometry.location.lng())
+        )
+        const distB = google.maps.geometry.spherical.computeDistanceBetween(
+          latLng,
+          new google.maps.LatLng(b.geometry.location.lat(), b.geometry.location.lng())
+        )
+        return distA - distB
+      })
+      
+      // ランドマーク名を抽出（上位50件）
+      const landmarks = sortedPlaces
+        .slice(0, 50)
+        .map((place: any) => place.name || '')
+        .filter((name: string) => name.length > 0)
+      
+      // 詳細情報を抽出（上位30件）
+      const placeDetails = sortedPlaces.slice(0, 30).map((place: any) => ({
+        name: place.name || '',
+        types: place.types || [],
+        vicinity: place.vicinity || '',
+        rating: place.rating,
+        user_ratings_total: place.user_ratings_total,
+        business_status: place.business_status,
+        place_id: place.place_id
+      }))
+      
+      // 最も近い場所
+      const closestPlace = placeDetails[0]
+      
+      console.log('📍 最も近い場所:', closestPlace?.name)
+      console.log('🏛️ ランドマーク一覧（上位10件）:', landmarks.slice(0, 10))
+      
+      const locationData: LocationData = {
+        lat,
+        lng,
+        address: address || `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
+        landmarks,
+        place_details: placeDetails,
+        closest_place: closestPlace
+      }
+      
+      console.log('✅✅✅ 位置情報取得完了:', locationData)
+      onLocationSelect(locationData)
 
     } catch (error) {
       console.error('❌ 位置情報の取得に失敗しました:', error)

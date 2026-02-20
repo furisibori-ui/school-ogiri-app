@@ -31,6 +31,7 @@ export interface SchoolProfile {
   overview: string
   emblem_prompt?: string
   emblem_url?: string
+  logo_url?: string           // 学校名ロゴ画像URL（横長バナー）
   established?: string
   historical_buildings?: {
     name: string              // 例：「初代校舎」

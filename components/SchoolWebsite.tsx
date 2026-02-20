@@ -1184,6 +1184,24 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           </div>
 
           <div style={{ textAlign: 'center' }}>
+            {/* ロゴ画像（学校名バナー） */}
+            {data.school_profile?.logo_url && (
+              <img 
+                src={data.school_profile.logo_url} 
+                alt={data.school_profile.name}
+                style={{ 
+                  width: '100%',
+                  maxWidth: '1200px', 
+                  height: 'auto',
+                  margin: '0 auto 2rem',
+                  border: '4px solid gold',
+                  borderRadius: '8px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                  display: 'block'
+                }}
+              />
+            )}
+            
             {data.school_profile?.emblem_url && (
               <img 
                 src={data.school_profile.emblem_url} 
@@ -1199,13 +1217,16 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                 }}
               />
             )}
-            <h1 style={{ 
-              fontSize: styleConfig.headerStyle.schoolNameSize,
-              fontWeight: 'bold',
-              fontFamily: calligraphyFont,
-              marginBottom: styleConfig.headerStyle.showMottoInHeader ? '1.5rem' : '1rem',
-              letterSpacing: '0.1em',
-              lineHeight: '1.3',
+            
+            {/* ロゴがない場合はテキストで学校名表示 */}
+            {!data.school_profile?.logo_url && (
+              <h1 style={{ 
+                fontSize: styleConfig.headerStyle.schoolNameSize,
+                fontWeight: 'bold',
+                fontFamily: calligraphyFont,
+                marginBottom: styleConfig.headerStyle.showMottoInHeader ? '1.5rem' : '1rem',
+                letterSpacing: '0.1em',
+                lineHeight: '1.3',
               ...(styleConfig.headerStyle.schoolNameDecoration === 'shadow' && {
                 textShadow: '4px 4px 8px rgba(0,0,0,0.8), 0 0 20px rgba(255,215,0,0.5)'
               }),
@@ -1227,9 +1248,10 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
               ...(styleConfig.headerStyle.schoolNameDecoration === '3d' && {
                 textShadow: '1px 1px 0 rgba(212,175,55,0.9), 2px 2px 0 rgba(212,175,55,0.8), 3px 3px 0 rgba(212,175,55,0.7), 4px 4px 0 rgba(212,175,55,0.6), 5px 5px 0 rgba(212,175,55,0.5), 6px 6px 10px rgba(0,0,0,0.5)'
               })
-            }}>
-              {data.school_profile.name}
-            </h1>
+              }}>
+                {data.school_profile.name}
+              </h1>
+            )}
             
             {/* 校訓（ヘッダーに表示する場合） */}
             {styleConfig.headerStyle.showMottoInHeader && (
