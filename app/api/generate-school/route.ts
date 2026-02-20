@@ -785,11 +785,12 @@ function generateMockSchoolData(location: LocationData): SchoolData {
       face_prompt: 'Portrait photo of a stern Japanese school principal, weathered face, intense gaze, traditional formal attire, indoor office setting, serious expression, 60 years old, slightly intimidating',
       face_image_url: 'https://placehold.co/600x600/333333/FFFFFF?text=Principal'
     },
+    // school_anthem は Claude API から生成されるため、ここでは空にする
     school_anthem: {
       title: `${schoolName}校歌`,
-      lyrics: `朝日輝く この地に\n${landmark}仰ぎて 学び舎あり\n${motto.replace(/・/g, '')} 我らの誇り\n未来を拓く 若き力\n\n${landmark2}の 薫風に\n希望を胸に 進みゆく\nああ ${schoolName}\n我らが母校 永遠に`,
+      lyrics: '', // Claude APIで完全オリジナル生成
       style: '荘厳な合唱曲風',
-      suno_prompt: `Japanese school anthem, solemn choir, orchestral, inspirational, traditional, male and female chorus, emotional, grand`
+      suno_prompt: ''
     },
     news_feed: generateNews(landmark, established),
     crazy_rules: generateRules(landmark),
@@ -1104,9 +1105,9 @@ export async function POST(request: NextRequest) {
   },
   "school_anthem": {
     "title": "校歌のタイトル（学校名を含む）",
-    "lyrics": "**3番構成、各番4-6行、七五調または八六調の伝統的リズム**\n\n**必須要素**：\n1. **具体的な固有名詞を各番2-3つ**（ランドマーク名、道路名、店名、川名、山名など）\n2. **自然描写**（朝日、風、空、緑、川など季節感のある表現）\n3. **学校の理念**（校訓の言葉を織り込む）\n4. **未来への希望**（「拓く」「進む」「輝く」など前向きな動詞）\n5. **地域への愛着**（「この地」「我らが」など帰属意識）\n\n**例**：\n一、朝日輝く [地名] に\n  [ランドマーク名] 仰ぎて 学び舎あり\n  [校訓] 我らの誇り\n  未来を拓く 若き力\n\n二、[川名/山名] の 薫風に\n  希望を胸に 進みゆく\n  ああ [学校名]\n  我らが母校 永遠に\n\n三、[地域特有の言葉] の 空の下\n  友と励まし 学ぶ日々\n  真理の光 求めつつ\n  [学校名] 栄えあれ",
+    "lyrics": "⚠️ **完全オリジナルの歌詞を生成すること（テンプレートの使い回し厳禁）**\n\n**形式**：3番構成、各番4-6行、七五調または八六調\n\n**必須要素**：\n1. 具体的な固有名詞を各番2-3つ（実際のランドマーク名、道路名、店名、川名、山名）\n2. 自然描写（朝日、風、空、緑、川など）\n3. 校訓の四字熟語を自然に織り込む\n4. 未来への希望（「拓く」「進む」「輝く」などの動詞）\n5. 地域への愛着（「この地」「我らが」など）\n\n**重要**：\n- ❌ 例文をそのまま使用しないこと\n- ✅ 地域の情報を元に、毎回全く異なるオリジナル歌詞を作詞すること\n- ✅ 具体的な固有名詞を最低5つ以上含めること\n- ✅ 七五調のリズムを厳守（例：「朝日輝く（7文字） この地に（5文字）」）\n- ✅ 「〜あり」「〜ゆく」「〜あれ」などの古典的な語尾を使用\n- ✅ 「我ら」「若き」「ああ」などの伝統的な表現を使う\n\n実際の歌詞をここに記載（改行は\\nで表現）",
     "style": "荘厳な合唱曲風、ピアノ伴奏付き、地域の雰囲気に合わせた曲調",
-    "suno_prompt": "Japanese school anthem, solemn choir, orchestral piano, inspirational, traditional, male and female chorus, emotional, grand, [地域の特徴を英語で追加]"
+    "suno_prompt": "Japanese school anthem, solemn choir, orchestral piano, inspirational, traditional, male and female chorus, emotional, grand, [地域の特徴を英語で追加：例 mountainous region, seaside town, historical district など]"
   },
   "news_feed": [
     {"date": "2026.02.15", "category": "行事", "text": "具体的な地域イベントと連動したニュース（30-50字、固有名詞を含む）"},
