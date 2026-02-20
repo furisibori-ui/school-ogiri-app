@@ -1057,12 +1057,8 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
 
   return (
     <>
-      {/* グローバルスタイル（画像のぼかし効果と背景パターン） */}
+      {/* グローバルスタイル（背景パターン） */}
       <style jsx global>{`
-        img {
-          filter: blur(0.5px);
-          image-rendering: auto;
-        }
         @keyframes marquee {
           0% { transform: translateX(0%); }
           100% { transform: translateX(-50%); }
@@ -1162,7 +1158,7 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
       <header style={{ 
         background: styleConfig.colorTheme.headerBg,
         position: 'relative',
-        zIndex: 1
+        zIndex: 1,
         color: styleConfig.colorTheme.headerText,
         padding: '2rem 1rem',
         borderBottom: '8px double gold',
