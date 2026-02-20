@@ -455,7 +455,7 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     research += `\n`
     
     // セクション7: 固有名詞の抽出（超重要！）
-    research += `# 🚨🚨🚨 固有名詞リスト（必ず全て使うこと！）\n\n`
+    research += `\n# 🚨🚨🚨 固有名詞リスト（必ず全て使うこと！）\n\n`
     const uniqueNames = new Set<string>()
     places.forEach(place => {
       if (place.name && place.name.length > 0) {
@@ -463,17 +463,26 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       }
     })
     
-    research += `⚠️ **以下の${uniqueNames.size}個の固有名詞を、校長メッセージ・行事説明・部活動説明・教員コメントに必ず使用してください。**\n`
-    research += `⚠️ **1つの説明文に最低5個以上の固有名詞を含めること。固有名詞が少ない文章は失格です。**\n\n`
+    research += `⚠️ **以下の${uniqueNames.size}個の固有名詞を、校長メッセージ・行事説明・部活動説明・教員コメント・歴史・卒業生の業績に必ず使用してください。**\n`
+    research += `⚠️ **これらは全て実在する場所です。必ず文章に組み込んでください。**\n\n`
+    research += `【使用基準】\n`
+    research += `- 校長メッセージ: 15個以上\n`
+    research += `- 各行事: 8個以上\n`
+    research += `- 各部活動: 8個以上\n`
+    research += `- 学校歴史: 15個以上\n`
+    research += `- 修学旅行: 10個以上\n`
+    research += `- 各教員: 5個以上\n`
+    research += `- 各卒業生: 8個以上\n\n`
     
-    Array.from(uniqueNames).slice(0, 100).forEach((name, i) => {
+    research += `【固有名詞一覧】\n`
+    Array.from(uniqueNames).slice(0, 200).forEach((name, i) => {
       research += `${i + 1}. ${name}\n`
     })
     
     research += `\n---\n`
     research += `✅ 合計情報量: ${research.length} 文字\n`
     research += `✅ 固有名詞: ${uniqueNames.size} 個\n`
-    research += `⚠️ **これらの固有名詞を最大限活用してください！**\n`
+    research += `\n🚨🚨🚨 **上記の固有名詞を使わない文章は失格です！必ず各セクションに散りばめてください！** 🚨🚨🚨\n`
     
     console.log(`📚 地域リサーチ完了: ${research.length} 文字の詳細情報を収集しました`)
     
