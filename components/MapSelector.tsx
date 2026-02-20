@@ -363,14 +363,15 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
                 placeInfo += `電話番号: ${details.formatted_phone_number}\n`
               }
               
-              // レビューテキストを収集（最重要！）
+              // レビューテキストを収集（最重要！地域の雰囲気を読み取る）
               if (details.reviews && details.reviews.length > 0) {
-                placeInfo += `\n### 📝 レビュー抜粋:\n`
-                details.reviews.slice(0, 2).forEach((review: any, i: number) => {
+                placeInfo += `\n### 📝 レビュー抜粋（地域の雰囲気を読み取る重要情報）:\n`
+                details.reviews.slice(0, 5).forEach((review: any, i: number) => {
                   if (review.text && review.text.length > 10) {
-                    placeInfo += `- (${review.rating}⭐) ${review.text.substring(0, 100)}...\n`
+                    placeInfo += `- (${review.rating}⭐) ${review.text.substring(0, 300)}...\n`
                   }
                 })
+                placeInfo += `\n⚠️ **上記レビューから地域の雰囲気（古い町並み、新しい開発地、観光地、住宅街など）を読み取り、学校の説明文に反映してください。**\n`
               }
               
               placeInfo += `\n`
@@ -387,10 +388,11 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     const placeDetailsResults = await Promise.all(detailPromises)
     research += placeDetailsResults.join('')
     
-    // 残りの施設は基本情報のみ
+    // 残りの施設は基本情報のみ（固有名詞を増やすため多めに列挙）
     if (places.length > 20) {
-      research += `\n# 📋 その他の周辺施設（基本情報のみ、${Math.min(places.length - 20, 30)}件）\n\n`
-      places.slice(20, 50).forEach((place, index) => {
+      research += `\n# 📋 その他の周辺施設（基本情報のみ、${Math.min(places.length - 20, 80)}件）\n\n`
+      research += `⚠️ **これらの施設名も必ず文章に使用してください。**\n\n`
+      places.slice(20, 100).forEach((place, index) => {
         research += `${index + 21}. ${place.name}（${place.types?.slice(0, 2).join(', ') || '施設'}）\n`
       })
       research += `\n`

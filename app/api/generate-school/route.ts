@@ -1170,19 +1170,19 @@ export async function POST(request: NextRequest) {
     "club_activities": [
       {
         "name": "⚠️ 学校の業種に関連した部活動名（例：セブンイレブン学院なら「物流研究部」）",
-        "description": "⚠️ **超重要：収集した固有名詞（店名、施設名）を5個以上使うこと**\n\n**必須要素**：\n- 練習場所の具体的な固有名詞（「〇〇公園で」「〇〇体育館で」）\n- 地域の施設との連携（「〇〇カフェで合宿」「〇〇神社で奉納演奏」）\n- 地域の方々の具体的な名前や店名（「〇〇商店の〇〇さんにご指導いただき」）\n- 部活動ならではの細かい描写\n- 学校の業種との関連（コンビニ系なら「効率的な在庫管理」など）\n\n300-400字、固有名詞5つ以上必須",
+        "description": "⚠️ **超重要：収集した固有名詞（店名、施設名）を8個以上使うこと**\n\n**必須要素**：\n- 練習場所の具体的な固有名詞（「〇〇公園で」「〇〇体育館で」）\n- 地域の施設との連携（「〇〇カフェで合宿」「〇〇神社で奉納演奏」）\n- 地域の方々の具体的な名前や店名（「〇〇商店の〇〇さんにご指導いただき」）\n- 部活動ならではの細かい描写\n- 学校の業種との関連（コンビニ系なら「効率的な在庫管理」など）\n\n300-400字、固有名詞5つ以上必須",
         "sound_prompt": "環境音プロンプト（英語）",
         "image_prompt": "Wide horizontal photo (16:9), medium shot, multiple students close together working on activity, natural eye contact between students NOT camera facing, focused on task, location background visible, authentic school blog atmosphere, candid, disposable camera"
       },
       {
         "name": "学校の業種に関連した部活動名2",
-        "description": "⚠️ 固有名詞5つ以上必須、300-400字",
+        "description": "⚠️ 固有名詞8個以上必須、300-400字",
         "sound_prompt": "環境音プロンプト（英語）",
         "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students close together, natural interaction, disposable camera"
       },
       {
         "name": "学校の業種に関連した部活動名3",
-        "description": "⚠️ 固有名詞5つ以上必須、300-400字",
+        "description": "⚠️ 固有名詞8個以上必須、300-400字",
         "sound_prompt": "環境音プロンプト（英語）",
         "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students close together, natural interaction, disposable camera"
       }
@@ -1191,19 +1191,19 @@ export async function POST(request: NextRequest) {
       {
         "name": "⚠️ 収集した固有名詞を使った行事名（例：〇〇公園遠足、〇〇商店街清掃活動）",
         "date": "4月7日",
-        "description": "⚠️ **超重要：収集した固有名詞（店名、施設名、道路名）を5個以上使うこと**\n\n**必須要素**：\n- 行事の準備段階（「〇〇スーパーで材料を調達」など）\n- 当日の具体的な場所（「〇〇公園の特設ステージで」など）\n- 地域の方々との交流（「〇〇商店街の〇〇さんにご協力いただき」など）\n- 生徒たちの具体的な行動（「〇〇駅から徒歩で向かい」など）\n- 地元民なら「あるある！」と思う細かい描写\n\n**悪い例**：「公園で遠足を行いました。」\n**良い例**：「〇〇駅から徒歩15分、〇〇商店街を抜けて〇〇公園に到着いたしました。〇〇パン屋さんで購入したお弁当を、〇〇神社を望む広場で食べ、午後は〇〇図書館で地域の歴史について学びました。帰りには〇〇コンビニで飲み物を購入し、〇〇坂を下って学校へ戻りました。」\n\n300-500字、地元民が「めっちゃ地元！」と感動する内容",
+        "description": "⚠️ **超重要：収集した固有名詞（店名、施設名、道路名）を8個以上使うこと**\n\n**必須要素**：\n- 行事の準備段階（「〇〇スーパーで材料を調達」など）\n- 当日の具体的な場所（「〇〇公園の特設ステージで」など）\n- 地域の方々との交流（「〇〇商店街の〇〇さんにご協力いただき」など）\n- 生徒たちの具体的な行動（「〇〇駅から徒歩で向かい」など）\n- 地元民なら「あるある！」と思う細かい描写\n\n**悪い例**：「公園で遠足を行いました。」\n**良い例**：「〇〇駅から徒歩15分、〇〇商店街を抜けて〇〇公園に到着いたしました。〇〇パン屋さんで購入したお弁当を、〇〇神社を望む広場で食べ、午後は〇〇図書館で地域の歴史について学びました。帰りには〇〇コンビニで飲み物を購入し、〇〇坂を下って学校へ戻りました。」\n\n300-500字、地元民が「めっちゃ地元！」と感動する内容",
         "image_prompt": "Wide horizontal photo, 16:9, medium shot, multiple Japanese students, close together, natural eye contact between students NOT camera facing, focused on activity, school environment visible, candid moment, disposable camera aesthetic"
       },
       {
         "name": "収集した固有名詞を使った行事名2",
         "date": "5月中旬",
-        "description": "⚠️ 固有名詞5個以上必須、300-400字",
+        "description": "⚠️ 固有名詞8個以上必須、300-400字",
         "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students close together outdoors, natural interaction, disposable camera"
       },
       {
         "name": "収集した固有名詞を使った行事名3",
         "date": "9月中旬",
-        "description": "⚠️ 固有名詞10個以上必須、400-500字",
+        "description": "⚠️ 固有名詞12個以上必須、400-500字",
         "image_prompt": "Wide horizontal candid photo, 16:9, medium shot, students and community, natural interaction, disposable camera"
       },
       {
@@ -1215,13 +1215,13 @@ export async function POST(request: NextRequest) {
       {
         "name": "収集した固有名詞を使った行事名4",
         "date": "12月上旬",
-        "description": "⚠️ 固有名詞5個以上必須、200-300字",
+        "description": "⚠️ 固有名詞8個以上必須、250-350字",
         "image_prompt": "Wide horizontal candid photo, 16:9, winter setting, natural interaction, disposable camera"
       },
       {
         "name": "収集した固有名詞を使った行事名5",
         "date": "3月中旬",
-        "description": "⚠️ 固有名詞5個以上必須、200-300字",
+        "description": "⚠️ 固有名詞8個以上必須、250-350字",
         "image_prompt": "Wide horizontal formal photo, 16:9, ceremony attire, some natural glances, disposable camera"
       }
     ],
@@ -1458,8 +1458,8 @@ JSON生成後、以下を必ず確認してください：
 
     const message = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 8192,
-      temperature: 0.9,
+      max_tokens: 16384, // トークン数を2倍に（より長い文章生成）
+      temperature: 1.0, // 創造性を最大化
       system: systemPrompt,
       messages: [
         {
