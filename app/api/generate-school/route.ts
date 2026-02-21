@@ -1738,12 +1738,13 @@ JSON生成後、以下を必ず確認してください：
       schoolData.school_profile.logo_url = `https://placehold.co/1200x300/003366/FFD700?text=${encodeURIComponent(schoolData.school_profile.name)}`
     }
 
-    // 学校概要の画像生成
-    if (schoolData.school_profile.overview_image_prompt) {
+    // 学校概要の画像生成（型定義にないプロパティは Record でアクセス）
+    const profile = schoolData.school_profile as Record<string, unknown>
+    if (profile.overview_image_prompt) {
       try {
         console.log('🏫 学校概要の画像生成開始...')
-        schoolData.school_profile.overview_image_url = await generateImage(
-          schoolData.school_profile.overview_image_prompt,
+        profile.overview_image_url = await generateImage(
+          profile.overview_image_prompt as string,
           locationData.closest_place?.name || '日本の学校',
           'landscape'
         )

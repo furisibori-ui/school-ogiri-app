@@ -30,6 +30,8 @@ export interface SchoolProfile {
   sub_catchphrase?: string    // サブキャッチフレーズ
   background_symbol?: string  // 背景に表示する地域の記号（例：「山」「波」「桜」）
   overview: string
+  overview_image_prompt?: string  // 学校概要画像のAIプロンプト
+  overview_image_url?: string    // 学校概要画像URL
   emblem_prompt?: string
   emblem_url?: string
   logo_url?: string           // 学校名ロゴ画像URL（横長バナー）
