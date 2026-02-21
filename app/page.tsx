@@ -173,7 +173,7 @@ export default function Home() {
     })
   }
 
-  return (
+  const content = (
     <div className="min-h-screen" role="main">
       {/* ランディングページBGM（loopなし、手動制御で5秒休止） */}
       <audio ref={landingBgmRef}>
@@ -466,4 +466,6 @@ export default function Home() {
       )}
     </div>
   )
+
+  return content
 }
