@@ -116,36 +116,47 @@ export default function Home() {
       {/* ステージ1: ランディングページ */}
       {stage === 'landing' && (
         <div className="h-screen flex items-center justify-center" style={{
-          backgroundImage: 'url(/backgrounds/landing-bg.jpg)',
+          backgroundImage: 'url(/backgrounds/landing-bg.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           position: 'relative'
         }}>
-          {/* 暗いオーバーレイ（背景画像を暗くしてテキストを読みやすく） */}
+          {/* 明るいオーバーレイ（青空背景に合わせて軽く） */}
           <div style={{
             position: 'absolute',
             top: 0,
             left: 0,
             width: '100%',
             height: '100%',
-            background: 'linear-gradient(180deg, rgba(26,26,46,0.85) 0%, rgba(22,33,62,0.9) 50%, rgba(15,52,96,0.95) 100%)',
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.3) 100%)',
             zIndex: 1
           }} />
           
           {/* コンテンツ */}
-          <div style={{ position: 'relative', zIndex: 2, maxWidth: '900px', textAlign: 'center', padding: '2rem' }}>
+          <div style={{ 
+            position: 'relative', 
+            zIndex: 2, 
+            maxWidth: '1000px', 
+            width: '90%',
+            textAlign: 'center', 
+            padding: '2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
             {/* メインタイトル画像（フェードイン） */}
             <img 
               src="/logo/title-logo.png"
-              alt="架空小学校 生成システム"
+              alt="架空学校生成システム"
               style={{
                 width: '100%',
-                maxWidth: '1200px',
+                maxWidth: '900px',
                 height: 'auto',
-                margin: '0 auto 3rem',
+                margin: '0 auto 2.5rem',
                 display: 'block',
-                filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.9))',
+                filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))',
                 opacity: showContent ? 1 : 0,
                 transform: showContent ? 'translateY(0)' : 'translateY(-30px)',
                 transition: 'opacity 2s ease-out, transform 2s ease-out'
@@ -154,17 +165,16 @@ export default function Home() {
                 // 画像読み込み失敗時は超巨大テキストで表示
                 e.currentTarget.style.display = 'none'
                 const fallbackTitle = document.createElement('h1')
-                fallbackTitle.textContent = '架空小学校 生成システム'
+                fallbackTitle.textContent = '架空学校生成システム'
                 fallbackTitle.style.cssText = `
                   font-family: var(--font-yuji-mai), "HGS行書体", "AR行書体M", cursive;
-                  font-size: 8rem;
+                  font-size: 7rem;
                   font-weight: 900;
-                  color: #d4af37;
+                  color: #1a1a2e;
                   margin-bottom: 3rem;
-                  text-shadow: 0 8px 16px rgba(0,0,0,1), 0 0 60px rgba(212,175,55,0.6), 0 0 100px rgba(212,175,55,0.3);
+                  text-shadow: 0 4px 12px rgba(255,255,255,0.8), 0 0 30px rgba(255,255,255,0.6);
                   letter-spacing: 0.2em;
                   line-height: 1.2;
-                  transform: scale(1.1);
                 `
                 e.currentTarget.parentElement?.insertBefore(fallbackTitle, e.currentTarget)
               }}
@@ -172,22 +182,24 @@ export default function Home() {
 
             {/* サブタイトル（フェードイン） */}
             <div style={{
-              backgroundColor: 'rgba(212,175,55,0.1)',
-              border: '2px solid #d4af37',
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              border: '3px solid #1a1a2e',
               padding: '2rem 3rem',
-              margin: '2rem auto',
-              borderRadius: '8px',
-              boxShadow: 'inset 0 2px 8px rgba(212,175,55,0.2)',
+              margin: '0 auto 2.5rem',
+              borderRadius: '12px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+              maxWidth: '800px',
               opacity: showContent ? 1 : 0,
               transform: showContent ? 'translateY(0)' : 'translateY(-20px)',
               transition: 'opacity 2s ease-out 0.5s, transform 2s ease-out 0.5s'
             }}>
               <p style={{
                 fontFamily: '"Noto Serif JP", serif',
-                fontSize: '1.4rem',
-                color: '#f0e6d2',
-                lineHeight: '2.2',
-                letterSpacing: '0.1em'
+                fontSize: '1.3rem',
+                color: '#1a1a2e',
+                lineHeight: '2',
+                letterSpacing: '0.08em',
+                fontWeight: '600'
               }}>
                 地図上の任意の場所をクリックすることで、<br />
                 その土地の特性を反映した架空の学校サイトが自動生成されます
@@ -198,19 +210,18 @@ export default function Home() {
             <button
               onClick={handleStartClick}
               style={{
-                background: 'linear-gradient(180deg, #d4af37 0%, #b8941f 100%)',
-                border: '4px solid #8b7355',
-                padding: '2rem 5rem',
-                fontSize: '1.8rem',
+                background: 'linear-gradient(180deg, #1a1a2e 0%, #0f1419 100%)',
+                border: '4px solid #1a1a2e',
+                padding: '1.8rem 4.5rem',
+                fontSize: '1.7rem',
                 fontWeight: 'bold',
-                color: '#1a1a2e',
+                color: '#ffffff',
                 cursor: 'pointer',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.3)',
+                boxShadow: '0 8px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
                 borderRadius: '12px',
                 fontFamily: '"Noto Serif JP", serif',
-                letterSpacing: '0.1em',
-                transition: 'all 0.2s',
-                marginTop: '3rem',
+                letterSpacing: '0.12em',
+                marginTop: '1rem',
                 opacity: showContent ? 1 : 0,
                 transform: showContent ? 'scale(1)' : 'scale(0.8)',
                 transitionProperty: 'opacity, transform, box-shadow, background',
@@ -219,12 +230,14 @@ export default function Home() {
                 transitionTimingFunction: 'ease-out, ease-out, ease, ease'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.3)'
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'
+                e.currentTarget.style.boxShadow = '0 12px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2)'
+                e.currentTarget.style.background = 'linear-gradient(180deg, #2a2a3e 0%, #1a1a2e 100%)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.3)'
+                e.currentTarget.style.transform = 'scale(1)'
+                e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+                e.currentTarget.style.background = 'linear-gradient(180deg, #1a1a2e 0%, #0f1419 100%)'
               }}
             >
               🗺️ 地図から場所を選ぶ
@@ -232,22 +245,31 @@ export default function Home() {
 
             {/* テストボタン（フェードイン） */}
             <div style={{ 
-              marginTop: '2rem',
+              marginTop: '1.5rem',
               opacity: showContent ? 1 : 0,
               transition: 'opacity 2s ease-out 1.5s'
             }}>
               <button
                 onClick={handleTestGenerate}
                 style={{
-                  background: 'rgba(212,175,55,0.2)',
-                  border: '2px solid rgba(212,175,55,0.5)',
+                  background: 'rgba(255,255,255,0.8)',
+                  border: '2px solid rgba(26,26,46,0.3)',
                   padding: '0.75rem 2rem',
                   fontSize: '1rem',
-                  color: '#d4af37',
+                  color: '#1a1a2e',
                   cursor: 'pointer',
-                  borderRadius: '6px',
+                  borderRadius: '8px',
                   fontFamily: '"Noto Serif JP", serif',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  fontWeight: '500'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,1)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.8)'
+                  e.currentTarget.style.boxShadow = 'none'
                 }}
               >
                 🗼 テスト生成（東京タワー周辺）
