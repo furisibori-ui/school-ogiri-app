@@ -174,7 +174,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen" role="main">
       {/* ランディングページBGM（loopなし、手動制御で5秒休止） */}
       <audio ref={landingBgmRef}>
         <source src="/bgm/landing-bgm.mp3" type="audio/mpeg" />
@@ -464,6 +464,6 @@ export default function Home() {
       {stage === 'school' && schoolData && !isGenerating && (
         <SchoolWebsite data={schoolData} onReset={handleReset} />
       )}
-    </main>
+    </div>
   )
 }
