@@ -189,7 +189,18 @@ export const schoolGenerateFunction = inngest.createFunction(
         current = applyImageUrl(current, task, url)
       }
       await kv.set(`school:${jobId}:partial`, JSON.stringify(current), { ex: KV_TTL })
-      console.log('step2 done', { jobId, imageCount: results.length })
+      const placeholderCount = results.filter((r) => isPlaceholder(r.url)).length
+      const realCount = results.length - placeholderCount
+      console.log('step2 done', {
+        jobId,
+        imageCount: results.length,
+        realImages: realCount,
+        placeholderImages: placeholderCount,
+        detail: results.map((r) => ({ type: r.task.imageType, isPlaceholder: isPlaceholder(r.url) })),
+      })
+      if (placeholderCount > 0) {
+        console.warn('step2: some or all images are placeholder. Check Vercel logs for "Comet image" or "generate-school-image".')
+      }
       return current
     })
 
@@ -223,7 +234,11 @@ export const schoolGenerateFunction = inngest.createFunction(
         ? { ...data, school_anthem: { ...anthem, audio_url: audioUrl } }
         : data
       await kv.set(`school:${jobId}:partial`, JSON.stringify(next), { ex: KV_TTL })
-      if (audioUrl) console.log('step3 done', { jobId })
+      if (audioUrl) {
+        console.log('step3 done', { jobId, hasAudio: true })
+      } else {
+        console.warn('step3: no audio URL. generate-audio may have failed or timed out. Check Vercel logs for "Suno" or "generate-audio".')
+      }
       return next
     })
 

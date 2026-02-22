@@ -967,221 +967,23 @@ export async function POST(request: NextRequest) {
     const locationContext = buildLocationContext(locationData)
 
     const systemPrompt = `
-あなたは地域情報を徹底的にリサーチし、**地元民が「わかるわかる！」と共感する超ニッチな地域密着型の架空学校**を生成する専門家です。
+あなたは地域情報をリサーチし、**地元民が共感する地域密着型の架空学校**を生成する専門家です。
 
-## 📚 日本の学校サイト制作マニュアル（社会言語学的分析に基づく）
+## 文体・校訓・忌み言葉
+- **校長メッセージ**：季節に言及しない挨拶（「日頃より…」「本校ホームページをご覧いただき…」等）。「〜でございます」「〜してまいりました」の多用。
+- **校訓**：単語羅列は禁止。**その場所の「あるある・悩み」を一文で**（例：コンビニ→「トイレを笑顔で貸す」、坂→「登りは我慢、下りは慎重に」、神社→「手を合わせたら必ずお賽銭」）。motto_single_char は校訓から漢字1文字。
+- **忌み言葉**：使わない。「切れる」「終わる」「死」「苦」「失う」「枯れる」「倒れる」「衰える」「滅びる」
 
-### 🎯 文体の本質：権威と温かみの両立
-日本の学校サイトは「伝統的な格式」と「現代的な共感性」を統合した特殊な言語空間です。
+## 地域分析（簡潔に）
+ランドマークから：地形・歴史・産業・交通・気候を把握し、校訓・校歌・制服・行事に反映する。地元民しか知らない固有名詞（坂名、商店街、バス番号、方言等）を盛り込む。
 
-#### 校長メッセージの文体構造：
-1. **冒頭の挨拶**（必須）：**特定の季節に言及しない、一年中通用する挨拶**
-   - ⚠️ 「2月」「立春」「桜」など季節特定の言葉は使わない（サイトは一年中同じテキスト）
-   - 良い例：「日頃より本校の教育活動にご理解とご協力を賜り、厚く御礼申し上げます」
-   - 良い例：「本校ホームページをご覧いただき、誠にありがとうございます」
-   - 良い例：「皆様にはますますご清祥のこととお慶び申し上げます」
-2. **具体的な学年別活動への言及**：1年生〜6年生の発達段階に応じた承認と賞賛
-3. **地域との連帯感**：ローカルな歴史とグローバルな課題（SDGs等）の結びつけ
-4. **温かい語りかけ調**：「〜でございます」「〜してまいりました」「〜させていただいております」の多用
+## 校歌（3番必須）
+七五調、3番構成・各番4-6行。1番＝地域の景観・固有名詞2つ以上。2番＝歴史・校訓の織り込み。3番＝未来への誓い・母校への愛。「〜あり」「〜ゆく」「ああ」等の語尾。固有名詞5つ以上。
 
-#### 校訓の本質：その場所に沿った「悩み・あるある」を一文で
-**❌ 単語の羅列は禁止**（四字熟語「切磋琢磨・温故知新」や「〇・〇・〇」型は使わない）。
-
-**✅ 校訓は「その場所ならではの行動・心がけ」を一文で表現する**：
-- **コンビニが多い地域** → 「トイレを笑顔で貸す」「買わなくても挨拶は忘れずに」
-- **坂が多い地域** → 「登りは我慢、下りは慎重に」「転んだら起きるまでが登坂」
-- **神社・寺が多い地域** → 「手を合わせたら必ずお賽銭」「参道の中央は神様の通り道」
-- **カフェ・飲食店が多い地域** → 「席を取ったら一品は注文する」「長居したら追加で注文」
-- **商店街・並ぶ場所** → 「並んだら文句を言わない」「借りた傘は必ず返す」
-- **公園・自然** → 「ゴミはその場に残さない」「花は見るだけ、折らない」
-
-**校訓の原則**：
-- 地域の「あるある」や「地元の悩み」から逆算して、具体的な一文にする
-- 生徒が日常で実践できる行動・心がけであること
-- 格言っぽくても、その場所でしか通じない味があること
-
-#### 忌み言葉の厳格な回避：
-慶事の手紙では以下の言葉を**絶対に使用しないこと**：
-「切れる」「終わる」「死」「苦」「失う」「枯れる」「倒れる」「衰える」「滅びる」
-
-## 🎯 最重要ミッション：地域の徹底リサーチ
-
-### ステップ1：地域分析（最優先）
-提供されたランドマーク情報から、以下を徹底的に分析してください：
-
-1. **地形・地理的特徴**
-   - 坂が多い、平地、海沿い、山間部、川沿い、など
-   - その地形が学校生活にどう影響するか（登下校、部活動、行事）
-
-2. **歴史・文化的背景**
-   - その地域の歴史的出来事（戦争、災害、発展の歴史）
-   - 地域の伝統行事、祭り、風習
-   - 歴史的建造物や史跡
-
-3. **産業・特産品**
-   - 地域の主要産業（農業、漁業、工業、観光業）
-   - 特産品、名物料理
-   - 地場産業との連携
-
-4. **交通・アクセス**
-   - 主要駅、バス路線、特徴的な路線名
-   - 通学路の特徴（長い坂道、橋、トンネル）
-   - 地元民なら知っている交通の不便さや特徴
-
-5. **気候・自然環境**
-   - 気温、降水量、風の強さ
-   - 四季の変化の特徴
-   - 自然災害のリスク
-
-### ステップ2：校訓の設計（格調高い文体で、その地点に応じたしょうもないニッチな話）
-
-**法則（実在の校訓スタイルを参考）**：
-- **文体は格調高く**、実在の学校の校訓のように品格のある表現にする。
-- **形式**は次のいずれか（または組み合わせ）でよい：
-  - **メッセージ・スローガン型**：短い imperative／宣言。「恥を知れ」「やればできる」「めざすなら高い嶺」「世界人たる前に 良き日本人たれ」「恐れず 侮らず 気負わず」
-  - **三要素・リズム型**：3つを・で並べる。「清く 正しく 美しく」「誠実・勤勉・友愛」「魂を育てる・知性を磨く・実行力を養う」「勤勉・温雅・聡明であれ」
-  - **四字熟語・漢字構成型**：漢語・四字熟語を活かす。「質実剛健・進取の気性」「堅忍不抜・自主自律」「自律・克己・友愛」
-  - **やや長めの理念型**：「学問の独立、学問の活用、模範国民の造就」「自由と進歩」「真実を求め、真実に生き、真実を顕かにする」
-- **中身は必ず「その場所に沿った悩み・あるある」**を、上記の格調で表現する。単なる単語の羅列ではなく、地域の実情に根ざした一文（または三要素など）にすること。
-
-**考案の手順**：
-
-1. **周辺の「あるある・悩み」を想像し、格調高い形にのせる**
-   - コンビニが多い → 「トイレを笑顔で貸す」「買わなくても挨拶は忘れずに」
-   - 坂が多い → 「登りは我慢、下りは慎重に」「最も困難な道に挑戦せよ」（坂を「困難な道」に）
-   - 神社・寺が多い → 「手を合わせたら必ずお賽銭」「敬虔と感謝」
-   - カフェ・飲食店が多い → 「席を取ったら一品は注文する」「寛容・交流・品位」
-   - 商店街・行列 → 「並んだら文句を言わない」「秩序・忍耐・友愛」
-
-2. **その一文から「一文字」を選ぶ**（motto_single_char）
-   - 校訓のキーワードを表す漢字1文字。例：「笑」「慎」「貸」「並」「席」「手」など
-
-### ステップ3：校歌の作詞（最も丁寧に、伝統的な七五調で）
-**校歌は最重要コンテンツ**です。以下の伝統的な形式を厳格に守ってください：
-
-**リズム：七五調（7文字・5文字）または八六調（8文字・6文字）**
-例：「朝日輝く（7） この地に（5）」「〇〇駅（7） 仰ぎて（4）」
-
-**構成：3番構成、各番4-6行**
-
-**1番（地域の景観・自然描写）**
-- 具体的なランドマーク名を2つ以上（駅名、道路名、店名、川名、山名など）
-- 地域の自然環境（山、川、海、空、緑、風、光）
-- 時間帯の描写（朝日、夕日、星空など）
-- 季節感（桜、新緑、紅葉、雪など）
-
-例：
-    朝日輝く 〇〇に
-    [ランドマーク名] 仰ぎて 学び舎あり
-    〇〇の風 薫る中
-    若き我らの 歌声響く
-
-**2番（歴史と伝統、校訓の織り込み）**
-- 地域の歴史的背景（創立年代、地域の発展）
-- 創立の理念（創立者の志）
-- 校訓の言葉を自然に織り込む（地域に沿った一文の校訓）
-- 学校の誇り
-
-例：
-    [年号]の 昔より
-    この地に根ざし 学びの灯
-    [校訓の心] 胸に秘め
-    真理の道を 進みゆく
-
-**3番（未来への誓い、母校への愛）**
-- 生徒たちの決意（「拓く」「進む」「輝く」などの動詞）
-- 地域への貢献（「この地を」「世界へ」など）
-- 母校への永遠の愛（「ああ 〇〇学校」など）
-- 結びの力強い言葉
-
-例：
-    [地域の言葉] の 空の下
-    友と励まし 学ぶ日々
-    未来を拓く 若き力
-    ああ [学校名] 栄えあれ
-
-**重要**：
-- 具体的な固有名詞を最低5つ以上含めること
-- 「〜あり」「〜ゆく」「〜あれ」などの古典的な語尾を使用
-- 各行の文字数を7文字または5文字に揃える
-- 「我ら」「若き」「ああ」などの伝統的な表現を使う
-
-### ステップ4：校章デザイン（日本の伝統と地域の融合）
-
-**校章は学校の精神を視覚的に凝縮したシンボルです。以下の原則に従って設計してください：**
-
-#### 1. 伝統的象徴の選択（三種の神器から1つ）
-- **鏡（八咫鏡）**：知恵・自己省察・清らかさ（例：名古屋女学校）
-- **剣**：勇気・決断力・正義
-- **勾玉**：思いやり・慈しみ・調和
-
-#### 2. 地域特有のモチーフ（必須）
-- **自然物**：山、川、海、桜、松、梅、竹、鶴、葦など
-- **ランドマーク**：神社、寺、橋、駅、商店街など
-- **産業**：商業（商船、ヘルメスの杖）、工業（歯車）、農業（稲穂）など
-
-#### 3. 幾何学的構成の意味
-- **円形**：調和・永遠・心のバランス
-- **三角形**：安定した基盤・天への上昇・創造の意欲（例：千葉県立小金高等学校）
-- **盾型**：たくましい精神力・根気強さ・協力と和
-
-#### 4. 色彩の象徴性
-- **紺（navy blue）+ 金（gold）**：最も伝統的な配色
-- **地域の色**：海沿いなら青、山間部なら緑、商業地なら赤、歴史地区なら茶色
-
-#### 5. 文字要素
-- 校名の頭文字（漢字またはローマ字イニシャル）
-- 創立年（「明治○○年」「1905」など）
-
-**例**：神奈川県立上鶴間高等学校は「鶴が大空に舞い上がる姿」、関西大学は「淀川の葦」
-
-### ステップ5：制服デザイン（地域文化から設計）
-制服は地域の以下を反映してください：
-
-1. **色彩**: 校章と同じキーカラーを主色に。**青・紺に限定しない。** 黄、赤、朱、緑、オレンジ、茶、ベージュなど、地域の特産・自然・建造物に合わせて多様に（例：神社→朱・白、コンビニ→緑・オレンジ、坂道→茶・ベージュ）。
-2. **デザイン**: 地域の伝統工芸、織物、文化
-3. **素材**: 地域の気候に適した素材
-4. **装飾**: ランドマークをモチーフにした校章・刺繍
-5. **年間行事・部活の画像**: 生徒の制服は必ずこのキーカラー（黄・赤・朱なども可）で描き、行事・部活の画像プロンプトにも「制服は校章キーカラー（具体的な色名）」を明記すること。
-
-### ステップ6：学校生活（制服から派生）
-制服のコンセプトを元に、以下を設計：
-
-1. **部活動**: 地形や産業を活かした部活（例：坂道→陸上部が強豪）
-2. **行事**: 地域の祭りや歴史と連動
-3. **施設**: 地域の特性を反映した特殊施設
-
-### ステップ6：超ニッチ情報の詰め込み（最重要！）
-**⚠️ 地元民しか知らない固有名詞を最大限盛り込むこと**：
-
-- 通学路の名物の坂や橋の名前
-- 地元の商店街や老舗店の名前
-- バスの路線番号や駅の番線
-- 地域特有の方言や言い回し
-- 地元の有名人や伝説
-- 季節ごとの地域イベント
-- 地形による学校行事への影響（例：坂道マラソン、海辺での遠足）
-
-### ステップ7：行事・イベントは地域の固有名詞で完全に作り込む
-**⚠️ テンプレート厳禁！実在する場所の固有名詞を使うこと**
-
-- 入学式 → 「〇〇駅から徒歩で登校」「〇〇公園の桜を見ながら」
-- 遠足 → 「〇〇神社」「〇〇スーパーで昼食購入」
-- 体育祭 → 「〇〇商店街の方々が応援」
-- 文化祭 → 「〇〇カフェと連携した模擬店」
-- 修学旅行 → **学校の業種に応じた目的地**
-  - コンビニ系 → 「物流センター見学」
-  - 神社系 → 「伝統工芸体験」
-  - 飲食店系 → 「料理学校見学」
-
-### ステップ8：修学旅行先を学校の特性に完全連動
-**⚠️ 一般的な「京都・奈良」は禁止！学校の業種から推察すること**
-
-例：
-- **セブンイレブン〇〇店学院** → 埼玉県の物流センター見学、工場見学
-- **〇〇神社学園** → 京都の伝統工芸工房、神社建築の見学
-- **〇〇公園小学校** → 国立公園、環境教育施設
-- **〇〇ラーメン店学院** → 横浜ラーメン博物館、食品工場
+## 校章・制服・学校生活
+- **校章**：伝統的象徴（鏡/剣/勾玉の1つ）＋地域モチーフ＋色（地域の色）＋校名頭文字・創立年。
+- **制服**：校章と同じキーカラー。青紺以外可（神社→朱白、コンビニ→緑オレンジ、坂→茶ベージュ等）。行事・部活の画像プロンプトにも色を明記。
+- **部活1件・行事1件**：地域に合わせてランダムに1つ。修学旅行は学校の業種に連動（京都・奈良禁止。コンビニ→物流見学、神社→伝統工芸等）。
 
 ## 📝 出力形式
 
@@ -1205,14 +1007,14 @@ export async function POST(request: NextRequest) {
     "sub_catchphrase": "学校のキャッチフレーズ（地域に沿った一文。例：「〇〇と共に歩む学校」）",
     "background_symbol": "サイト背景にリピート表示する地域の記号1文字（例：山、波、桜、鳥居、電、橋など）※地域の最大の特徴を表す",
     "overview": "⚠️ **固有名詞10個以上必須！** 地域の地形、歴史、産業、文化を織り交ぜた学校紹介（**125-150字**）。**大喜利**：真面目な tone のまま、地域の「あるある」が教育・校風に繋がるなど**ズレた接続**を1つ入れる（単語入れ替えだけにしない）。",
-    "overview_image_prompt": "⚠️ **固有名詞から100個連想して画像プロンプトを作成**\n\n**【基本フォーマット】**\nWide horizontal photograph, 16:9 aspect ratio, Japanese [school type]-style school building exterior, shot from front gate angle, 5-8 students in school uniform visible scattered naturally in scene (2-3 in foreground walking, 3-5 in middle/background), golden hour natural lighting, slightly overcast soft light, authentic institutional documentation photo, disposable camera aesthetic with slight grain, colors slightly faded, 1990s-2000s nostalgia, amateur photography quality. **生徒の見た目（人種・雰囲気）はその国・地域に合わせること。**\n\n**🔥🔥🔥 超重要：地域の特徴を建築に具体的に反映（100点基準）**\n\n**セブンイレブン校の校舎（完璧な例）**：\n\nJapanese elementary school building with prominent GREEN and ORANGE horizontal stripes on exterior walls (each stripe 1 meter wide), rectangular practical architecture inspired by convenience store design, large rectangular windows arranged in grid pattern resembling product shelves, school name sign in green and orange corporate style lettering, small orange accent pillars at entrance, students wearing green-orange striped uniforms with name tags visible, paved concrete schoolyard, utility-focused minimalist design, flat roof, fluorescent lighting visible through windows even in daylight suggesting 24/7 readiness, disposable camera, slightly faded colors\n\n\n**神社校の校舎（完璧な例）**：\n\nJapanese school building with traditional shrine-inspired architecture, prominent VERMILLION RED (shu-iro) colored pillars and beams throughout structure, white plaster walls, curved tile roof (kawara) in dark gray with upturned eaves like shrine architecture, main entrance designed like torii gate structure with two vertical vermillion pillars and horizontal beam, school emblem featuring sacred mirror design prominently displayed above entrance, students wearing vermillion-white colored uniforms with hakama-style skirts visible, stone pathway approaching entrance, sacred rope (shimenawa) decoration above gate, cherry or pine trees flanking entrance, wooden architectural details, traditional Japanese aesthetic meets school functionality, disposable camera, warm traditional atmosphere\n\n\n**坂道校の校舎（完璧な例）**：\n\nJapanese school building constructed on steep hillside, terraced architecture with multiple levels following 18-degree slope gradient, stone retaining walls (ishigaki) creating stepped platforms, sturdy concrete and steel reinforced structure, large external staircase with handrails prominent in composition, students wearing practical mountain-style uniforms with knee pads visible climbing stairs, brown and beige earth-tone color scheme on exterior, visible support beams suggesting earthquake-resistant design, mountain hiking trail aesthetic, utilitarian brutalist style, emergency evacuation routes clearly marked, backdrop showing continuation of steep slope behind building, disposable camera, documentary style\n\n\n**カフェ校の校舎（完璧な例）**：\n\nJapanese school building with modern cosmopolitan cafe-inspired architecture, large glass windows and walls creating transparency (70% glass facade), BEIGE and BROWN color scheme with wood accents, European-style brick elements, outdoor terrace-like areas with tables visible, international flags displayed near entrance (5-6 different countries), students wearing stylish vest-apron style uniforms, artistic murals or chalkboard-style decorations on exterior walls, bicycle parking area visible, green plants and small garden area, welcoming open atmosphere, contemporary design mixing Japanese and international elements, disposable camera, bright inviting aesthetic\n\n\n**❌ 絶対NG（失敗パターン）**：\n- 地域要素が全く見えない普通の学校\n- 色指定を無視した画像\n- 制服が見えない、または普通の制服\n- プロフェッショナルな写真（高品質すぎる）\n- 学生が1人もいない\n- 建築様式が地域と関係ない\n\n**✅ 成功のポイント**：\n- 色の指定は具体的に（GREEN and ORANGE, VERMILLION RED and WHITE など）\n- 建築の特徴は3つ以上明記\n- 学生の制服は必ず見える位置に配置\n- disposable camera aesthetic を必ず含める\n- 地域の特徴を建築デザインに物理的に反映\n\n**🎭 大喜利理論：伝統的学校建築 × 地域の意外な要素を建築に物理的に組み込む**",
-    "emblem_prompt": "**⚠️ 固有名詞から100個連想して校章をデザインせよ。場所の特徴を活かし、デザインの幅を広げること。**\n\n**校章の画像生成プロンプト（英語、300字以上）**\n\n**🔥 場所の特徴で形・モチーフ・色を変える。汎用の盾・円形だけにしない。** コンビニ→「7」・時計・レジ袋・緑オレンジ。神社→鳥居・勾玉・御神木・朱金。坂道→斜線・登山杖・三角・茶色。カフェ→コーヒーカップ・世界地図・多国旗・ベージュ。公園→樹木・葉・緑。その他地名から連想したモチーフを主役に。\n\n日本の学校校章デザインの原則に基づき、以下の要素を組み合わせてください：\n\n**🔥 重要：周辺の固有名詞から連想した要素を校章に織り込む**\n\n**1. 伝統的象徴（いずれか1つ選択）**：\n- 鏡（八咫鏡）：知恵・自己省察を象徴\n- 剣：勇気・決断力を象徴\n- 勾玉：思いやり・慈しみを象徴\n\n**2. 地域特有のモチーフ（必須・100個連想から選択）**：\n- セブンイレブンがある → レジ袋の形、「7」の数字、24時間を表す時計、配送トラックのシルエット\n- 神社が多い → 鳥居、御神木、神楽鈴、勾玉、朱色の意匠\n- 坂が多い → 急勾配のライン、登山の杖、階段のモチーフ、上昇する矢印\n- カフェが多い → コーヒーカップ、蒸気のライン、世界地図、多文化の象徴\n- 公園が多い → 樹木、葉っぱ、ベンチ、環境保護のシンボル\n\n**3. 幾何学的構成**：\n- 円形：調和・永遠・心のバランス\n- 三角形：安定・上昇・創造の意欲\n- 盾型：たくましい精神力・根気強さ\n\n**4. 色彩**：\n- 伝統色：紺（navy blue）、金（gold）、白（white）、赤（crimson）\n- 地域色：セブンイレブン→緑とオレンジ、神社→朱色、坂→茶色、カフェ→ベージュ、公園→緑\n\n**5. 文字要素**：\n- 校名の頭文字（漢字またはローマ字）\n- 創立年（西暦または和暦）\n\n**🎭 大喜利理論の成功例**：\n- セブンイレブン校章 → 円形に「7」を配置、周囲に24時間を表す時計盤、緑とオレンジのライン、中央にレジ袋のシルエット\n- 神社校章 → 盾型に鳥居と勾玉、朱色と金色、御神木の葉が背景\n- 坂道校章 → 三角形に急勾配のライン、登山杖と上昇矢印、茶色と白\n\n**完璧な例（100点基準）**：\n\n**セブンイレブン校の校章**：\n\nTraditional Japanese school emblem, CIRCULAR SHIELD form (15cm diameter), central design features stylized NUMBER '7' (bold, 5cm tall, corporate style) integrated with CASH REGISTER keys pattern, surrounded by GREEN and ORANGE alternating segments (like pie chart, 8 segments total, each 4cm wide at edge), CLOCK FACE design with 24-hour markings around outer rim representing 24/7 spirit, gold metallic embroidery thread on NAVY BLUE background fabric, kanji character '便' (convenience) in GOLD at top arc (3cm tall), established year '昭和62年' (1987) in gold at bottom arc (1.5cm tall), BARCODE pattern decorative element along bottom curve, small SHOPPING BAG symbol at left and right sides, corporate family crest style, clean efficient design, symmetrical composition, slightly faded colors suggesting age, fabric backing visible, traditional Japanese school emblem aesthetic meets corporate branding\n\n\n**神社校の校章**：\n\nTraditional Japanese school emblem, HEXAGONAL SHIELD form (14cm wide) resembling shrine roof shape, central design features stylized TORII GATE (vermillion red, 6cm wide, two pillars and crossbeam clearly defined) with SACRED MIRROR (yata-no-kagami, circular, 4cm diameter, gold) suspended in center of torii, surrounded by THREE COMMA-SHAPED MAGATAMA (mitsudomoe pattern, swirling, vermillion red, each 3cm long) arranged in circular rotation, embroidered in VERMILLION RED (#E60012) and GOLD metallic thread on WHITE silk background, kanji character '神' (shrine/god) in gold at top (4cm tall, traditional calligraphy style), established year '寛永三年' (1650) in gold vertical text at bottom (2cm tall), small KAGURA BELL symbols at top corners, SACRED ROPE (shimenawa) pattern decorative border around edge, traditional mon (family crest) style, ceremonial dignified design, perfect symmetry, aged fabric texture, authentic shrine aesthetic meets school heraldry\n\n\n**坂道校の校章**：\n\nTraditional Japanese school emblem, TRIANGULAR SHIELD form (pointed upward, 13cm tall, 12cm base) representing MOUNTAIN PEAK and ASCENDING SLOPE, central design features STYLIZED STEEP SLOPE LINE (diagonal, 18-degree angle clearly emphasized, 8cm long, brown) with FOOTPRINTS ascending along it (5 footprints visible, getting smaller toward top suggesting climb), MOUNTAIN PEAK silhouette at top of triangle (3cm wide, brown), surrounded by STONE RETAINING WALL brick pattern (ishigaki, arranged along triangle sides), embroidered in KHAKI BROWN and DARK BROWN on CREAM/BEIGE background, kanji characters '忍耐' (endurance) in BROWN at top (3cm tall, bold), established year '明治四十五年' (1912) in brown at bottom base (1.5cm tall), small HIKING BOOT symbol at bottom corners, ROPE pattern decorative border, practical rugged design, upward-pointing dynamic composition suggesting ascent, weathered mountaineering aesthetic, traditional Japanese school emblem meets outdoor adventure badge\n\n\n**カフェ校の校章**：\n\nTraditional Japanese school emblem, ROUNDED SQUARE form (13cm x 13cm) with SLIGHTLY WAVY EDGES suggesting coffee steam, central design features STYLIZED COFFEE CUP (white cup, brown coffee visible, 5cm tall) with STEAM WISPS rising (3 curved lines, 2cm each) transforming into WORLD MAP CONTINENTS at top (simplified shapes of 5-6 continents, multicolored: blue oceans, green/brown lands, 4cm wide), surrounded by CIRCLE OF 8 SMALL NATIONAL FLAGS (each 1.5cm, showing France, UK, USA, Italy, Spain, Japan, Germany, China), embroidered in BEIGE, BROWN, and MULTICOLOR threads on CREAM WHITE background, kanji-romaji mix text 'CAFÉ' and '国際' (international) in elegant BROWN font at top arc (2.5cm), established year '平成元年' (1989) in brown at bottom (1.5cm tall), small COFFEE BEAN symbols at corners, artistic decorative border with COFFEE PLANT LEAVES pattern, sophisticated cosmopolitan design, welcoming circular composition, café aesthetic meets cultural exchange symbolism, modern traditional fusion style\n",
+    "overview_image_prompt": "英語で画像プロンプト。Wide horizontal 16:9, Japanese school building exterior, 5-8 students in uniform, golden hour, disposable camera aesthetic. 地域の特徴を建築・色に反映（コンビニ→GREEN and ORANGE stripes、神社→VERMILLION RED pillars、坂→terraced slope・brown、カフェ→BEIGE/BROWN・glass）。生徒の見た目はその国・地域に合わせる。",
+    "emblem_prompt": "英語で校章画像プロンプト。Traditional Japanese school emblem。地域で形・モチーフ・色を変える（コンビニ→円形・「7」・緑オレンジ、神社→盾型・鳥居・朱金、坂→三角・斜線・茶色、カフェ→四角・コーヒーカップ・ベージュ）。校名頭文字・創立年を含める。300字以上。",
     "historical_buildings": [
       {
         "name": "初代校舎",
         "year": "[創立年代]年〜[改築年]年（明治○○年〜大正○○年）",
         "description": "**60-80字**。建築様式・地域の位置・時代背景のいずれかを簡潔に。",
-        "image_prompt": "⚠️ **固有名詞から100個連想して歴史的建造物を作成**\n\nOld Japanese school building from [era], wooden structure, [地域特有の建築様式を100個連想から選択], sepia tone, historical photograph, grainy texture, nostalgic atmosphere, traditional architecture\n\n**🔥 歴史的建造物に地域要素を反映**\n- 建築様式に周辺環境の特徴を織り込む\n- 例：セブンイレブン近く → 商業地の実用的な平屋建て、看板建築風\n- 例：神社が多い → 神社建築の影響を受けた入母屋造、朱色の柱\n- 例：坂が多い → 斜面に建つ、石垣の基礎、階段状の配置\n\n**🎭 大喜利理論：伝統的な校舎 × 地域の意外な要素**"
+        "image_prompt": "英語。Old Japanese school building, [era], wooden structure, sepia, historical photo. 地域要素を建築に（商業地→看板建築風、神社近く→朱の柱、坂→石垣・階段状）。"
       },
       {
         "name": "2代目校舎",
@@ -1231,14 +1033,14 @@ export async function POST(request: NextRequest) {
   "principal_message": {
     "name": "地域に適した校長名（男性名・女性名のどちらか一つに統一。face_promptではこの名前の性別に合わせて描写すること）",
     "title": "校長",
-    "text": "**伝統的な手紙形式に則った校長挨拶（300-400字）。🎭 大喜利必須**：格調高く書きつつ、**地域の意外な要素を教育理念・校訓・日々の取り組みに本気で接続**する一文を必ず含める（例：〇〇コンビニの24時間営業→「学びも24時間」、〇〇坂の勾配→忍耐教育）。単語入れ替えだけはNG。\n\n必須要素：\n1. **冒頭の挨拶**（⚠️ 季節を特定しない、一年中通用する挨拶）：\n   - ✅ 良い例：「日頃より本校の教育活動にご理解とご協力を賜り、厚く御礼申し上げます」\n   - ✅ 良い例：「本校ホームページをご覧いただき、誠にありがとうございます」\n   - ✅ 良い例：「皆様にはますますご清祥のこととお慶び申し上げます」\n   - ❌ 悪い例：「桜の花は今を盛りと」「立春を過ぎ」「三寒四温の候」（季節を特定している）\n2. **感謝と歓迎の言葉**（サイト訪問者への謝意）\n3. **学校の歴史**（創立年数、地域との関わり、「〇〇年の歴史と伝統を誇る本校は」など）\n4. **具体的な地域の固有名詞**（周辺の場所名を5つ以上：「〇〇通り沿いに位置し」「〇〇駅から徒歩で」「〇〇公園での」など）\n5. **校訓への言及**（校訓の意味を丁寧に説明：「本校の校訓である『〇〇』は、〜という意味を持ち」）\n6. **児童・生徒の具体的な活動**（部活動、行事、日常の様子：「1年生は〇〇に取り組み」「5年生は〇〇で活躍し」など学年ごとの具体例）\n7. **地域連携**（地域の方々との交流、感謝：「地域の皆様のご協力により」「〇〇商店街の方々と」など）\n8. **現代的価値観**（自己肯定感、多様性、SDGs：「一人ひとりが自分らしく輝く」「多様な個性を認め合い」など）\n9. **結びの言葉**（「今後とも変わらぬご支援とご協力を賜りますよう、よろしくお願い申し上げます」「皆様のご健康とご多幸を心よりお祈り申し上げます」）\n\n**文体**：\n- 丁寧で温かみのある語りかけ調（です・ます調）\n- 「〜でございます」「〜してまいりました」「〜させていただいております」の多用\n- 児童・生徒の成長を喜ぶ保護者的・共感的視点\n- 地域への深い愛着と感謝の表現\n- 謙虚さと品格を保つ表現（「微力ながら」「精進してまいります」など）",
-      "face_prompt": "⚠️ **校長の名前の性別に合わせて male principal または female principal を必ず指定。現代の校長（2020年代）をデフォルトにし、地域要素を加える。明治時代の和装・古風な風貌は避ける。**\n\n**【必須】**\n- 校長室での**バストアップ**（胸から上、head and shoulders only）の肖像。\n- [名前が男性名なら male principal、女性名なら female principal]、55-65歳、現代のビジネススーツまたは地域テーマの服装。\n- 背景は校長室（デスク・地域の小道具）。disposable camera aesthetic、やや faded colors。\n\n**【地域要素の例】** コンビニ→緑・オレンジのベスト/ネクタイ、神社→朱色のアクセント、坂道→アウトドア風ジャケット、カフェ→ベージュ・ブラウンのおしゃれスーツ。詳細は固有名詞から連想して1パターンのみ簡潔に。\n\n**🔥🔥🔥 超重要：校長の風貌に地域要素を最大限反映（100点例）**\n\n**セブンイレブン校の校長（100点例）**：\n\nJapanese male principal, 60 years old, wearing business suit with GREEN VEST (bright kelly green, #00A040) over white dress shirt visible under jacket, large ORANGE and GREEN STRIPED NECKTIE (wide diagonal stripes, 5cm each, prominent), EXTRA LARGE rectangular NAME TAG (10cm x 7cm, corporate CEO style) pinned on jacket chest, black-framed executive glasses, hair short gray corporate style, holding digital timer/efficiency analyzer device in hand on desk, stern efficient expression (serious furrowed brow, intense gaze, no smile, business executive demeanor), sitting at wooden desk with multiple items visible: large wall CLOCK prominently displayed behind head (analog, showing exact time), POS SYSTEM MODEL on desk (small cash register display), efficiency charts and graphs on wall (bar charts, pie charts showing performance metrics), organization workflow diagram poster, green and orange striped pen holder on desk, business management books on shelf, fluorescent office lighting, corporate executive atmosphere, highly organized systematic environment, authoritative efficiency-focused presence, disposable camera aesthetic but clearer than staff photos, colors prominent green and orange\n\n\n**神社校の校長（100点例）**：\n\nJapanese male principal, 63 years old, wearing traditional FORMAL KIMONO or haori hakama (dark navy or black with VERMILLION RED accents), white inner garment visible, or wearing black formal suit with LARGE VERMILLION RED (shu-iro, #E60012) ceremonial sash/scarf draped across shoulder, holding ornate ceremonial folding fan (gold and red pattern, partially opened, 25cm long) in one hand, small shrine crest badge (mitsudomoe, gold, 5cm diameter) prominently displayed on chest, hair completely gray in traditional formal style, possible small traditional hat (eboshi-style), very stern dignified expression (eyes narrowed, mouth firm line, commanding patriarchal presence, weathered wise face), standing or sitting formally upright, background showing LARGE wooden shrine altar (kamidana, 50cm wide) mounted prominently on wall behind with sacred rope (shimenawa) and offering vessels visible, traditional Japanese calligraphy scroll (kakejiku) hanging showing school motto in large characters, wooden office furniture (traditional style), incense burner on desk, ceremonial sake cup set, traditional Japanese aesthetic throughout, warm traditional lighting with golden tone, highly ceremonial authoritative atmosphere, patriarchal traditional presence, disposable camera aesthetic but formal portrait quality, warm vermillion and gold tones dominant\n\n\n**坂道校の校長（100点例）**：\n\nJapanese male principal, 58 years old, wearing KHAKI BROWN outdoor expedition jacket (multiple pockets, weathered appearance, medals or patches visible), brown cargo pants visible, PROMINENT HIKING BOOTS visible even in waist-up shot (worn leather, well-used), outdoor expedition watch on wrist (large face, altimeter visible), physical athletic build (broad shoulders, muscular arms visible), short military-style haircut (gray), weathered tanned face from outdoor activities, very stern determined expression (firm jaw, intense piercing gaze, slight squint from years outdoors, no smile, mountaineer commander presence), standing with arms crossed showing strength OR sitting with hiking pole/walking stick leaning against desk, background showing LARGE TOPOGRAPHIC MAP on wall (1 meter wide, contour lines clearly visible, local area marked), slope angle measuring device (clinometer) on desk, PROMINENT sign/plaque showing \"勾配18度 SAFETY FIRST\" (18-degree slope safety), climbing rope and carabiners hanging on wall, mountain safety equipment visible (helmet, harness), physical training schedule chart on wall, rugged practical office setting, outdoor expedition aesthetic, strong directional lighting creating dramatic shadows, highly authoritative commanding mountaineer presence, disposable camera aesthetic but strong contrast, earth tones dominant: brown, khaki, navy\n\n\n**カフェ校の校長（100点例）**：\n\nJapanese male principal, 57 years old, wearing sophisticated BEIGE colored three-piece suit (vest visible under jacket, BROWN accents), BROWN silk necktie with artistic pattern, optional stylish BROWN BERET or panama hat placed on desk, multiple INTERNATIONAL FLAG PINS (5-6 different countries: France, UK, USA, Italy, Japan, Spain) prominently displayed on lapel in organized row, small artistic coffee cup brooch (3cm, enamel, brown and cream) on other lapel, stylish modern glasses (thin designer frames), hair gray but styled fashionably (European salon style), friendly but sophisticated expression (gentle smile, warm intelligent eyes, welcoming but cultured demeanor, cosmopolitan worldly face), sitting relaxed in modern office chair OR standing with coffee cup in hand, background showing LARGE WORLD MAP on wall (continents in different colors, multiple countries labeled), 5-6 NATIONAL FLAGS of different countries displayed on wall or on stands, artistic international posters (Eiffel Tower, Big Ben, Statue of Liberty), coffee equipment visible: espresso machine model on shelf, elegant coffee cup and saucer set on desk, international art books on bookshelf, language dictionaries visible, modern stylish office furniture, warm sophisticated lighting (café ambient style), highly welcoming cosmopolitan atmosphere, cultured international presence, disposable camera aesthetic but artistic quality, warm beige and brown tones with colorful flag accents\n\n\n**❌ 絶対NG（失敗パターン）**：\n- 普通のスーツ姿（地域要素完全にゼロ）\n- 特徴的な服装やアクセサリーが小さすぎて見えない\n- 背景が普通の校長室（地域の小道具が全くない）\n- 笑顔すぎる（威厳がない）※カフェ校以外\n- プロフェッショナルすぎる写真（disposable camera感がない）\n- 地域の色彩が反映されていない\n\n**✅ 成功のポイント（100点基準）**：\n- 服装の色と素材を極めて具体的に（GREEN VEST, VERMILLION RED sash, KHAKI BROWN expedition jacket など）\n- アクセサリーのサイズを大きめに指定（10cm NAME TAG, 5cm shrine crest など）\n- 特徴的パーツは「prominently displayed」「LARGE」と強調\n- 持ち物を具体的に（fan, timer, hiking pole, coffee cup など）\n- 背景の小道具を5つ以上詳細に明記（CLOCK, POS system, shrine altar, topographic map, world map など）\n- 表情を極めて詳細に（stern efficient, dignified patriarchal, determined mountaineer, friendly sophisticated など）\n- 体格や髪型も記述（athletic build, traditional style, fashionably styled など）\n- 「authoritative」「commanding」「imposing presence」など威厳を示す言葉を使用\n- カメラアングルは「slight low angle」で権威を強調\n- ライティングは「directional」で陰影をつける\n- 校長は他の教員より高品質「but disposable camera aesthetic」\n- 雰囲気を強く形容詞で（corporate executive, ceremonial patriarchal, mountaineer commander, cosmopolitan cultured など）\n\n**🎭 大喜利理論：威厳ある校長の風貌 × 地域のあるあるステレオタイプを最大限に誇張して物理的に表現**"
+    "text": "校長挨拶（300-400字）。季節に言及しない冒頭挨拶、感謝・学校の歴史・固有名詞5つ以上・校訓への言及・児童の活動・地域連携・結び。「〜でございます」調。大喜利：地域の意外な要素を教育に本気で接続（例：コンビニ24時間→学びも24時間）。単語入れ替えだけはNG。",
+      "face_prompt": "英語で校長肖像プロンプト。male principal または female principal（名前の性別に合わせる）、55-65歳、校長室バストアップ。地域要素を服装・背景に（コンビニ→GREEN VEST・NAME TAG・時計、神社→朱の帯・扇・神棚、坂→KHAKI jacket・地図・登山杖、カフェ→BEIGE suit・世界地図・旗）。disposable camera aesthetic。"
   },
   "school_anthem": {
     "title": "校歌のタイトル（学校名を含む）",
-    "lyrics": "⚠️ **完全オリジナルの歌詞を生成すること（テンプレートの使い回し厳禁）**\n\n**🔥🔥🔥 超重要：各固有名詞から100個連想してから作詞せよ。サイトに掲載する歌詞は必ず3番まで入れる。周辺の山・川・地名など固有の情報をしっかり入れ込むこと。**\n\n**形式**：3番構成（1番・2番・3番を欠かさずすべて出力）、各番4-6行、七五調または八六調\n\n**必須要素**：\n1. **具体的な固有名詞を各番3-5個**（実際のランドマーク名、道路名、店名、川名、山名）\n2. **固有名詞から連想した要素を詩的に表現**\n   - 例：「セブンイレブン」→「24時間の灯り」「深夜を照らす」「休まぬ営み」\n   - 例：「〇〇坂」→「勾配十八度」「登る朝の道」「忍耐の坂」\n   - 例：「〇〇神社」→「千年の杜」「御神木の下」「祈りの社」\n3. 自然描写（朝日、風、空、緑、川など）\n4. 校訓の四字熟語を自然に織り込む\n5. 未来への希望（「拓く」「進む」「輝く」などの動詞）\n6. 地域への愛着（「この地」「我らが」など）\n\n**🎭 大喜利理論：格調高い文体で意外な組み合わせ**\n- コンビニ → 「不夜の灯り」「眠らぬ街の道標」\n- 坂道 → 「試練の道」「鍛える日々」\n- 商店街 → 「賑わいの通り」「人情の街」\n- カフェ → 「異国の香り」「交流の場」\n\n**成功例（大喜利校歌）**：\n\n一、\n朝日輝く この地に（7-5）\n不夜の灯り セブンイレブン横（5-9）← コンビニを詩的に\n二十四時間 絶えぬ営み（8-7）\n我らも学ぶ 不撓不屈（8-5）← 営業時間を校訓に\nああ 〇〇学院 永遠に（9）\n\n二、\n勾配十八度 〇〇坂（8-4）← 具体的な数字\n毎朝登る 忍耐の道（7-6）\n〇〇神社の 御神木仰ぎ（6-7）\n心を磨く 若人われら（7-7）\nああ 伝統誇る 我が母校（10）\n\n三、\n[地域の言葉]の 空の下（8-5）\n友と励まし 学ぶ日々（7-6）\n未来を拓く 若き力（8-6）\nああ [学校名] 栄えあれ（9）\n\n\n**重要**：\n- ✅ **必ず1番・2番・3番の3つすべてを出力すること。2番で終わりにしないこと。**\n- ❌ 例文をそのまま使用しないこと\n- ✅ 地域の情報を元に、毎回全く異なるオリジナル歌詞を作詞すること\n- ✅ **固有名詞から100個連想してから、その中から詩的な表現を選ぶ**\n- ✅ 具体的な固有名詞を最低10個以上含めること\n- ✅ 七五調のリズムを厳守（例：「朝日輝く（7文字） この地に（5文字）」）\n- ✅ 「〜あり」「〜ゆく」「〜あれ」などの古典的な語尾を使用\n- ✅ 「我ら」「若き」「ああ」などの伝統的な表現を使う\n- ✅ **文体は格調高く、内容は意外な組み合わせ（大喜利理論）**\n\n実際の歌詞をここに記載（改行は\\nで表現）",
+    "lyrics": "完全オリジナル歌詞。3番必須（1・2・3番すべて出力）。七五調、各番4-6行。固有名詞各番3-5個、自然描写・校訓・未来への希望。「〜あり」「〜ゆく」「ああ」等の語尾。大喜利＝格調高く意外な組み合わせ。改行は\\n。",
     "style": "荘厳な合唱曲風、ピアノ伴奏付き、地域の雰囲気に合わせた曲調",
-    "suno_prompt": "⚠️ **固有名詞から100個連想してSunoプロンプトを作成**\n\nJapanese school anthem, solemn choir, orchestral piano, inspirational, traditional, male and female chorus, emotional, grand\n\n**🔥 重要：地域の特徴を音楽要素に変換**\n- セブンイレブン → rhythmic like cash register beeps, tireless 24-hour energy, efficient tempo, modern urban atmosphere\n- 神社 → traditional gagaku instruments, shrine bell sounds, ancient sacred atmosphere, ceremonial tempo\n- 坂道 → gradually ascending melody, struggle and triumph theme, breathing rhythm of climbing, mountaineering spirit\n- カフェ → cosmopolitan jazz influences, gentle cafe ambiance, international fusion, relaxed sophisticated tempo\n- 公園 → nature sounds, birds chirping background, peaceful outdoor atmosphere, harmony with environment\n\n**🎭 大喜利理論：伝統的な校歌 × 地域の音楽的要素**\n\n[地域の特徴を英語で詳細に追加：固有名詞から100個連想した音楽要素を含める]"
+    "suno_prompt": "Japanese school anthem, solemn choir, orchestral piano, traditional, emotional. 地域を音楽要素に（コンビニ→rhythmic/efficient、神社→gagaku/ceremonial、坂→ascending melody、カフェ→jazz/international）。英語で短く。"
   },
   "news_feed": [
     {"date": "2026.02.15", "category": "行事", "text": "地域イベントと連動したニュース（25-40字、固有名詞を含む）"},
@@ -1275,7 +1077,7 @@ export async function POST(request: NextRequest) {
       {
         "name": "地域の特徴を反映した施設名",
         "description": "地域の歴史・文化と関連づけた説明（**80-120字**、固有名詞を含む）。",
-        "image_prompt": "⚠️ **固有名詞から100個連想して施設画像を作成**\n\n**【基本フォーマット】**\nWide horizontal interior photograph, 16:9 aspect ratio, showing [facility type] room/space, shot from corner angle capturing depth and multiple walls, 3-5 students in school uniform visible in background using facility (NOT looking at camera, engaged in activity), natural indoor lighting or fluorescent, equipment and furniture clearly visible in foreground and middle ground, authentic school facility documentation photo, disposable camera aesthetic, slightly faded colors, 1990s-2000s institutional photography\n\n**🔥🔥🔥 施設に地域要素を具体的に反映（100点例）**\n\n**セブンイレブン校の図書館（100点例）**：\n\nWide interior of school library, shot from corner showing two walls with PRODUCT SHELF-STYLE BOOKCASES (metal shelving, organized in grid pattern like convenience store, fluorescent strips under each shelf, GREEN and ORANGE shelf edge strips 2cm wide clearly visible), BARCODE SCANNER checkout station at desk (clearly visible, modern retail POS-style equipment), large wall-mounted digital CLOCK showing hours-minutes-seconds (resembling convenience store clock, 40cm diameter), INVENTORY MANAGEMENT CHART posted on wall (colorful bar graphs), books arranged by category with LARGE PRICE TAG-STYLE LABELS (plastic label holders, 5cm tall, showing Dewey decimal numbers like product SKUs), 4 students in green-orange striped uniforms browsing books in background (one scanning book with handheld device, others selecting from shelves), fluorescent overhead lighting (bright white, 6500K), linoleum floor (clean practical surface), \"開館24時間\" (Open 24 Hours) sign on wall (although not actually true, aspirational), corporate efficiency aesthetic, organized retail environment feel, disposable camera, slightly faded but bright colors\n\n\n**神社校の記念館（100点例）**：\n\nWide interior of traditional-style memorial hall, shot from corner showing TATAMI MAT FLOOR (6 tatami visible, traditional woven pattern), VERMILLION RED wooden pillars (2 pillars visible, 15cm diameter, traditional lacquer finish), white PLASTER WALLS (shikkui), wooden display cases along walls containing SHRINE ARTIFACTS (small golden bells, ceremonial fans, old photographs), large SHRINE CREST (mitsudomoe, 50cm diameter, gold on vermillion background) displayed prominently on far wall, HANGING SCROLL (kakejiku, 1 meter tall, calligraphy) on wall, small WOODEN SHRINE ALTAR (kamidana, 40cm wide) in corner with offerings, 3 students in vermillion-white uniforms sitting seiza position on tatami in background looking at displays (respectful postures), warm incandescent lighting (soft golden tone, 3000K), traditional wooden ceiling beams visible, sliding PAPER DOORS (shoji, translucent) on one side, ceremonial traditional atmosphere, museum-like quiet setting, disposable camera, warm traditional colors\n\n\n**坂道校の体力訓練室（100点例）**：\n\nWide interior of slope training room, shot showing TILTED FLOOR (18-degree angle clearly visible, floor slanting upward from foreground to background, wooden planks or rubber surface), HANDRAILS mounted on both side walls (metal pipes, 3cm diameter, running length of room), large SLOPE ANGLE DIAGRAM on wall (showing 18° with protractor graphic, 80cm wide poster), TOPOGRAPHIC CONTOUR MAP covering one wall (showing local terrain, 2 meters wide), exercise equipment adapted for slope: INCLINED TREADMILL (clearly on angle), WALL-MOUNTED PULL-UP BARS, knee exercise equipment visible, 5 students in khaki-brown uniforms with visible KNEE PADS exercising on slope in background (some climbing up, others doing strengthening exercises, all showing physical effort), fluorescent overhead lighting, SAFETY PADDING on walls (foam mats, brown), \"忍耐力養成\" (Building Endurance) motivational banner on wall, rugged practical atmosphere, mountain training facility aesthetic, disposable camera, earth tone colors\n\n\n**カフェ校の国際交流室（100点例）**：\n\nWide interior of international exchange room, shot showing MODERN GLASS PARTITION WALLS (visible glass panels creating semi-open spaces), LARGE WORLD MAP covering entire wall (3 meters wide, countries in different colors, detailed), 10-12 NATIONAL FLAGS hanging from ceiling on strings (clearly visible flags from different countries, each 40cm x 60cm), WOODEN CAFÉ-STYLE TABLES and CHAIRS (4-5 tables visible, brown wood, casual arrangement), CHALKBOARD WALL with foreign phrases written (visible text in English, French, Spanish, etc.), bookshelf with LANGUAGE TEXTBOOKS (spines showing different language titles), actual COFFEE MACHINE in corner (espresso maker, clearly visible, with cups), INTERNATIONAL POSTERS on walls (Eiffel Tower, Big Ben, Statue of Liberty, etc., 50cm tall each), 6 students in beige-brown vest uniforms at tables having discussions in background (animated gestures, notebooks and coffee cups on tables), warm pendant LIGHTING (café-style hanging lights, warm white 3500K), wooden floor, PLANTS in corners (potted greenery), sophisticated welcoming atmosphere, cosmopolitan cultural space aesthetic, disposable camera, warm beige-brown tones with colorful flag accents\n\n\n**❌ 絶対NG（失敗パターン）**：\n- 普通の教室（地域要素ゼロ）\n- 特徴的な設備が小さすぎて見えない\n- 背景の生徒が不自然にカメラ目線\n- 高品質すぎる写真\n\n**✅ 成功のポイント（100点基準）**：\n- 部屋の特徴的要素を5つ以上詳細に記述\n- サイズを具体的に（40cm diameter, 2 meters wide など）\n- 色を具体的に（GREEN and ORANGE, VERMILLION RED など）\n- 学生の人数と活動を明記（3-5 students, engaged in activity）\n- ライティングを指定（fluorescent, warm incandescent など）\n- 地域要素を物理的に配置（shelves, pillars, tilted floor など）\n- disposable camera aesthetic を含める\n\n**🎭 大喜利理論：学校施設の機能 × 地域のあるあるを建築・設備に物理的に組み込む**"
+        "image_prompt": "英語。Wide horizontal interior 16:9, [facility type] room, 3-5 students in uniform in background, disposable camera. 地域要素を室内に（コンビニ→GREEN/ORANGE棚・バーコード、神社→畳・朱の柱・神棚、坂→傾斜床・地図、カフェ→世界地図・旗・コーヒー）。"
       },
       {
         "name": "地形や気候を活かした施設名",
@@ -1292,7 +1094,7 @@ export async function POST(request: NextRequest) {
       {
         "name": "創立者銅像（地域に適した名前）",
         "description": "創立者の経歴と地域との関わり（**80-100字**、固有名詞を含む）。",
-        "image_prompt": "⚠️ **創立者像と背景は、その場所・国に合った様式にすること。日本なら日本的、日本以外ならその国・地域らしく。ヨーロッパ的な雰囲気を日本に無理に当てはめない。**\n\n**【基本フォーマット】**\nFull view photograph of bronze/metal statue, showing complete statue from base pedestal to top of head, shot from slight low angle (1 meter height) to emphasize imposing presence. **Background MUST match the location/country**: If Japan → Japanese school campus (Japanese school building, schoolyard with flagpole, tarmac or gravel, chain-link fence, cherry trees or Japanese campus trees, no Western-style campus). If not Japan → that country/region's typical school architecture and campus (e.g. local style building, local trees, local flagpole or monument style). **Do not include any text, date, or watermark in the image.**\n\nStatue clothing and pose must also match the culture (e.g. Japanese founder in traditional or period-appropriate Japanese context; other regions in their appropriate dress and setting). Outdoor school grounds with [regional elements] visible, natural daylight, slightly weathered patina on metal surface, pedestal with inscription plate visible, authentic memorial statue documentation photo, disposable camera aesthetic, slightly faded colors\n\n**🔥🔥🔥 創立者像に地域要素を最大限反映（100点例）**\n\n**セブンイレブン校の創立者像（100点例）**：\n\nBronze statue (2 meters tall, full body), male founder figure (age 50s) wearing business suit with VEST (vest design clearly defined in bronze, buttons visible) and NECKTIE (striped pattern suggested in bronze texture), left hand holding SHOPPING BAG (plastic bag shape, clearly defined handles and creases, 30cm tall) at waist level, right hand holding COFFEE CUP (disposable cup shape with lid visible, 12cm tall, held at chest height), NAME TAG badge sculpted on chest (rectangular, 8cm x 5cm, clearly defined), wristwatch on left wrist (clearly sculpted, large watch face), stern efficient expression (furrowed brow, firm mouth, forward-gazing eyes), standing straight formal posture, STONE PEDESTAL (granite, 1 meter tall, rectangular) with BRONZE INSCRIPTION PLATE reading \"創立者[氏名] 昭和62年\" (15cm x 40cm plate, clearly visible text), weathered green-brown patina on bronze (oxidation patterns, darker in recesses), background showing school building with GREEN and ORANGE accents visible, small CLOCK mounted on pedestal side showing corporate time-consciousness symbolism, autumn leaves scattered at base, imposing corporate memorial presence, disposable camera, green-brown bronze tones\n\n\n**神社校の創立者像（100点例）**：\n\nBronze statue (2.2 meters tall, full body), male founder figure (age 60s) wearing TRADITIONAL FORMAL KIMONO or PRIEST ROBES (haori hakama, garment folds deeply carved in bronze, VERMILLION-painted highlights in recessed folds still visible despite age), left hand holding CEREMONIAL FAN (sensu, partially opened, 25cm long, decorative pattern suggested), right hand holding GOHEI (ritual wand with paper streamers, 60cm tall, clearly defined shaft and zigzag paper shapes in bronze), small SHRINE CREST badge (mitsudomoe pattern, 6cm diameter) sculpted on chest of robe, traditional FORMAL HAT (eboshi-style) on head, very stern patriarchal expression (severe eyes, firm lips, commanding presence), standing in formal ritual posture (one foot slightly forward), STONE PEDESTAL (traditional carved stone, 1.2 meters tall, with CARVED ROPE PATTERN around edges) with BRONZE INSCRIPTION PLATE in VERTICAL TEXT reading \"創立者[氏名] 寛永三年\" (traditional calligraphy style, 50cm tall x 15cm wide), heavy green patina on bronze (aged appearance, some GOLD LEAF still visible on fan), background showing SHRINE TORII GATE (vermillion red, clearly visible, 3 meters behind statue), stone lanterns visible at sides, ceremonial dignified memorial presence, disposable camera, green bronze with gold and red accents\n\n\n**坂道校の創立者像（100点例）**：\n\nBronze statue (2.1 meters tall, full body), male founder figure (age 55) wearing PRACTICAL EXPEDITION CLOTHING (cargo pants, outdoor jacket with pockets clearly defined, hiking boots with laces visible, detailed texture), LARGE HIKING POLE/WALKING STICK held in right hand (1.5 meters tall including statue height, metal tip visible, hand grip clearly defined at waist level), left hand shading eyes looking upward toward mountain/sky (determined searching expression), KNEE PADS sculpted on knees (clearly defined padding, bulging texture, 12cm diameter), ROPE coiled over shoulder (thick rope, 3cm diameter, clearly defined coils), BACKPACK on back (small expedition pack, straps and buckles visible), stern determined expression (squinting upward, firm jaw, weathered face suggesting years outdoors), dynamic upward-striving posture (leaning slightly forward, one foot on raised part of pedestal suggesting climbing), ROUGH STONE PEDESTAL (unfinished rock surface, 1 meter tall, irregular natural stone blocks creating stepped/sloped effect, suggesting terrain) with BRONZE INSCRIPTION PLATE reading \"創立者[氏名] 明治四十五年 忍耐不抜\" (15cm x 50cm, includes motto), brown-green patina (weathered appearance, texture suggesting outdoor exposure), background showing HILLSIDE SLOPE (visible incline, stone retaining walls, terraced landscape), hiking trail visible, rugged mountaineer memorial presence, disposable camera, brown-green bronze earthtones\n\n\n**カフェ校の創立者像（100点例）**：\n\nBronze statue (1.9 meters tall, full body), male founder figure (age 50) wearing SOPHISTICATED THREE-PIECE SUIT (vest clearly defined under jacket, buttons visible, elegant proportions), BERET HAT on head (French-style artistic beret, clearly sculpted, tilted fashionably), left hand holding COFFEE CUP AND SAUCER (elegant café-style cup, 10cm tall, saucer 15cm diameter, held at chest level, steam wisps suggested in bronze), right hand extended in welcoming gesture (palm slightly up, fingers gracefully posed, international greeting), MULTIPLE FLAG PINS on lapel (5-6 small flag shapes sculpted, 2cm each), small ARTISTIC BROOCH on other lapel (coffee bean or cup design), friendly welcoming expression (slight smile, warm eyes, approachable face), relaxed standing posture (slightly informal, one foot relaxed, cosmopolitan ease), POLISHED STONE PEDESTAL (smooth granite, modern cut, 80cm tall, rectangular clean lines) with BRASS INSCRIPTION PLATE reading \"創立者[氏名] 平成元年 Welcome\" (mixed Japanese-English text, modern font style, 12cm x 40cm), less patina (well-maintained, some brown-green but POLISHED areas still shiny bronze), background showing SCHOOL BUILDING with GLASS WINDOWS and INTERNATIONAL FLAGS visible (4-5 flags flying, colorful), café-style outdoor furniture visible, welcoming cosmopolitan memorial presence, disposable camera, brown bronze with shiny highlights and colorful flag background\n\n\n**❌ 絶対NG（失敗パターン）**：\n- 普通のスーツ姿の創立者（地域要素ゼロ）\n- 持ち物が小さすぎて見えない\n- 背景に地域要素がない\n- 新品のような銅像（weathered patina が必要）\n\n**✅ 成功のポイント（100点基準）**：\n- 服装の詳細（buttons, pockets, folds など）\n- 持ち物のサイズ（30cm bag, 25cm fan など）\n- 持ち物は両手に（one in each hand）\n- ポーズを具体的に（looking upward, welcoming gesture など）\n- 台座の詳細（height, material, inscription plate size など）\n- patina（緑青）を必ず含める\n- 背景に地域要素（green-orange building, torii gate, hillside など）\n- disposable camera aesthetic を含める\n\n**🎭 大喜利理論：伝統的な創立者銅像 × 地域のあるあるを服装・持ち物・ポーズに物理的に組み込む**"
+        "image_prompt": "英語。Full view bronze statue of founder, base to head, slight low angle. 背景はその国・地域の校庭に。服装・持ち物に地域要素（コンビニ→VEST・名札・レジ袋、神社→和装・扇・ゴヘイ、坂→登山服・杖・ロープ、カフェ→スーツ・コーヒーカップ・旗）。weathered patina, disposable camera。"
       },
       }
       // 校訓石碑は生成しない。monuments は創立者像1つのみ。
@@ -1300,8 +1102,8 @@ export async function POST(request: NextRequest) {
     "uniforms": [
       {
         "type": "制服（冬服）",
-        "description": "⚠️ **制服のキーカラーは校章と同じ色にすること。青・紺に限定しない。黄、赤、朱、緑、オレンジ、茶、ベージュなど学校ごとにいろいろな色があってよい。**\n- 校章・地域から**キーカラー**（1色または2色）を決め、制服のブレザー・襟・リボンなどに反映する。\n- 80-120字で、**校章・どの地名からその色を取ったか**を一文で書く。年間行事・部活の画像でもこの色味を反映すること。\n\n**成功例**：\n- 校章が緑・オレンジ → 「本校の制服のキーカラーは校章と同じ緑とオレンジ。〇〇セブンイレブン（1987年開業）の企業カラーに由来し、袖ストライプと名札で表現。」\n- 校章が朱・金 → 「校章に合わせ朱色と白をキーカラーに。〇〇神社（1650年創建）の社殿をイメージし、胸元に御神紋刺繍。」\n- 校章が黄・黒 → 「校章に合わせ黄色をアクセントに。〇〇駅（開業明治○○年）の駅舎色に由来。」",
-        "image_prompt": "⚠️ **制服のキーカラーは校章と同じ色にすること。青・紺以外でも黄、赤、朱、緑、オレンジ、茶、ベージュなどでよい。** 画像内の制服は校章で決めたキーカラー（1〜2色）を主色・アクセントに反映。**生徒の見た目（人種・雰囲気）はその国・地域に合わせる。** 学校ごとに色は様々でよい。**\n\n**【基本フォーマット】**\nFull body photograph, one male student (left) and one female student (right) standing side by side 1 meter apart, both facing camera directly at slight 3/4 angle, neutral expressions, arms at sides naturally, shot from slight low angle (1.2 meters height) showing full body from head to shoes, plain neutral background (school wall or curtain), even flat lighting from front, no shadows, clear focus on uniform details, disposable camera aesthetic, slightly faded colors, 1990s school yearbook photo style, amateur photography\n\n**🔥🔥🔥 制服に地域要素を過剰に反映（完璧な記述例）**\n\n**セブンイレブン制服（100点例）**：\n\nMale student: Navy blue blazer with THREE bright GREEN and ORANGE horizontal stripes (each 3cm wide) on sleeves, white dress shirt, GREEN and ORANGE striped necktie (diagonal stripes, 4cm wide each), navy slacks with subtle orange piping on side seams, large rectangular NAME TAG holder (8cm x 5cm) pinned on left chest, reflective safety strip (1cm wide) sewn on collar edge in silver, black dress shoes, white socks with small embroidered number '7' on ankle\n\nFemale student: Navy blue blazer identical to male with GREEN and ORANGE sleeve stripes, white blouse, GREEN and ORANGE striped ribbon tie, navy pleated skirt (45cm length) with orange hem line (2cm wide), same large NAME TAG holder on left chest, reflective collar strip, black mary jane shoes, white knee socks with '7' embroidered on side, optional green hair accessory\n\nBoth students have corporate employee-like appearance, efficient and clean aesthetic, colors must be BRIGHT green (#00A040) and orange (#FF6B35)\n\n\n**神社制服（100点例）**：\n\nMale student: White traditional-style gakuran jacket with VERMILLION RED (shu-iro, #E60012) standing collar (5cm high), large white collar overlay like Shinto priest kariginu garment, vermillion red piping on all seams, gold embroidered shrine crest (mitsudomoe pattern, 6cm diameter) on left chest, white slacks with vermillion side stripe, black dress shoes, white tabi-style socks\n\nFemale student: White sailor-style blouse with large VERMILLION RED collar (traditional sailor triangle reaching to waist), gold shrine crest embroidered on collar, vermillion red ribbon tie, deep navy hakama-inspired pleated skirt (50cm length, very deep box pleats resembling hakama trousers), white tabi-style ankle socks, black mary jane shoes, optional hair decoration with small bell (suzu) charm in vermillion and gold\n\nBoth students have dignified traditional appearance, formal and ceremonial aesthetic, colors must be pure white and bright vermillion red\n\n\n**坂道制服（100点例）**：\n\nMale student: Khaki brown practical jacket (outdoor wear style) with multiple large pockets (6 visible), reinforced fabric patches on elbows (10cm diameter, darker brown), navy cargo-style pants with VISIBLE LARGE KNEE PADS sewn in (black rubber, 15cm x 12cm, clearly bulging), brown mountain hiking boots (ankle high), reflective tape strips (2cm wide) on pant legs, utility belt loops, kanji character '忍耐' (endurance) embroidered large (8cm) on back shoulder\n\nFemale student: Khaki brown practical blazer matching male style with pockets and elbow patches, white blouse, brown necktie, navy cargo-style skirt (50cm, with pockets), same LARGE KNEE PADS clearly visible under fabric or exposed at knee area, brown hiking boots, reflective tape on skirt hem, same '忍耐' embroidery on back\n\nBoth students have mountaineer/hiker appearance, rugged and practical aesthetic, colors are earth tones: khaki brown, navy, dark brown\n\n\n**カフェ制服（100点例）**：\n\nMale student: BEIGE colored fitted blazer with BROWN trim, white dress shirt, BROWN striped necktie (thin stripes), beige slacks, BROWN vest over shirt (visible under blazer, buttoned), small coffee cup embroidered logo (3cm) on blazer left chest, brown leather shoes, optional brown beret hat, international flag pins (3-4 different countries) on collar, artistic and sophisticated appearance\n\nFemale student: BEIGE colored fitted blazer matching male, white blouse, BROWN ribbon tie, beige skirt (48cm length, A-line style), BROWN decorative vest/apron layer over blouse (café staff inspired, tied at waist), same coffee cup emblem on blazer, brown mary jane shoes, optional brown or beige beret, international flag pins on collar, café aesthetic with European touch\n\nBoth students have sophisticated cosmopolitan appearance, artistic and welcoming aesthetic, colors are warm: beige (#F5F5DC), chocolate brown (#8B4513), cream white\n\n\n**❌ 絶対NG（失敗パターン）**：\n- 普通の日本の制服（地域要素ゼロ）\n- 色指定を無視（緑とオレンジのはずが紺と白）\n- 特徴的なパーツが見えない（名札、膝パッド、ベストなど）\n- ポーズが自然すぎる（ちゃんと立って正面向いてない）\n- プロフェッショナルな写真（高品質、スタジオライティング）\n- 背景が複雑（シンプルな壁じゃない）\n\n**✅ 成功のポイント（100点基準）**：\n- 色は具体的に（GREEN and ORANGE, VERMILLION RED and WHITE など）\n- サイズを数値で指定（3cm wide, 8cm diameter など）\n- 特徴的パーツは「clearly visible」「prominent」と強調\n- 配置と人数を明確に（one male left, one female right）\n- カメラアングルを指定（slight low angle, front view）\n- ライティングを指定（even flat lighting, no shadows）\n- disposable camera aesthetic を必ず含める\n- 各パーツの説明は「Male student:」「Female student:」で分けて明確に\n\n**🎭 大喜利理論：伝統的な学校制服 × 地域の意外な要素を物理的に組み込む（誇張OK）**"
+        "description": "制服のキーカラーは校章と同じ。校章・地域から色を決め、80-120字でどの地名からその色を取ったか書く。行事・部活画像にも反映。",
+        "image_prompt": "英語。Full body, one male (left) one female (right), school uniform, plain background, disposable camera. キーカラーは校章と同じ（コンビニ→GREEN/ORANGE、神社→朱白、坂→茶・ベージュ、カフェ→BEIGE/BROWN）。生徒の見た目はその国・地域に合わせる。"
       },
       }
       // 体操着は生成しない（冬服のみ）
@@ -1311,7 +1113,7 @@ export async function POST(request: NextRequest) {
     {
       "name": "地域に適した教員名",
       "subject": "役職（教頭 / 養護教諭（保健室） / 生徒指導部主任 のいずれか）",
-      "description": "**各教員ごとに異なる個性的なエピソード（120-180字）**\n\n**🔥🔥🔥 超重要：教員のエピソードに地域のあるあるを過剰に反映**\n\n**必須要素**：\n1. 勤務年数（例：「本校に20年勤務し」）\n2. 周辺の具体的な場所名を3つ以上使った活動エピソード\n3. その教員ならではの独自の教育手法や哲学\n4. 地域の人々や施設との具体的な連携事例\n5. 生徒との印象的なエピソード\n6. **🔥 地域のあるあるを教育哲学に結びつける（大喜利理論）**\n\n**成功例（地域あるある反映）**：\n\n**セブンイレブン校の数学教員**：\n「毎朝5時起床、〇〇セブンイレブン（1987年開業、店長〇〇氏）で必ずコーヒーLサイズ（150円）を購入してから出勤します。24時間営業の精神を数学教育に応用し、『問題は24時間いつでも解ける』をモットーに、生徒たちにはレジ打ち速度を使った計算訓練を実施しております。POSシステムの在庫管理アルゴリズムを教材化し、〇〇商店街（店舗数83店）の売上データ分析を授業で行っております。」\n\n**神社校の国語教員**：\n「〇〇神社（1650年創建、宮司〇〇氏）での古典文学の朗読会を毎月開催しております。御神木（樹齢300年）の下で万葉集を読む体験は、生徒たちの心に深く刻まれます。巫女装束での書道体験（朱墨使用）や、神楽鈴の音色に合わせた古典朗読など、伝統と文学を融合させた独自の授業を展開しております。」\n\n**坂道校の体育教員**：\n「〇〇坂（勾配18度、全長340m、通称：忍耐坂）を毎朝3往復するのが日課です。生徒たちには坂道ダッシュ（登り30秒、下り慎重に1分）を課し、忍耐力と慎重さを同時に養っております。膝のサポーターは必須装備で、〇〇整形外科（院長〇〇氏）と連携した怪我予防プログラムも実施しております。」\n\n**書き分けの例**：\n- 国語科：地域の図書館や書店、方言研究 + 地域のあるあるを古典に結びつける\n- 数学科：実生活への応用、地域のデータ分析 + 地域の商売・効率を数学に応用\n- 英語科：地域の外国人住民との交流、国際イベント + 地域の国際性を英語教育に\n- 理科：周辺の自然環境を使った実験、地域の生態系 + 地域の自然を科学的に分析\n- 社会科：地域の歴史研究、郷土史の授業 + 地域の発展史を社会科に応用\n- 体育科：地形を活かした訓練、地域のスポーツイベント + 地形の特徴を体力づくりに\n\n**🎭 大喜利理論：教員の教育哲学 × 地域のあるあるステレオタイプ**\n\n**重要**：単調な紹介文は絶対にNG。各教員が読者の記憶に残る独自の個性を持つこと。**※教員の写真は出力しない（校長のみ principal_message で写真を持つ）**"
+      "description": "教員ごとに個性的なエピソード（120-180字）。勤務年数・場所名3つ以上・教育手法・地域連携・大喜利（地域あるあるを教育に接続）。写真は出力しない。"
     },
     // 計3名のみ：教頭1名、養護教諭（保健室）1名、生徒指導部主任1名。校長は principal_message で別出力。教員の写真は校長のみ。
   ],
@@ -1327,299 +1129,29 @@ export async function POST(request: NextRequest) {
 `
 
     const userPrompt = `
-以下の位置情報に基づいて、**地元民が「めっちゃ地元！」と感動する超ニッチな地域密着型の架空学校**を生成してください。
+以下の位置情報に基づき、地元民が共感する地域密着型の架空学校を生成してください。
 
 ${locationContext}
 
-## 🚨 最重要：実在する学校として徹底的に作り込むこと ＋ 大喜利の再現
-
-**⚠️ これはダミーテキストではありません。本物の学校サイトを作成しています。**
-
-**🎭 大喜利の再現が必須です。** 固有名詞を入れただけの「テンプレ単語入れ替え」はNG。**真面目な文体のまま、内容がズレていて面白い**（地域のあるある→校訓、コンビニの精神→教育理念、坂の勾配→人生訓など、意外な接続を本気で書く）ことを必ず満たしてください。
-
-### 🔥 固有名詞の使用量チェック（必ず守ること）
-
-以下の基準を満たさない場合は**失格**です：
-
-- **校長メッセージ**: 固有名詞5個以上（300-400字に収める）
-- **行事の説明**: 固有名詞3個以上。**集合場所・経路・目的地を固有名詞で書き、他校に流用できない内容にすること。**
-- **部活動の説明**: 固有名詞3個以上
-- **制服の説明**: **地名・施設から色・モチーフを抜き取った旨を明記。汎用の紺・白だけはNG。**
-- **各教員コメント**: 固有名詞2個以上（120-180字に収める）
-- **修学旅行の説明**: 固有名詞3個以上
-
-**悪い例（失格）**：
-「遠足で公園に行きました。楽しかったです。」→ 固有名詞0個
-
-**良い例（合格）**：
-「〇〇駅から〇〇バスに乗車し、〇〇商店街を抜けて〇〇公園に到着しました。〇〇神社の横の広場で〇〇パン屋のお弁当を食べ、午後は〇〇図書館で地域の歴史を学びました。帰りは〇〇坂を下り、〇〇コンビニで飲み物を購入してから学校へ戻りました。」→ 固有名詞10個以上✅
-
-### 絶対に守ること：
-
-1. **テンプレートの単語入れ替えだけは禁止（大喜利の再現）**
-   - 「〇〇で活動しています」「〇〇と連携しています」のように、〇〇を変えただけの汎用文はNG
-   - **真面目な文章なのにズレて面白い** = 地域の「あるある」を校訓・教育理念・教員エピソードに**本気で接続**する（例：トイレを貸す→校訓、24時間営業→勉強のモットー、勾配18度→忍耐の授業）
-
-2. **固有名詞は指定数以上含める**（上記チェック参照）
-
-3. **行事は「この地名でしか成立しない」内容に**
-   - 行事名に地名を含める（例：〇〇坂登頂会、〇〇神社例大祭見学）。汎用の「遠足」「入学式」だけにしない。
-   - 説明文：集合「〇〇駅南口」→ 経路「〇〇バス32番」→ 目的地「〇〇公園」「〇〇神社横の〇〇広場」のように固有名詞で経路を書く。
-
-4. **校訓は収集データから推察**
-   - レストランが多い → 「おもてなし」関連
-   - 神社が多い → 「伝統」「敬虔」関連
-   - コンビニが多い → 「効率」「創意工夫」関連
-
-5. **修学旅行は学校の業種に完全連動**
-   - コンビニ系 → 物流センター見学
-   - 神社系 → 伝統工芸体験
-   - 飲食店系 → 食品工場見学
-   - 一般的な「京都・奈良」は禁止！
-
-6. **全ての文章が「実在する学校」として成立しつつ、大喜利の飛躍があること**
-   - 読者が「この学校に通いたい」と思える具体性
-   - 地元民が「めっちゃ地元！」と感動する固有名詞の多用
-
-## 🚨 【最優先】固有名詞を最大限使用すること
-
-### ✅ 合格基準（簡潔に。満たさない場合は失格）
-
-1. **校長メッセージ**: 固有名詞**10個以上**（250-350字）
-2. **学校のoverview**: 固有名詞**7個以上**（**100-120字**）
-3. **各行事の説明**: 固有名詞**4個以上**（**50-70字**）
-4. **各部活動の説明**: 固有名詞**7個以上**（100-150字）
-5. **修学旅行の説明**: 固有名詞**7個以上**（150-200字）
-6. **各教員コメント**: 固有名詞**3個以上**（80-120字）
-7. **卒業生の業績**: 固有名詞**5個以上**
-
-### 推察・創作（推奨）
-店舗・神社・公園の歴史、地域の人物名・数字（創業年・乗降客数など）を創作してよい。提供情報を拡張し、固有名詞を具体的に。
-
-**目標**: 固有名詞から連想を広げ、具体的な描写に活かすこと。
-
-## 🎭 大喜利の本質（必守）：テンプレの単語入れ替えだけは絶対NG
-
-**❌ 禁止：単語を入れ替えただけの「普通の学校紹介」**
-- 汎用文の「〇〇」に固有名詞を埋めただけ → 読むと「どこでも使える説明」にしか聞こえない = **大喜利になっていない**
-- NG例：「本校は〇〇の地にあり、〇〇と連携し、〇〇を大切にしています。」← 神社・公園・駅に変えても成立する文型
-- **文体は丁寧だが、発想の飛躍・意外なつながり・「え、そこでそうなる？」がゼロ** = 失格
-
-**✅ 必須：真面目な文章なのにズレていて面白い = 大喜利の再現**
-- **公式サイトのトーンで、内容が「ズレて」いる** = 格調高いのに、論理の飛躍・意外な組み合わせで笑いが生まれる
-- 地域の「あるある」やステレオタイプを**本気で校訓・教育理念・行事・教員エピソードに接続**する（こじつけでよい）
-- 読者が「真面目なのに…なんでそこでそうなる？ 笑」と思う**具体的な一文**を、校長・校訓・行事・部活・教員のどこかに必ず入れる
-
-**大喜利と単語入れ替えの違い（判例）**
-- **NG（単語入れ替え）**：「〇〇神社近くの本校は、伝統を重んじ、地域と連携しています。」→ 神社を公園に変えても成立
-- **OK（大喜利）**：「本校の校訓『手を合わせたら必ずお賽銭』は、〇〇神社（1650年創建）の氏子の皆様のご厚意に学んだもので、心のけじめを重んじる教育の礎でございます。」→ 神社あるあるを校訓に昇華し、真面目に言っている
-- **OK（大喜利）**：「〇〇セブンイレブン（1987年開業）の24時間営業の精神は、本校の『問題は24時間いつでも解ける』という数学教育のモットーに通じるものがございます。」→ コンビニと教育を本気で接続
-
-**🎭 大喜利理論を導入せよ**
-
-**文体は厳か、内容は大喜利**：
-- 校長メッセージは格調高い文体で、**しかし内容は意外な発想の飛躍を必ず含める**（単語入れ替えで終わらせない）
-- 例：「〇〇セブンイレブン（1987年開業）は、深夜2時のレジ袋有料化政策により、本校の環境教育の礎を築きました。店長の〇〇氏（当時42歳）による『おでん70円均一セール』は、本校の公平性の理念に通じるものがございます。」
-
-**予想外の組み合わせを歓迎**：
-- 「〇〇コンビニの24時間営業精神」×「学校の教育理念」→「不撓不屈の精神」
-- 「〇〇神社の御祭神」×「部活動」→「神楽部が〇〇命の御神徳を体現」
-- 「〇〇坂の勾配18度」×「校訓」→「登坂忍耐・下坂慎重・平地感謝」
-
-**これを実践せよ：**
-- マップから抽出した固有名詞（店名、施設名、地名）ごとに**100個**の関連語を頭の中で連想
-- その連想語を使って、説明文を膨らませる
-- 「セブンイレブン近く」ではなく「セブンイレブン（1974年創業、日本のコンビニ文化を牽引、店舗数日本一、24時間営業の精神を体現、深夜2時のレジ袋有料化により環境意識を地域に浸透させた）の向かい」と書く
-- **文体は格調高く、内容は意外性と面白さを重視**
-
-#### **偏見と決めつけを活用せよ**
-
-- **セブンイレブンがある** → 「24時間営業の精神を校訓に」「物流研究部を設立」「POSシステム体験学習」「フランチャイズ経営論」
-- **神社が5つ以上** → 「伝統重視」「巫女体験必修」「神楽部が全国大会優勝」「宮司との連携授業」
-- **坂が多い** → 「忍耐力養成」「マラソン大会は坂道コース」「坂道研究部」「勾配測定実習」
-- **カフェが10件以上** → 「国際交流」「英語教育先進校」「留学生多数」「バリスタ体験」
-- **公園が多い** → 「自然教育」「植物観察部」「環境保護活動」「生態系調査」
-
-#### **ステレオタイプを恐れるな**
-
-- **東京** → 「最先端」「競争激しい」「エリート校」
-- **大阪** → 「お笑い部」「商売の精神」「たこ焼き実習」
-- **京都** → 「伝統工芸」「茶道必修」「古典文学研究」
-- **福岡** → 「明太子実習」「ラーメン研究部」「アジア交流」
-- **北海道** → 「雪かき当番」「スキー必修」「酪農体験」
-
-#### **後半は妄想爆発OK**
-
-- 教員が「毎朝5時起床」「始発で通勤」「趣味は〇〇」
-- 卒業生が「東証一部上場企業社長」「事業費120億円」「市長表彰」
-- 生徒心得が「〇〇坂では走行禁止（勾配18度のため）」「〇〇神社への参拝義務」
-
-#### **推察・創作の具体例**：
-
-**例1**: 「セブンイレブン〇〇店」が見つかった場合
-→ 「本校は1998年に開店した〇〇コンビニを母体とする学院で、店長の〇〇氏が地域教育への貢献を目指し創立しました。毎朝6時から〇〇駅前で新聞配達を行い、〇〇商店街の方々と連携して地域清掃活動を実施しております。修学旅行では埼玉県の大型物流センターを訪問し、24時間稼働する自動倉庫システムや配送ネットワークを学びます。」
-
-**例2**: 「〇〇神社」が見つかった場合
-→ 「本校の隣に位置する〇〇神社は、江戸時代初期（1650年頃）に建立された由緒ある神社で、毎年10月の例大祭では本校生徒が神楽の奉納演奏を行っております。神社の宮司である〇〇氏は本校の理事も兼任され、伝統文化教育に深くご尽力いただいております。」
-
-**例3**: 「〇〇坂」「〇〇橋」が見つかった場合
-→ 「本校への通学路にある〇〇坂は勾配15度の急坂で、生徒たちは毎朝この坂を登ることで忍耐力を養っております。坂の途中にある〇〇書店は創業60年の老舗で、本校の教科書販売も担当しております。」
-
-**⚠️ このように、固有名詞を見つけたら、その背景・歴史・役割・人間ドラマ・社会的意義を積極的に創作して文章に盛り込んでください。**
-
-#### **🎭 大喜利理論：意外な組み合わせこそが面白い**
-
-## 🔥🔥🔥 【統一指示】全ての要素に地域のあるあるを反映せよ
-
-**制服・教員・行事の画像は必ず連動させる**：
-- 制服のデザイン → 行事の写真に反映 → 教員の服装にも反映
-- セブンイレブン校なら、制服も教員も行事写真も全て緑とオレンジ
-- 神社校なら、制服も教員も行事写真も全て朱色と白
-- 坂道校なら、制服も教員も行事写真も全て登山ウェア風
-- カフェ校なら、制服も教員も行事写真も全ておしゃれなデザイン
-
-**やや過剰な演出を恐れるな**：
-- ステレオタイプを誇張してこそ、面白い
-- 「これは〇〇すぎる」と思われるくらいが丁度いい
-- 真面目に馬鹿なことを言う = 大喜利の極意
-
-**成功例：格調高い文体 × 意外な内容**
-- 「本校の校訓『トイレを笑顔で貸す』は、〇〇セブンイレブン（1987年開業、店長〇〇氏）の地域貢献の精神に学んだものでございます。」
-- 「〇〇坂（勾配18度、通称：忍耐坂）を毎朝登校する生徒たちは、自然と強靭な精神力を養っております。」
-- 「〇〇神社の御祭神である〇〇命の『調和の精神』は、本校の給食における〇〇スーパー（創業1978年）との地産地消連携に表れております。」
-
-**大喜利の極意：真面目に馬鹿なことを言う**
-- コンビニの「トイレ貸す」あるある → 校訓に昇華（「トイレを笑顔で貸す」）
-- 坂の勾配 → 人生訓に変換（「登りは我慢、下りは慎重に」）
-- 神社の御祭神 → 給食システムに接続
-- カフェの数 → 国際交流の根拠
-- 公園の面積 → 環境教育の基盤
-
-#### **🔥🔥🔥 さらなる創作例（後半でハルシネーション爆発）**
-
-**例4（教員コメント：ハルシネーション全開）**:
-「理科担当の〇〇です。毎朝5時起床、〇〇駅（1987年開業、1日乗降客数8700人）から始発で通勤。〇〇商店街（店舗数83店、創業1965年、名物は〇〇せんべい）の〇〇パン屋（創業1978年、店主〇〇氏・65歳）でクリームパン（120円）を購入。〇〇坂（勾配18度、通称：理科坂、全長340m）を登りながら実験計画を練ります。〇〇神社（1650年創建、宮司〇〇氏・第15代）に参拝後、〇〇図書館（蔵書12万冊、館長〇〇氏）で最新論文をチェック。生徒たちには〇〇公園（面積3.8ha、樹齢80年の桜が47本）で野外観察を実施させています。」
-→ 固有名詞15個 + 超詳細な創作（年齢、価格、代数、樹齢、本数）✅
-
-**例5（卒業生：ステレオタイプ全開）**:
-「〇〇太郎（1995年卒）は、〇〇大学理学部を卒業後、〇〇株式会社（東証一部上場、従業員数3500名）に入社。〇〇駅前の〇〇ビル（地上18階、築15年）に本社を構え、〇〇商店街の再開発プロジェクト（総事業費120億円）を主導。〇〇神社の改修工事（2015年、総工費3億円）にも多額の寄付を行い、〇〇市より功労賞を受賞（2018年）。現在は〇〇公園の保全委員会委員長（2020年就任）として、〇〇の自然環境保護に尽力されております。」
-→ 固有名詞12個 + 荒唐無稽な詳細（従業員数、事業費、階数、年号）✅
-
-#### **🚨 義務化：固有名詞には必ず詳細を付加せよ**
-
-**❌ 禁止（固有名詞だけ）**: 「〇〇駅から徒歩で〇〇公園に行きました。」
-
-**✅ 義務（固有名詞+詳細）**: 「〇〇駅（1985年開業、1日乗降客数8000人）から徒歩で〇〇公園（面積2.5ha、桜の木300本）に行きました。」
-
-**固有名詞に付加すべき詳細の例**：
-- 駅 → 開業年、乗降客数、ホーム数
-- 商店街 → 創業年、店舗数、名物
-- 公園 → 面積、樹木数、設備
-- 神社 → 創建年、祭神、例大祭の日
-- 学校 → 創立年、生徒数、校舎数
-- 店舗 → 創業年、営業時間、名物商品
-- 坂・橋 → 勾配/全長、通称、建設年
-- 図書館 → 蔵書数、館長名、開館時間
-- バス → 路線番号、運賃、始発終点
-
-**⚠️ 固有名詞だけを並べるのではなく、必ず詳細情報をセットで記述してください。**
-
-### ❌ よくある失敗例（絶対にやらないこと）
-
-**失敗例1**: 「遠足で公園に行きました。楽しかったです。」
-→ 固有名詞0個、汎用的すぎる
-
-**失敗例2**: 「校長の田中です。地域と連携して教育を行っています。」
-→ 固有名詞0個、テンプレート文
-
-**失敗例3**: 「修学旅行で京都・奈良に行きました。」
-→ 学校の業種と無関係、一般的すぎる
-
-### ✅ 合格例（このレベルを目指す）
-
-**合格例1（校長メッセージ）**: 「〇〇駅（1985年開業）から徒歩10分、〇〇商店街（創業1975年、店舗数48店）を抜けた〇〇公園（面積2.5ha）の隣に位置する本校は、〇〇神社（江戸時代創建）や〇〇寺（1650年建立）に囲まれた歴史ある学校です。生徒たちは勾配12度の〇〇坂（通称：学問坂）を登って通学し、創業70年の〇〇書店（蔵書3万冊）や〇〇スーパー（24時間営業）で買い物をし、〇〇カフェ（1995年開店、名物はカレー）で友人と語らい、〇〇図書館（蔵書8万冊、館長：〇〇氏）で勉強に励んでおります。〇〇バス（路線番号32番、運賃230円）や〇〇通り（幅員8m）も利用されております。」
-→ 固有名詞18個 + 超詳細な創作✅
-
-**合格例2（行事）**: 「4月7日8時、〇〇駅南口改札集合。〇〇バス（32番、運賃230円）で〇〇公園へ。〇〇商店街の〇〇パン屋（創業1982年）で弁当購入、〇〇神社（江戸時代創建）横の〇〇広場で昼食。午後は〇〇図書館（館長〇〇氏）で地域史講座、〇〇橋（全長120m）経由、〇〇坂（勾配15度）下り、〇〇コンビニ、〇〇通りを通って帰校。」
-→ 固有名詞15個 + 超詳細・他校に流用不可✅
-
-**合格例（制服）**: 「本校の制服の朱色と白は、〇〇神社（1650年創建）の社殿の色に由来します。襟の御神紋刺繍は〇〇神社の神紋を戴いたもので、他校にはない本土地域の象徴です。」→ 地名から色・モチーフを明示✅
-
-**合格例3（部活動）**: 「〇〇研究部は毎週火曜、〇〇公園（2.5ha）で活動。〇〇神社（宮司〇〇氏）での奉納演奏、〇〇カフェ（創業2005年）での発表会を開催。〇〇商店街の〇〇書店（創業1960年）、〇〇スーパー（地域最大手）、〇〇図書館（蔵書8万冊）と連携。〇〇駅前の〇〇ホール（収容300名）で年次発表。」
-→ 固有名詞13個 + 超詳細✅
-
-## 🎯 最重要指示：徹底的な地域リサーチ
-
-### 1. 地域分析を最優先
-提供されたランドマークから、以下を深く分析してください：
-- **地形**: 坂、平地、海、山、川など → 学校生活への影響
-- **歴史**: 戦争、災害、発展の歴史 → 校訓・校歌に反映
-- **産業**: 農業、漁業、工業、観光 → 部活動・施設に反映
-- **交通**: 駅名、バス路線、通学路の特徴 → 生徒心得に反映
-- **気候**: 暑さ、寒さ、風、雨 → 制服・行事に反映
-
-### 2. 校訓は地域から導出（ランダム禁止）
-その場所に沿った「悩み・あるある」を一文で校訓にしてください（単語の羅列は禁止）。
-例：
-- コンビニが多い → 「トイレを笑顔で貸す」
-- 坂が多い → 「登りは我慢、下りは慎重に」
-- 神社が多い → 「手を合わせたら必ずお賽銭」
-- カフェが多い → 「席を取ったら一品は注文する」
-
-### 3. 校歌は最重要（固有名詞を5つ以上）
-3番構成、七五調で、以下を必ず含めてください：
-- 1番: 具体的なランドマーク名2つ + 自然環境
-- 2番: 地域の歴史 + 校訓の言葉
-- 3番: 未来への誓い + 地域貢献
-
-### 4. 制服は地域文化から設計
-- 色彩: 地域の特産品や自然の色
-- デザイン: 伝統工芸や文化
-- 装飾: ランドマークをモチーフにした校章
-
-### 5. 超ニッチ情報を詰め込む
-地元民しか知らない情報を最大限盛り込んでください：
-- 通学路の名物の坂や橋
-- 地元の商店街や老舗店
-- バスの路線番号や駅の番線
-- 地域特有の方言や言い回し
-- 季節ごとの地域イベント
-- 地形による行事への影響
-
-### 7. 教員紹介は3名のみ（教頭・保健室・生徒指導部主任）
-**教員（teachers）は必ず3名とすること**：教頭1名、養護教諭（保健室）1名、生徒指導部主任1名。校長は principal_message で別なので含めない。
-各教員の紹介文は、以下の要件を満たしてください：
-- **長さ**: 200-300字（短い紹介文はNG）
-- **subject**: 「教頭」「養護教諭（保健室）」「生徒指導部主任」のいずれか
-- **個性**: 各役職にふさわしいエピソード（教頭＝学校運営・地域連携、保健室＝心身のケア、生徒指導＝生活指導・校外連携など）
-- **固有名詞**: 各教員の紹介文に、周辺の場所名を3つ以上含める
-- **地域連携**: 地域の人々や施設との具体的な連携エピソード
-
-**悪い例**: 「教頭。学校のまとめ役です。」
-**良い例**: 「教頭。校長を補佐し、〇〇商店街の防犯パトロールや〇〇神社の例大祭での生徒参加調整など、地域との窓口として本校に20年勤務しております。」
-
-### 8. 文体は権威的で冗長
-- 伝統ある名門校の公式サイト風
-- 非常に丁寧で長文（「〜でございます」「〜してまいりました」）
-- 具体的な数字や年代を含める
-- 地域の固有名詞を多用する
-
-**ベンチマーク**: 地元民が「めっちゃ地元！住んでる人しか知らない場所ばっかり！」と感動するレベルを目指してください。
-
----
-
-## 🔥🔥🔥 生成前の最終チェックリスト
-
-JSON生成後、以下を必ず確認してください：
-
-1. ✅ 校長メッセージに固有名詞が5個以上あるか？（300-400字）
-2. ✅ 行事・部活動の説明に固有名詞が3個以上あるか？
-3. ✅ 校訓がその場所に沿った「悩み・あるある」の一文か？（四字熟語・単語羅列はNG）
-4. ✅ **大喜利になっているか？** 単語入れ替えだけでなく、「真面目な文体で内容がズレて面白い」飛躍が校訓・校長・行事・教員のどこかにあるか？（例：地域のあるあるが校訓に昇華、コンビニの精神が教育理念に接続、など）
-5. ✅ テンプレート文（「〜で活動しています」「〇〇と連携しています」だけの汎用文）を使っていないか？
-6. ✅ 全ての文章が「実在する学校」として成立しつつ、意外な組み合わせがあるか？
-
-**不合格の場合は、固有名詞を追加し、かつ「大喜利の飛躍」を入れて書き直してください。**
+## 必須ルール
+- **大喜利**：単語入れ替えだけはNG。真面目な文体で内容がズレて面白い（地域あるある→校訓・教育理念に本気で接続）ことを1つ以上入れる。
+- **固有名詞**：校長5個以上、overview 7個以上、行事・部活・修学旅行は集合・経路・目的地を固有名詞で。制服は地名から色を取った旨を明記。教員は場所名3つ以上。
+- **行事**：行事名に地名を含め、経路を「〇〇駅→〇〇バス→〇〇公園」のように書く。入学式以外も可。
+- **修学旅行**：学校の業種に連動（コンビニ→物流見学、神社→伝統工芸、飲食→食品工場）。京都・奈良は禁止。
+- **校訓**：その場所の「あるある」を一文で（コンビニ→トイレを貸す、坂→登り我慢下り慎重、神社→手を合わせたらお賽銭）。
+
+## 合格基準（満たさないと失格）
+校長250-350字・固有名詞10個以上。overview 100-120字・7個以上。行事50-70字・4個以上。部活・修学旅行も固有名詞多め。教員80-120字・3個以上。固有名詞には創業年・乗降客数等の詳細を付加してよい。
+
+## 大喜利の判例
+- NG：「〇〇神社近くの本校は伝統を重んじ、地域と連携。」（単語入れ替えだけ）
+- OK：「校訓『手を合わせたら必ずお賽銭』は〇〇神社（1650年創建）の氏子のご厚意に学んだ、心のけじめの礎でございます。」
+
+## 地域タイプ別の反映
+コンビニ→24時間精神・物流部・校訓。神社→伝統・神楽部・宮司連携。坂→忍耐・坂道部・勾配。カフェ→国際交流・バリスタ。公園→自然教育・観察部。固有名詞から連想を広げ、創作で膨らませる。
+
+## 最終チェック
+校訓は「あるある」一文か。大喜利の飛躍がどこかにあるか。テンプレ文だけになっていないか。教員3名（教頭・保健室・生徒指導部主任）、部活・行事は各1件。
 `
 
     // 290秒で打ち切り（300秒の直前で返して504を避ける。表示後は差し替えなし）
