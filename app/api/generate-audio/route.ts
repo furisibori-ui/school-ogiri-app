@@ -33,11 +33,21 @@ export async function POST(request: NextRequest) {
       }),
     })
 
+    const text = await response.text()
     if (!response.ok) {
-      throw new Error(`Suno API error: ${response.status}`)
+      throw new Error(`Suno API error: ${response.status} ${text.slice(0, 200)}`)
     }
-
-    const data = await response.json()
+    // Comet が HTML のエラーページを返すことがある（認証・レート制限など）
+    if (text.trimStart().startsWith('<')) {
+      console.error('Suno API returned HTML instead of JSON:', text.slice(0, 300))
+      throw new Error(`Suno API が HTML を返しました（${response.status}）。認証や利用制限を確認してください。`)
+    }
+    let data: { audio_url?: string; url?: string }
+    try {
+      data = JSON.parse(text)
+    } catch {
+      throw new Error(`Suno API のレスポンスが JSON ではありません: ${text.slice(0, 100)}`)
+    }
     const audioUrl = data.audio_url || data.url
 
     console.log('Audio generated:', audioUrl)

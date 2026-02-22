@@ -169,7 +169,17 @@ export const schoolGenerateFunction = inngest.createFunction(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt: task.prompt, imageType: task.imageType }),
           })
-          const data = await res.json().catch(() => ({}))
+          const raw = await res.text()
+          let data: { url?: string } = {}
+          if (raw.trimStart().startsWith('{')) {
+            try {
+              data = JSON.parse(raw) as { url?: string }
+            } catch {
+              console.warn('step2 generate-school-image response not valid JSON:', raw.slice(0, 200))
+            }
+          } else {
+            console.warn('step2 generate-school-image returned non-JSON (e.g. HTML):', raw.slice(0, 200))
+          }
           const url = data?.url || `https://placehold.co/800x450/CCCCCC/666666?text=Image`
           return { task, url }
         })
@@ -197,7 +207,17 @@ export const schoolGenerateFunction = inngest.createFunction(
           title: anthem.title || '校歌',
         }),
       })
-      const audioData = await res.json().catch(() => ({}))
+      const raw = await res.text()
+      let audioData: { url?: string } = {}
+      if (raw.trimStart().startsWith('{')) {
+        try {
+          audioData = JSON.parse(raw) as { url?: string }
+        } catch {
+          console.warn('step3 generate-audio response not valid JSON:', raw.slice(0, 200))
+        }
+      } else {
+        console.warn('step3 generate-audio returned non-JSON (e.g. HTML):', raw.slice(0, 200))
+      }
       const audioUrl = audioData?.url ?? undefined
       const next = audioUrl
         ? { ...data, school_anthem: { ...anthem, audio_url: audioUrl } }

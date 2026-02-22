@@ -38,8 +38,22 @@ async function generateImageViaComet(prompt: string, aspectRatio: AspectRatio = 
         generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio, imageSize: '1K' } },
       }),
     })
-    if (!res.ok) return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
-    const data = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { mimeType?: string; data?: string } }> } }> }
+    const text = await res.text()
+    if (!res.ok) {
+      console.warn('Comet image API non-OK:', res.status, text.slice(0, 200))
+      return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
+    }
+    if (text.trimStart().startsWith('<')) {
+      console.warn('Comet image API returned HTML instead of JSON:', text.slice(0, 300))
+      return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
+    }
+    let data: { candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { mimeType?: string; data?: string } }> } }> }
+    try {
+      data = JSON.parse(text)
+    } catch {
+      console.warn('Comet image API response not JSON:', text.slice(0, 200))
+      return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
+    }
     const parts = data?.candidates?.[0]?.content?.parts ?? []
     const imagePart = parts.find((p: { inlineData?: unknown }) => p.inlineData)
     const b64 = imagePart?.inlineData?.data

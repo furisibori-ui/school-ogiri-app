@@ -139,6 +139,24 @@ REPLICATE_API_TOKEN=未設定
 
 ---
 
+## 🔍 画像・校歌が出ないとき（Vercel ログで確認するポイント）
+
+Vercel の **Logs** や **Functions** のログで、次のメッセージを検索すると原因を絞り込めます。
+
+| ログに含まれる文言 | 意味 | 対処 |
+|--------------------|------|------|
+| `Comet image API returned HTML instead of JSON` | Comet の**画像**APIが JSON ではなく HTML（エラーページ）を返した | Comet の認証・利用制限・エンドポイントを確認。API キーが有効か、画像用モデルが利用可能か確認 |
+| `Comet image API non-OK:` | Comet 画像 API が 4xx/5xx を返した | 同上。ステータスコードと続くメッセージを確認 |
+| `step2 generate-school-image returned non-JSON` | `/api/generate-school-image` が HTML を返した（Vercel エラーページ等） | 上記 Comet 側のログか、Vercel の Function エラーを確認 |
+| `Suno API returned HTML instead of JSON` | Comet の**校歌（Suno）**APIが HTML を返した | 校歌用は Suno API。Comet の Suno 利用可否・認証・レート制限を確認 |
+| `Blob upload failed` | Vercel Blob への画像アップロード失敗 | `BLOB_READ_WRITE_TOKEN` が設定されているか、Blob ストアが有効か確認 |
+| `generate-school-image error:` | 画像生成 API 内で例外 | 直後のスタックトレースでどの処理で落ちたか確認 |
+
+- **画像**は Comet の **Gemini 系画像モデル**（`generateContent`）を使用。**校歌**は Comet の **Suno API**（別エンドポイント）を使用します。Comet のサイトで「画像」と「Suno」の両方が有効か確認してください。
+- ログは PDF やスクリーンショットだと検索しづらいため、Vercel のログ画面で **テキスト検索**（Ctrl+F / Cmd+F）で上記の文言を探すと効率的です。
+
+---
+
 ## 📞 サポート
 
 問題が発生した場合は、以下を確認してください：

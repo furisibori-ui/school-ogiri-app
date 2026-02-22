@@ -348,6 +348,34 @@ export default function HomeContent(props: HomeContentProps) {
               ⚠️ APIエラーのため、表示されているテキストはダミー（モック）です。 — {apiFallbackMessage}
             </div>
           )}
+          {(() => {
+            const noAudio = !schoolData.school_anthem?.audio_url
+            const emblemPlaceholder = schoolData.school_profile?.emblem_url?.includes('placehold.co')
+            const facePlaceholder = schoolData.principal_message?.face_image_url?.includes('placehold.co')
+            const imagesIncomplete = emblemPlaceholder && facePlaceholder
+            if (noAudio || imagesIncomplete) {
+              return (
+                <div
+                  role="alert"
+                  style={{
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 50,
+                    backgroundColor: '#dbeafe',
+                    borderBottom: '3px solid #2563eb',
+                    color: '#1e40af',
+                    padding: '0.75rem 1rem',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  ⚠️ 画像または校歌の音声が生成されていません。処理の途中で失敗したか、時間切れの可能性があります。もう一度「学校生成」をお試しください。
+                </div>
+              )
+            }
+            return null
+          })()}
           <SchoolWebsite data={schoolData} onReset={onReset} onRetryAnthemAudio={onRetryAnthemAudio} />
         </>
       )}
