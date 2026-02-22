@@ -184,8 +184,8 @@ export const schoolGenerateFunction = inngest.createFunction(
           title: anthem.title || '校歌',
         }),
       })
-      const data = await res.json().catch(() => ({}))
-      const audioUrl = data?.url ?? undefined
+      const audioData = await res.json().catch(() => ({}))
+      const audioUrl = audioData?.url ?? undefined
       if (audioUrl) {
         console.log('step3 done', { jobId })
         return {
