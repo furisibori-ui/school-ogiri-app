@@ -134,6 +134,10 @@
    - **Value**: さっきコピーした Signing Key を貼り付ける
 7. 保存する。
 
+**Inngest で「アプリを同期する」とき**  
+Inngest の画面で「Sync your app」や「Vercelと同期」を選び、**アプリ URL** に本番の URL（例: `https://school-ogiri-app.vercel.app`）を入れることがあります。  
+「**URLにアクセスできませんでした**」と出る場合は、**Vercel の「展開保護」（Deployment Protection）** を確認してください。**Vercel** → プロジェクト → **Settings** → **Deployment Protection** で、**Vercel認証** がオンだと Inngest がアクセスできません。本番を Public にするなら「Vercel認証」をオフにするか、「自動化のための保護バイパス」で Inngest 用のシークレットを設定します。くわしくは `docs/Inngestと保存先の具体的な流れ.md` の「Sync で『URLにアクセスできませんでした』が出る」を参照してください。
+
 ※ いったんローカルだけで試すだけなら、この手順 5 は後回しでも大丈夫です（Inngest の開発用サーバーを使う場合は別途説明が必要なら、そのとき聞いてください）。
 
 ---

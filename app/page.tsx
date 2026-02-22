@@ -19,6 +19,7 @@ export default function Home() {
     startButton: false,
     testButton: false
   })
+  const [showCongratulations, setShowCongratulations] = useState(false)
 
   useEffect(() => {
     if (stage === 'landing') {
@@ -94,7 +95,7 @@ export default function Home() {
 
       // ポーリング：完了するまで一定間隔で GET /api/job?jobId=xxx を叩く
       const pollIntervalMs = 2500
-      const timeoutMs = 10 * 60 * 1000 // 10分で打ち切り
+      const timeoutMs = 30 * 60 * 1000 // 30分で打ち切り（画像・音声生成で時間がかかることがあるため）
       const startedAt = Date.now()
       let cancelled = false
 
@@ -107,6 +108,7 @@ export default function Home() {
             if (body.status === 'completed' && body.data) {
               setSchoolData(body.data as SchoolData)
               setStage('school')
+              setShowCongratulations(true)
               return
             }
             if (Date.now() - startedAt >= timeoutMs) {
@@ -125,6 +127,32 @@ export default function Home() {
       setIsGenerating(false)
     }
   }
+
+  // DL完了時の「CONGRATULATIONS!」表示と効果音（約2秒で消す）
+  useEffect(() => {
+    if (!showCongratulations) return
+    const audioContext = typeof window !== 'undefined' ? new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)() : null
+    if (audioContext) {
+      const playTone = (freq: number, startTime: number, duration: number) => {
+        const osc = audioContext.createOscillator()
+        const gain = audioContext.createGain()
+        osc.connect(gain)
+        gain.connect(audioContext.destination)
+        osc.frequency.value = freq
+        osc.type = 'sine'
+        gain.gain.setValueAtTime(0.3, startTime)
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
+        osc.start(startTime)
+        osc.stop(startTime + duration)
+      }
+      playTone(523.25, 0, 0.15)
+      playTone(659.25, 0.15, 0.15)
+      playTone(783.99, 0.3, 0.15)
+      playTone(1046.5, 0.45, 0.4)
+    }
+    const t = setTimeout(() => setShowCongratulations(false), 2200)
+    return () => clearTimeout(t)
+  }, [showCongratulations])
 
   // 学校ページ表示後、プレースホルダー画像を並列で生成（最大同時4本、エラー時はその枠だけスキップ）
   useEffect(() => {
@@ -356,6 +384,7 @@ export default function Home() {
     apiFallbackMessage,
     landingBgmRef,
     showContent,
+    showCongratulations,
     onLocationSelect: handleLocationSelect,
     onReset: handleReset,
     onRetryAnthemAudio: handleRetryAnthemAudio,

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import MapSelector from '@/components/MapSelector'
 import LoadingScreen from '@/components/LoadingScreen'
 import SchoolWebsite from '@/components/SchoolWebsite'
@@ -15,6 +16,7 @@ export interface HomeContentProps {
   apiFallbackMessage: string | null
   landingBgmRef: React.RefObject<HTMLAudioElement | null>
   showContent: { title: boolean; subtitle: boolean; startButton: boolean; testButton: boolean }
+  showCongratulations?: boolean
   onLocationSelect: (location: LocationData) => void
   onReset: () => void
   onRetryAnthemAudio?: () => void
@@ -32,6 +34,7 @@ export default function HomeContent(props: HomeContentProps) {
     apiFallbackMessage,
     landingBgmRef,
     showContent,
+    showCongratulations = false,
     onLocationSelect,
     onReset,
     onRetryAnthemAudio,
@@ -44,6 +47,63 @@ export default function HomeContent(props: HomeContentProps) {
       <audio ref={landingBgmRef as React.RefObject<HTMLAudioElement>}>
         <source src="/bgm/landing-bgm.mp3" type="audio/mpeg" />
       </audio>
+
+      <AnimatePresence>
+        {showCongratulations && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.85) 100%)',
+              pointerEvents: 'none'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.3, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', damping: 12, stiffness: 120, duration: 0.5 }}
+              style={{
+                textAlign: 'center',
+                padding: '2rem'
+              }}
+            >
+              <motion.span
+                animate={{
+                  textShadow: [
+                    '0 0 20px #fff, 0 0 40px #ffd700, 0 0 60px #ffd700',
+                    '0 0 30px #fff, 0 0 60px #ffd700, 0 0 90px #ff8c00',
+                    '0 0 20px #fff, 0 0 40px #ffd700, 0 0 60px #ffd700'
+                  ]
+                }}
+                transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }}
+                style={{
+                  fontSize: 'clamp(2.5rem, 12vw, 5.5rem)',
+                  fontWeight: 900,
+                  letterSpacing: '0.15em',
+                  color: '#fff',
+                  background: 'linear-gradient(180deg, #fff 0%, #ffd700 40%, #ff8c00 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  filter: 'drop-shadow(0 0 20px rgba(255,215,0,0.8))',
+                  textTransform: 'uppercase',
+                  fontFamily: 'system-ui, "Arial Black", sans-serif'
+                }}
+              >
+                Congratulations!
+              </motion.span>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {stage === 'landing' && (
         <div className="h-screen flex items-center justify-center" style={{

@@ -144,6 +144,17 @@ await kv.set(`school:${jobId}:status`, 'completed', { ex: 3600 })
   - Vercel の **環境変数** に `INNGEST_SIGNING_KEY` など必要な値が入っているか。
   - Inngest の **Event** 一覧で、該当イベントが届いているか確認。届いていなければ「送信側の API」のログを確認。
 
+- **「Sync で『URLにアクセスできませんでした』が出る」**
+  - **アプリ URL** は本番ドメインだけ（例: `https://school-ogiri-app.vercel.app`）。末尾に `/api/inngest` は付けない。
+  - ブラウザで `https://あなたのドメイン.vercel.app/api/inngest` を開き、JSON が返るか確認する。返ればエンドポイントは動いている。
+  - **Vercel の「展開保護」（Deployment Protection）** を確認する。  
+    **Vercel** → プロジェクト → **Settings** → **Deployment Protection**。  
+    **Vercel認証** がオンだと、Inngest のサーバー（Vercel にログインしていない）が `/api/inngest` にアクセスできず「URLにアクセスできませんでした」になる。
+  - **対処は次のどちらか。**
+    - **A. 本番を Public にする**: Production で「Vercel認証」をオフにする。誰でも本番 URL にアクセスできるようにする。Sync が通る。
+    - **B. 保護したままにする**: 「自動化のための保護バイパス」（Protection Bypass for Automation）で **+ 追加** し、Inngest 用のシークレット（例: 任意の文字列）を作成。その値を Vercel の環境変数（例: `INNGEST_AUTOMATION_BYPASS_SECRET`）と Inngest 側の設定に登録し、Inngest がそのヘッダー／クエリでアクセスするようにする。詳細は Vercel の「Protection Bypass for Automation」の説明と Inngest のドキュメントを参照。
+  - プレビュー用の URL ではなく、**本番のドメイン**（Vercel の「ドメイン」に表示されている短い URL）を Inngest に登録する。
+
 - **「Inngest のある step で失敗する」**
   - Inngest の Run 詳細で **失敗した step** と **エラーメッセージ** を開く。
   - その step が呼んでいる処理（テキスト生成・画像生成・音声生成・KV 保存）のどれで落ちているかを見る。
