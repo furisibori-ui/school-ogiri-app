@@ -127,27 +127,12 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       const address = geocodeResult.results[0]?.formatted_address || ''
       console.log('📮 住所:', address)
 
-      // 🔥🔥🔥 20種類以上のカテゴリで徹底検索 🔥🔥🔥
-      console.log('🔍🔍🔍 徹底的な地域情報収集を開始します...')
+      // Nearby Search は API 料金節約のため最小限のカテゴリに絞る（約10種類）
+      console.log('🔍 地域情報収集を開始します...')
       
-      // 🚀 検索カテゴリを大幅拡張（50種類以上）
       const searchCategories = [
-        'restaurant', 'cafe', 'convenience_store', 'school', 'park', 'shrine', 'temple', 
-        'hospital', 'bank', 'post_office', 'train_station', 'bus_station', 'shopping_mall',
-        'book_store', 'supermarket', 'pharmacy', 'library', 'museum', 'city_hall', 
-        'tourist_attraction', 'store', 'establishment', 'bakery', 'gas_station', 'university',
-        // 🔥 追加カテゴリ（25種類）
-        'church', 'cemetery', 'parking', 'atm', 'police', 'fire_station',
-        'gym', 'stadium', 'movie_theater', 'bowling_alley', 'spa', 'hair_care',
-        'beauty_salon', 'clothing_store', 'electronics_store', 'furniture_store',
-        'hardware_store', 'jewelry_store', 'shoe_store', 'florist', 'pet_store',
-        'car_repair', 'car_wash', 'real_estate_agency', 'insurance_agency',
-        // 🔥 さらに追加（25種類）
-        'laundry', 'dentist', 'veterinary_care', 'lodging', 'bar', 'night_club',
-        'liquor_store', 'meal_takeaway', 'meal_delivery', 'moving_company',
-        'painter', 'plumber', 'roofing_contractor', 'locksmith', 'electrician',
-        'travel_agency', 'accounting', 'lawyer', 'primary_school', 'secondary_school',
-        'bicycle_store', 'art_gallery', 'aquarium', 'zoo', 'amusement_park'
+        'restaurant', 'cafe', 'convenience_store', 'school', 'park', 'shrine', 'temple',
+        'train_station', 'library', 'tourist_attraction'
       ]
       
       const allPlaces: any[] = []
@@ -155,7 +140,7 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       // 🚀 最初から広範囲で検索（情報量を最大化）
       const radius = 2000 // 2km圏内で大量検索
       
-      console.log(`🔥🔥🔥 ${searchCategories.length}種類のカテゴリで並行検索開始（検索半径${radius}m）...`)
+      console.log(`🔍 ${searchCategories.length}種類のカテゴリで検索（検索半径${radius}m）...`)
       
       // 全カテゴリを並行検索
       const searchPromises = searchCategories.map((category) => {
@@ -184,15 +169,15 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       
       console.log(`🎉 全検索完了！合計 ${allPlaces.length} 件の情報を取得しました`)
       
-      // 🚀 情報が少ない場合、超広域（10km）で追加検索
+      // 情報が少ない場合のみ、広域（5km）で追加検索（3カテゴリのみ）
       if (allPlaces.length < 10) {
-        console.warn(`⚠️⚠️ 情報が不足（${allPlaces.length}件）、10km圏内で追加検索を開始...`)
+        console.warn(`⚠️ 情報が不足（${allPlaces.length}件）、5km圏で追加検索...`)
         
-        const wideSearchPromises = ['restaurant', 'store', 'establishment', 'tourist_attraction', 'park', 'shrine', 'temple', 'school', 'cafe', 'convenience_store'].map((category) => {
+        const wideSearchPromises = ['store', 'establishment', 'park'].map((category) => {
           return new Promise<void>((resolve) => {
             placesService.nearbySearch({
               location: latLng,
-              radius: 10000,
+              radius: 5000,
               type: category,
               language: 'ja'
             }, (results: any, status: any) => {

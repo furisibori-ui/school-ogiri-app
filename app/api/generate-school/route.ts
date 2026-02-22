@@ -1739,7 +1739,7 @@ JSON生成後、以下を必ず確認してください：
     }
 
     // 学校概要の画像生成（型定義にないプロパティは Record でアクセス）
-    const profile = schoolData.school_profile as Record<string, unknown>
+    const profile = schoolData.school_profile as unknown as Record<string, unknown>
     if (profile.overview_image_prompt) {
       try {
         console.log('🏫 学校概要の画像生成開始...')
