@@ -50,24 +50,37 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    let submitData: { task_id?: string; id?: string; data?: { task_id?: string; id?: string } }
+    let submitData: Record<string, unknown>
     try {
-      submitData = JSON.parse(submitText)
+      submitData = JSON.parse(submitText) as Record<string, unknown>
     } catch {
       throw new Error(`Suno submit のレスポンスが JSON ではありません: ${submitText.slice(0, 100)}`)
     }
 
     // デバッグ: Submit 直後の生レスポンス（仕様書 3. 必須要件）
     console.log('[Suno Submit] raw response:', JSON.stringify(submitData))
+    console.log('[Suno Submit] top-level keys:', Object.keys(submitData))
 
-    const taskId =
+    const data = submitData.data as Record<string, unknown> | undefined
+    const result = submitData.result as Record<string, unknown> | undefined
+    const taskIdRaw =
       submitData.task_id ??
       submitData.id ??
-      submitData.data?.task_id ??
-      submitData.data?.id
-    if (!taskId || typeof taskId !== 'string') {
-      console.error('Suno submit response:', submitData)
-      throw new Error('Suno submit のレスポンスに task_id が含まれていません')
+      submitData.taskId ??
+      submitData.request_id ??
+      submitData.job_id ??
+      data?.task_id ??
+      data?.id ??
+      data?.taskId ??
+      result?.task_id ??
+      result?.id ??
+      result?.taskId
+    const taskId = typeof taskIdRaw === 'string' ? taskIdRaw : undefined
+    if (!taskId) {
+      console.error('Suno submit response (full):', submitData)
+      throw new Error(
+        'Suno submit のレスポンスに task_id が含まれていません。Comet の Suno API ドキュメントでレスポンス形式を確認してください。'
+      )
     }
 
     // ----- ステップ2: タスク照会（ポーリング） -----

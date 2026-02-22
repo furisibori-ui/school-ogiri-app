@@ -22,10 +22,14 @@ async function dataUrlToBlobUrl(dataUrl: string): Promise<string> {
   }
 }
 
-// Comet利用時: 消費量を抑えるためデフォルトは Gemini 2.0 Flash Exp。COMET_IMAGE_MODEL で変更可（例: gemini-2.5-flash-image で画質優先）
-const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.0-flash-exp-image-generation'
+// Comet利用時: v1beta で 404 になる場合は COMET_IMAGE_MODEL で利用可能なモデルを指定（Comet の ListModels またはドキュメントで確認）
+const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.5-flash'
 
-async function generateImageViaComet(prompt: string, aspectRatio: AspectRatio = '16:9'): Promise<string> {
+async function generateImageViaComet(
+  prompt: string,
+  aspectRatio: AspectRatio = '16:9',
+  imageType?: string
+): Promise<string> {
   const key = process.env.COMET_API_KEY
   if (!key) return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
   const model = process.env.COMET_IMAGE_MODEL || DEFAULT_COMET_IMAGE_MODEL
@@ -59,13 +63,30 @@ async function generateImageViaComet(prompt: string, aspectRatio: AspectRatio = 
     const b64 = imagePart?.inlineData?.data
     const mime = imagePart?.inlineData?.mimeType || 'image/png'
     if (b64) return `data:${mime};base64,${b64}`
-    // 200 + JSON だが画像が含まれていない（ブロック・空レスポンス等）
-    const candidate = data?.candidates?.[0] as Record<string, unknown> | undefined
-    console.warn('[Comet image] 200 OK but no image in response', {
+    // 200 + JSON だが画像が含まれていない（セーフティフィルターのサイレントブロック等）
+    const candidate = data?.candidates?.[0] as {
+      finishReason?: string
+      safetyRatings?: Array<{ category?: string; probability?: string }>
+      [k: string]: unknown
+    } | undefined
+    const promptFeedback = (data as { promptFeedback?: { blockReason?: string; [k: string]: unknown } })?.promptFeedback
+    console.warn('[Comet image] 200 OK but no image in response. Check finishReason (imageType helps compare emblem vs face):', {
+      imageType: imageType ?? 'unknown',
+      finishReason: candidate?.finishReason,
+      finishReasonMeaning:
+        candidate?.finishReason === 'SAFETY'
+          ? 'SAFETY = 安全上の理由でブロック（リアルな人物・暴力等）'
+          : candidate?.finishReason === 'RECITATION'
+            ? 'RECITATION = 著作権等でブロック'
+            : candidate?.finishReason === 'OTHER'
+              ? 'OTHER = その他システムエラー'
+              : candidate?.finishReason === 'STOP'
+                ? 'STOP = 正常終了（通常は画像あり）'
+                : 'unknown',
+      safetyRatings: candidate?.safetyRatings,
+      promptFeedbackBlockReason: promptFeedback?.blockReason,
       hasCandidates: !!data?.candidates?.length,
       partsLength: parts.length,
-      finishReason: candidate?.finishReason,
-      rawCandidatesKeys: candidate ? Object.keys(candidate) : [],
     })
   } catch (e) {
     console.warn('Comet image generation failed:', e)
@@ -124,7 +145,7 @@ export async function POST(request: NextRequest) {
         url = data?.url || `https://placehold.co/800x450/8B7355/FFFFFF?text=Overview`
       }
     } else if (useComet) {
-      url = await generateImageViaComet(finalPrompt, aspectRatio)
+      url = await generateImageViaComet(finalPrompt, aspectRatio, imageType)
       // data URL のまま返すと Inngest のステップ出力が 4MB を超えて「出力が大きすぎる」で落ちるため、Blob に上げて URL だけ返す
       if (url.startsWith('data:')) url = await dataUrlToBlobUrl(url)
     } else {
