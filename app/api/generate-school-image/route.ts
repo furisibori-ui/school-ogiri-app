@@ -59,6 +59,13 @@ async function generateImageViaComet(prompt: string, aspectRatio: AspectRatio = 
     const b64 = imagePart?.inlineData?.data
     const mime = imagePart?.inlineData?.mimeType || 'image/png'
     if (b64) return `data:${mime};base64,${b64}`
+    // 200 + JSON だが画像が含まれていない（ブロック・空レスポンス等）
+    console.warn('[Comet image] 200 OK but no image in response', {
+      hasCandidates: !!data?.candidates?.length,
+      partsLength: parts.length,
+      finishReason: data?.candidates?.[0]?.finishReason ?? data?.candidates?.[0]?.content?.parts?.[0]?.finishReason,
+      rawCandidatesKeys: data?.candidates?.[0] ? Object.keys(data.candidates[0]) : [],
+    })
   } catch (e) {
     console.warn('Comet image generation failed:', e)
   }
