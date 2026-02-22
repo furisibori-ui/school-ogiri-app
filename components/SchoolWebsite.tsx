@@ -6,9 +6,11 @@ import { useEffect, useRef } from 'react'
 interface SchoolWebsiteProps {
   data: SchoolData
   onReset: () => void
+  /** 校歌音声の再生成を依頼（再生ボタンがまだのときに「再試行」で呼ぶ） */
+  onRetryAnthemAudio?: () => void
 }
 
-export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
+export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: SchoolWebsiteProps) {
   // BGM用のaudio要素の参照
   const bgmRef = useRef<HTMLAudioElement>(null)
   const anthemRef = useRef<HTMLAudioElement>(null)
@@ -48,18 +50,18 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
       borderColor: '#d1d5db'
     },
     typography: {
-      titleSize: '3.5rem',
-      headingSize: '2rem',
-      bodySize: '1rem',
+      titleSize: '3rem',
+      headingSize: '1.75rem',
+      bodySize: '0.95rem',
       fontFamily: '"Noto Serif JP", serif'
     },
     spacing: {
-      sectionGap: '2rem',
-      cardPadding: '1.5rem'
+      sectionGap: '0.5rem',
+      cardPadding: '0.7rem'
     },
     headerStyle: {
-      emblemSize: '12rem',
-      schoolNameSize: '5rem',
+      emblemSize: '11rem',
+      schoolNameSize: '4rem',
       schoolNameDecoration: 'shadow',
       showMottoInHeader: true
     },
@@ -69,7 +71,70 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
   // 筆文字フォント（楷書体風）
   const calligraphyFont = 'var(--font-yuji-mai), "HGS行書体", "AR行書体M", cursive'
 
-  const sections: { [key: string]: JSX.Element } = {
+  // 【重要】sections オブジェクト内で key: 条件 ? ( <section>... ) と書くと Vercel/SWC が
+  // "<" を比較演算子と解釈し "Unexpected token `section`" でビルド失敗する。
+  // 三項で JSX を返すセクションは必ずオブジェクトの外で変数に切り出し、key: 変数 で渡すこと。
+  const hasFacilities = data.multimedia_content?.facilities && data.multimedia_content.facilities.length > 0
+  const hasMonuments = data.multimedia_content?.monuments && data.multimedia_content.monuments.length > 0
+  const hasUniforms = data.multimedia_content?.uniforms && data.multimedia_content.uniforms.length > 0
+
+  // 施設紹介（写真なし・テキストのみ）
+  const facilitiesOnlySection = hasFacilities ? (
+    <section key="facilities" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
+      <h2 style={{ fontSize: styleConfig.typography.headingSize, color: styleConfig.colorTheme.accentColor, borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`, paddingBottom: '0.5rem', marginBottom: '1rem', fontFamily: styleConfig.typography.fontFamily, textAlign: 'center' }}>◇ 施設紹介 ◇</h2>
+      <div style={{ padding: styleConfig.spacing.cardPadding, backgroundColor: styleConfig.colorTheme.cardBg, borderRadius: '8px', border: `2px solid ${styleConfig.colorTheme.borderColor}` }}>
+        {data.multimedia_content!.facilities!.map((facility, index) => (
+          <div key={index} style={{ marginBottom: index < data.multimedia_content!.facilities!.length - 1 ? '1rem' : 0, paddingBottom: index < data.multimedia_content!.facilities!.length - 1 ? '1rem' : 0, borderBottom: index < data.multimedia_content!.facilities!.length - 1 ? `1px solid ${styleConfig.colorTheme.borderColor}` : 'none' }}>
+            <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.05rem' }}>{facility.name}</h3>
+            <p style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.7' }}>{facility.description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  ) : null
+
+  // 銅像（独立セクション・写真をでかく）
+  const monumentSection = hasMonuments ? (
+    <section key="monument" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
+      <h2 style={{ fontSize: styleConfig.typography.headingSize, color: styleConfig.colorTheme.accentColor, borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`, paddingBottom: '0.5rem', marginBottom: '1rem', fontFamily: styleConfig.typography.fontFamily, textAlign: 'center' }}>◆ 銅像 ◆</h2>
+      <div style={{ padding: styleConfig.spacing.cardPadding, backgroundColor: styleConfig.colorTheme.cardBg, borderRadius: '8px', border: `2px solid ${styleConfig.colorTheme.borderColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        {data.multimedia_content!.monuments!.map((monument, index) => (
+          <div key={index}>
+            {monument.image_url && (
+              <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto 1rem', aspectRatio: '3/4', maxHeight: '560px', overflow: 'hidden', borderRadius: '8px', border: `4px solid ${styleConfig.colorTheme.accentColor}`, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+                <img src={monument.image_url} alt={monument.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </div>
+            )}
+            <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.25rem', textAlign: 'center' }}>{monument.name}</h3>
+            <p style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.8', textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>{monument.description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  ) : null
+
+  // 制服（独立セクション・写真をでかく）
+  const uniformSection = hasUniforms ? (
+    <section key="uniform" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
+      <h2 style={{ fontSize: styleConfig.typography.headingSize, color: styleConfig.colorTheme.accentColor, borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`, paddingBottom: '0.5rem', marginBottom: '1rem', fontFamily: styleConfig.typography.fontFamily, textAlign: 'center' }}>◇ 制服紹介 ◇</h2>
+      <div style={{ padding: styleConfig.spacing.cardPadding, backgroundColor: styleConfig.colorTheme.cardBg, borderRadius: '8px', border: `2px solid ${styleConfig.colorTheme.borderColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        {data.multimedia_content!.uniforms!.map((uniform, index) => (
+          <div key={index}>
+            {uniform.image_url && (
+              <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto 1rem', aspectRatio: '3/4', maxHeight: '560px', overflow: 'hidden', borderRadius: '8px', border: `4px solid ${styleConfig.colorTheme.accentColor}`, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+                <img src={uniform.image_url} alt={uniform.type} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </div>
+            )}
+            <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.25rem', color: styleConfig.colorTheme.accentColor, textAlign: 'center' }}>{uniform.type}</h3>
+            <p style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.8', textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>{uniform.description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  ) : null
+
+  // 新規セクションを追加するとき：三項で <section> を返すなら上のように変数化し、ここでは key: 変数 のみ書く
+  const sections: { [key: string]: JSX.Element | null } = {
     news: data.news_feed && data.news_feed.length > 0 ? (
       <section key="news" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
@@ -147,7 +212,7 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           backgroundColor: styleConfig.colorTheme.cardBg,
           boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
         }}>
-          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
             {data.principal_message?.face_image_url && (
               <div style={{ display: 'inline-block' }}>
                 <img
@@ -159,7 +224,7 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                     objectFit: 'cover', 
                     border: `8px solid ${styleConfig.colorTheme.accentColor}`, // 5px → 8px
                     boxShadow: '0 12px 32px rgba(0,0,0,0.5)', // より強い影
-                    marginBottom: '1.5rem'
+                    marginBottom: '0.75rem'
                   }}
                 />
                 <div style={{
@@ -178,7 +243,7 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           </div>
           <div style={{
             backgroundColor: '#fffef0',
-            padding: '1.5rem',
+            padding: '1rem',
             border: `2px solid ${styleConfig.colorTheme.borderColor}`,
             borderRadius: '4px'
           }}>
@@ -234,28 +299,28 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           color: styleConfig.colorTheme.accentColor,
           borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`,
           paddingBottom: '0.5rem',
-          marginBottom: '1.5rem',
+          marginBottom: '0.75rem',
           fontFamily: styleConfig.typography.fontFamily,
           textAlign: 'center'
         }}>
           ◆ 校訓 ◆
         </h2>
         
-        {/* 笠取小学校風の校訓表示 */}
+        {/* 校訓表示：初代校舎（1枚のみ）＋校訓の2列構成 */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr auto 1fr',
+          gridTemplateColumns: '1fr 1.2fr',
           gap: '2rem',
           alignItems: 'center',
           maxWidth: '1000px',
           margin: '0 auto',
-          padding: '2rem',
+          padding: '1rem',
           backgroundColor: 'rgba(255,255,255,0.95)',
           border: '4px solid #8B4513',
           borderRadius: '8px',
           boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
         }}>
-          {/* 初代校舎 */}
+          {/* 初代校舎（1枚のみ） */}
           {data.school_profile.historical_buildings && data.school_profile.historical_buildings[0] && (
             <div style={{ textAlign: 'center' }}>
               <img 
@@ -263,12 +328,12 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                 alt={data.school_profile.historical_buildings[0].name}
                 style={{
                   width: '100%',
-                  maxWidth: '300px',
+                  maxWidth: '480px',
                   height: 'auto',
-                  border: '3px solid #5D4E37',
-                  borderRadius: '4px',
+                  border: '4px solid #5D4E37',
+                  borderRadius: '8px',
                   filter: 'blur(0.8px) sepia(40%) saturate(60%)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.35)'
                 }}
               />
               <p style={{ 
@@ -282,17 +347,16 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
             </div>
           )}
           
-          {/* 中央：校訓 */}
+          {/* 校訓（フォントは日本語対応を優先して文字崩れ防止） */}
           <div style={{ 
             textAlign: 'center',
-            padding: '2rem',
+            padding: '1rem',
             minWidth: '200px'
           }}>
-            {/* 一文字の校訓 */}
             {data.school_profile.motto_single_char && (
               <div style={{
                 fontSize: '6rem',
-                fontFamily: calligraphyFont,
+                fontFamily: '"Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif',
                 fontWeight: 'bold',
                 color: '#8B0000',
                 textShadow: '3px 3px 6px rgba(0,0,0,0.3)',
@@ -302,8 +366,6 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                 『{data.school_profile.motto_single_char}』
               </div>
             )}
-            
-            {/* サブキャッチフレーズ */}
             {data.school_profile.sub_catchphrase && (
               <p style={{
                 fontSize: '1.2rem',
@@ -315,46 +377,34 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                 {data.school_profile.sub_catchphrase}
               </p>
             )}
-            
-            {/* 3つの言葉の校訓 */}
             <p style={{ 
               fontSize: '2rem',
-              fontFamily: calligraphyFont,
+              fontFamily: '"Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif',
               fontWeight: 'bold',
               marginTop: '1.5rem',
               color: '#8B0000',
-              letterSpacing: '0.2em'
+              letterSpacing: '0.2em',
+              whiteSpace: 'pre-line',
+              lineHeight: '1.6'
             }}>
-              {data.school_profile.motto}
+              {(() => {
+                const m = data.school_profile.motto || ''
+                if (m.length <= 14) return m
+                const breaks: string[] = []
+                let rest = m
+                const maxLen = 14
+                while (rest.length > maxLen) {
+                  const chunk = rest.slice(0, maxLen)
+                  const punct = /[、。・]/.exec(chunk.split('').reverse().join(''))
+                  const idx = punct ? maxLen - (punct.index ?? 0) : maxLen
+                  breaks.push(rest.slice(0, idx))
+                  rest = rest.slice(idx)
+                }
+                if (rest) breaks.push(rest)
+                return breaks.join('\n')
+              })()}
             </p>
           </div>
-          
-          {/* 2代目校舎 */}
-          {data.school_profile.historical_buildings && data.school_profile.historical_buildings[1] && (
-            <div style={{ textAlign: 'center' }}>
-              <img 
-                src={data.school_profile.historical_buildings[1].image_url || 'https://placehold.co/300x200/A0826D/FFFFFF?text=2代目校舎'} 
-                alt={data.school_profile.historical_buildings[1].name}
-                style={{
-                  width: '100%',
-                  maxWidth: '300px',
-                  height: 'auto',
-                  border: '3px solid #5D4E37',
-                  borderRadius: '4px',
-                  filter: 'blur(0.8px) sepia(40%) saturate(60%)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-                }}
-              />
-              <p style={{ 
-                marginTop: '0.5rem', 
-                fontSize: '0.9rem', 
-                fontWeight: 'bold',
-                color: '#5D4E37'
-              }}>
-                {data.school_profile.historical_buildings[1].name}
-              </p>
-            </div>
-          )}
         </div>
       </section>
     ) : <></>,
@@ -374,35 +424,40 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
         </h2>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '2rem',
+          gridTemplateColumns: data.school_profile.historical_buildings.length === 1 ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))',
+          gap: '1.5rem',
           backgroundColor: styleConfig.colorTheme.cardBg,
           padding: styleConfig.spacing.cardPadding,
           borderRadius: '8px',
           border: `2px solid ${styleConfig.colorTheme.borderColor}`,
-          boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+          boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+          maxWidth: data.school_profile.historical_buildings.length === 1 ? '900px' : undefined,
+          margin: data.school_profile.historical_buildings.length === 1 ? '0 auto' : undefined
         }}>
           {data.school_profile.historical_buildings.map((building, index) => (
             <div key={index} style={{
               textAlign: 'center',
-              padding: '1rem',
+              padding: '1.25rem',
               backgroundColor: '#fdfcf8',
               border: '2px solid #8B7355',
-              borderRadius: '8px'
+              borderRadius: '8px',
+              minHeight: '360px',
+              display: 'flex',
+              flexDirection: 'column'
             }}>
-              <img 
-                src={building.image_url || 'https://placehold.co/400x300/8B7355/FFFFFF?text=Historical+Building'}
-                alt={building.name}
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  border: '3px solid #5D4E37',
-                  borderRadius: '4px',
-                  marginBottom: '1rem',
-                  filter: 'blur(0.8px) sepia(50%) saturate(50%)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-                }}
-              />
+              <div style={{ width: '100%', aspectRatio: '16/10', overflow: 'hidden', borderRadius: '8px', marginBottom: '1rem', flexShrink: 0, border: '4px solid #5D4E37', boxShadow: '0 8px 24px rgba(0,0,0,0.25)' }}>
+                <img 
+                  src={building.image_url || 'https://placehold.co/400x300/8B7355/FFFFFF?text=Historical+Building'}
+                  alt={building.name}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block',
+                    filter: 'blur(0.8px) sepia(50%) saturate(50%)'
+                  }}
+                />
+              </div>
               <h3 style={{
                 fontSize: '1.3rem',
                 fontWeight: 'bold',
@@ -458,7 +513,7 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
         }}>
           <div style={{
             backgroundColor: 'rgba(255,255,255,0.9)',
-            padding: '2rem',
+            padding: '1rem',
             border: '2px solid #8B4513',
             borderRadius: '8px'
           }}>
@@ -475,15 +530,15 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
             <p style={{ 
               fontSize: '0.875rem', 
               color: '#6b7280', 
-              marginBottom: '1.5rem',
+              marginBottom: '0.75rem',
               textAlign: 'center',
               fontStyle: 'italic'
             }}>
-              〜 {data.school_anthem.style} 〜
+              〜 荘厳な合唱曲風 〜
             </p>
             {/* 挿絵風の風景画像 */}
             <div style={{
-              marginBottom: '1.5rem',
+              marginBottom: '0.75rem',
               textAlign: 'center',
               overflow: 'hidden',
               borderRadius: '8px',
@@ -503,27 +558,22 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
               />
             </div>
 
-            {/* 音声プレーヤー */}
-            {data.school_anthem.audio_url && (
-              <div style={{
-                backgroundColor: '#f9fafb',
-                padding: '1rem',
-                border: '2px solid #d4af37',
-                borderRadius: '8px',
-                marginBottom: '1.5rem',
-                textAlign: 'center'
-              }}>
-                <p style={{ 
-                  fontSize: '1rem', 
-                  fontWeight: 'bold', 
-                  marginBottom: '0.5rem',
-                  color: '#8B0000'
-                }}>
-                  🎵 校歌を聴く
-                </p>
-                <audio 
+            {/* 校歌の再生（音声ありならプレーヤー、なしなら説明表示） */}
+            <div style={{
+              backgroundColor: '#f9fafb',
+              padding: '1rem',
+              border: '2px solid #d4af37',
+              borderRadius: '8px',
+              marginBottom: '0.75rem',
+              textAlign: 'center'
+            }}>
+              <p style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#8B0000' }}>
+                🎵 校歌を聴く
+              </p>
+              {data.school_anthem.audio_url ? (
+                <audio
                   ref={anthemRef}
-                  controls 
+                  controls
                   style={{ width: '100%', maxWidth: '500px' }}
                   preload="metadata"
                   onPlay={handleAnthemPlay}
@@ -533,27 +583,51 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                   <source src={data.school_anthem.audio_url} type="audio/mpeg" />
                   お使いのブラウザは音声再生に対応していません。
                 </audio>
-              </div>
-            )}
+              ) : (
+                <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>
+                  <p style={{ margin: '0 0 0.5rem 0' }}>
+                    校歌の音声は生成に数分かかることがあります。準備でき次第、再生ボタンが表示されます。
+                  </p>
+                  {onRetryAnthemAudio && (
+                    <button
+                      type="button"
+                      onClick={onRetryAnthemAudio}
+                      style={{
+                        padding: '0.35rem 0.75rem',
+                        fontSize: '0.85rem',
+                        border: '2px solid #8B4513',
+                        borderRadius: '6px',
+                        background: '#fffef8',
+                        color: '#8B4513',
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      音声生成を再試行
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
 
-            {/* 歌詞（大きなフォント） */}
+            {/* 歌詞（読みやすいサイズに調整） */}
             <div style={{
               backgroundColor: '#fffef8',
-              padding: '2.5rem',
+              padding: '1.25rem',
               border: '3px double #8B4513',
               borderRadius: '8px',
               boxShadow: 'inset 0 0 20px rgba(139,69,19,0.1)'
             }}>
               <p style={{ 
-                fontSize: '2.5rem',  // 1.1rem → 2.5rem に拡大！
-                lineHeight: '3',
+                fontSize: '1.2rem',
+                lineHeight: '1.9',
                 whiteSpace: 'pre-line',
                 fontFamily: calligraphyFont,
                 color: '#1a1a1a',
                 textAlign: 'center',
-                letterSpacing: '0.15em',
+                letterSpacing: '0.08em',
                 fontWeight: 'bold',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+                textShadow: '1px 1px 2px rgba(0,0,0,0.08)'
               }}>
                 {data.school_anthem.lyrics}
               </p>
@@ -647,12 +721,16 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                     alt={event.name}
                     style={{ 
                       width: '100%', 
+                      maxWidth: '1000px',
+                      margin: '0 auto',
                       height: 'auto', 
                       aspectRatio: '16/9', 
                       objectFit: 'cover', 
-                      border: `3px solid ${styleConfig.colorTheme.accentColor}`, 
-                      marginBottom: '0', 
-                      display: 'block'
+                      border: `4px solid ${styleConfig.colorTheme.accentColor}`, 
+                      borderRadius: '8px',
+                      marginBottom: '0.5rem', 
+                      display: 'block',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
                     }}
                   />
                 )}
@@ -698,12 +776,16 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                     alt={club.name}
                     style={{ 
                       width: '100%', 
+                      maxWidth: '1000px',
+                      margin: '0 auto',
                       height: 'auto', 
                       aspectRatio: '16/9', 
                       objectFit: 'cover', 
-                      border: `3px solid ${styleConfig.colorTheme.accentColor}`, 
-                      marginBottom: '0', 
-                      display: 'block'
+                      border: `4px solid ${styleConfig.colorTheme.accentColor}`, 
+                      borderRadius: '8px',
+                      marginBottom: '0.5rem', 
+                      display: 'block',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
                     }}
                   />
                 )}
@@ -718,180 +800,9 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
       </section>
     ) : <></>,
 
-    facilities: data.multimedia_content?.facilities && data.multimedia_content.facilities.length > 0 ? (
-      <section key="facilities" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
-        <h2 style={{ 
-          fontSize: styleConfig.typography.headingSize,
-          color: styleConfig.colorTheme.accentColor,
-          borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`,
-          paddingBottom: '0.5rem',
-          marginBottom: '1rem',
-          fontFamily: styleConfig.typography.fontFamily,
-          textAlign: 'center'
-        }}>
-          ◇ 施設紹介 ◇
-        </h2>
-        <div style={{ 
-          border: `1px solid ${styleConfig.colorTheme.borderColor}`,
-          padding: styleConfig.spacing.cardPadding,
-          backgroundColor: styleConfig.colorTheme.cardBg
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {data.multimedia_content.facilities.map((facility, index) => (
-              <div key={index} style={{ 
-                borderBottom: index < data.multimedia_content!.facilities!.length - 1 ? `1px solid ${styleConfig.colorTheme.borderColor}` : 'none',
-                paddingBottom: '1rem'
-              }}>
-                {facility.image_url && (
-                  <img
-                    src={facility.image_url}
-                    alt={facility.name}
-                    style={{ 
-                      width: '100%', 
-                      height: 'auto', 
-                      aspectRatio: '4/3', 
-                      objectFit: 'cover', 
-                      border: `3px solid ${styleConfig.colorTheme.accentColor}`, 
-                      marginBottom: '0', 
-                      display: 'block'
-                    }}
-                  />
-                )}
-                <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>{facility.name}</h3>
-                <p style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.75' }}>
-                  {facility.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    ) : <></>,
-
-    monuments: data.multimedia_content?.monuments && data.multimedia_content.monuments.length > 0 ? (
-      <section key="monuments" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
-        <h2 style={{ 
-          fontSize: styleConfig.typography.headingSize,
-          color: styleConfig.colorTheme.accentColor,
-          borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`,
-          paddingBottom: '0.5rem',
-          marginBottom: '1rem',
-          fontFamily: styleConfig.typography.fontFamily,
-          textAlign: 'center'
-        }}>
-          ◆ モニュメント ◆
-        </h2>
-        <div style={{ 
-          border: `1px solid ${styleConfig.colorTheme.borderColor}`,
-          padding: styleConfig.spacing.cardPadding,
-          backgroundColor: styleConfig.colorTheme.cardBg
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {data.multimedia_content.monuments.map((monument, index) => (
-              <div key={index} style={{ 
-                borderBottom: index < data.multimedia_content!.monuments!.length - 1 ? `1px solid ${styleConfig.colorTheme.borderColor}` : 'none',
-                paddingBottom: '1rem'
-              }}>
-                {monument.image_url && (
-                  <img
-                    src={monument.image_url}
-                    alt={monument.name}
-                    style={{ 
-                      width: '100%', 
-                      height: 'auto', 
-                      aspectRatio: '2/3', 
-                      objectFit: 'cover', 
-                      border: `3px solid ${styleConfig.colorTheme.accentColor}`, 
-                      marginBottom: '0', 
-                      display: 'block'
-                    }}
-                  />
-                )}
-                <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>{monument.name}</h3>
-                <p style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.75' }}>
-                  {monument.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    ) : <></>,
-
-    uniforms: data.multimedia_content?.uniforms && data.multimedia_content.uniforms.length > 0 ? (
-      <section key="uniforms" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
-        <h2 style={{ 
-          fontSize: styleConfig.typography.headingSize,
-          color: styleConfig.colorTheme.accentColor,
-          borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`,
-          paddingBottom: '0.5rem',
-          marginBottom: '1rem',
-          fontFamily: styleConfig.typography.fontFamily,
-          textAlign: 'center'
-        }}>
-          ◇ 制服紹介 ◇
-        </h2>
-        <div style={{ 
-          border: `2px solid ${styleConfig.colorTheme.borderColor}`,
-          padding: styleConfig.spacing.cardPadding,
-          backgroundColor: styleConfig.colorTheme.cardBg
-        }}>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
-            gap: '2rem',
-            justifyItems: 'center'
-          }}>
-            {data.multimedia_content.uniforms.map((uniform, index) => (
-              <div key={index} style={{ 
-                border: `2px solid ${styleConfig.colorTheme.borderColor}`, 
-                padding: '1.5rem',
-                backgroundColor: '#fafafa',
-                maxWidth: '450px',
-                width: '100%'
-              }}>
-                {uniform.image_url && (
-                  <div style={{ 
-                    marginBottom: '1rem',
-                    border: `3px solid ${styleConfig.colorTheme.accentColor}`,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                  }}>
-                    <img
-                      src={uniform.image_url}
-                      alt={uniform.type}
-                      style={{ 
-                        width: '100%', 
-                        height: 'auto',
-                        aspectRatio: '9/14',
-                        objectFit: 'cover',
-                        display: 'block'
-                      }}
-                    />
-                  </div>
-                )}
-                <h3 style={{ 
-                  fontWeight: 'bold', 
-                  marginBottom: '0.75rem',
-                  fontSize: '1.25rem',
-                  color: styleConfig.colorTheme.accentColor,
-                  textAlign: 'center'
-                }}>
-                  {uniform.type}
-                </h3>
-                <p style={{ 
-                  fontSize: styleConfig.typography.bodySize, 
-                  color: styleConfig.colorTheme.textColor, 
-                  lineHeight: '1.9',
-                  textAlign: 'justify'
-                }}>
-                  {uniform.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    ) : <></>,
+    facilities: facilitiesOnlySection,
+    monument: monumentSection,
+    uniform: uniformSection,
 
     history: data.history && data.history.length > 0 ? (
       <section key="history" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
@@ -913,16 +824,20 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
         }}>
           <div style={{ marginBottom: '1rem' }}>
             <img
-              src="https://placehold.co/800x300/8B7355/FFFFFF?text=Historical+Photo"
-              alt="学校の歴史"
+              src={data.school_profile?.historical_buildings?.[0]?.image_url || 'https://placehold.co/800x300/8B7355/FFFFFF?text=Historical+Photo'}
+              alt="学校の歴史（初代校舎）"
               style={{ 
                 width: '100%', 
+                maxWidth: '1000px',
+                margin: '0 auto',
                 height: 'auto', 
-                aspectRatio: '16/6', 
+                aspectRatio: '16/9', 
                 objectFit: 'cover', 
-                border: `3px solid ${styleConfig.colorTheme.accentColor}`, 
+                border: `4px solid ${styleConfig.colorTheme.accentColor}`, 
+                borderRadius: '8px',
                 marginBottom: '0', 
-                display: 'block'
+                display: 'block',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
               }}
             />
           </div>
@@ -955,7 +870,14 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           padding: styleConfig.spacing.cardPadding,
           backgroundColor: styleConfig.colorTheme.cardBg
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          <div 
+            className={data.teachers.length === 3 ? 'teachers-grid-3' : ''}
+            style={{ 
+              display: 'grid', 
+              ...(data.teachers.length !== 3 && { gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }),
+              gap: styleConfig.spacing.sectionGap || '1rem' 
+            }}
+          >
             {data.teachers.map((teacher, index) => (
               <div key={index} style={{ 
                 border: `1px solid ${styleConfig.colorTheme.borderColor}`,
@@ -966,21 +888,7 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                 alignItems: 'center',
                 textAlign: 'center'
               }}>
-                {teacher.face_image_url && (
-                  <img
-                    src={teacher.face_image_url}
-                    alt={teacher.name}
-                    style={{ 
-                      width: '200px', 
-                      height: '200px', 
-                      objectFit: 'cover', 
-                      border: `4px solid ${styleConfig.colorTheme.accentColor}`,
-                      marginBottom: '0.75rem',
-                      borderRadius: '4px',
-                      boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
-                    }}
-                  />
-                )}
+                {/* 教員の写真は校長のみ（校長は principal セクションで表示） */}
                 <p style={{ 
                   fontWeight: 'bold', 
                   fontSize: '1.1rem',
@@ -1011,90 +919,28 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
       </section>
     ) : <></>,
 
-    school_trip: data.school_trip ? (
-      <section key="school_trip" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
-        <h2 style={{ 
-          fontSize: styleConfig.typography.headingSize,
-          color: styleConfig.colorTheme.accentColor,
-          borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`,
-          paddingBottom: '0.5rem',
-          marginBottom: '1rem',
-          fontFamily: styleConfig.typography.fontFamily,
-          textAlign: 'center'
-        }}>
-          ◆ 修学旅行 ◆
-        </h2>
-        <div style={{ 
-          border: `2px solid ${styleConfig.colorTheme.borderColor}`,
-          padding: styleConfig.spacing.cardPadding,
-          backgroundColor: styleConfig.colorTheme.cardBg
-        }}>
-          <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ 
-              fontSize: '1.5rem',
-              fontWeight: 'bold',
-              color: styleConfig.colorTheme.accentColor,
-              marginBottom: '0.75rem',
-              textAlign: 'center'
-            }}>
-              {data.school_trip.destination}方面
-            </h3>
-            <p style={{ 
-              fontSize: styleConfig.typography.bodySize,
-              lineHeight: '2',
-              color: styleConfig.colorTheme.textColor,
-              marginBottom: '1.5rem',
-              whiteSpace: 'pre-line'
-            }}>
-              {data.school_trip.description}
-            </p>
-          </div>
-          
-          <div style={{
-            backgroundColor: '#f9fafb',
-            padding: '1rem',
-            border: `1px solid ${styleConfig.colorTheme.borderColor}`,
-            borderRadius: '4px'
-          }}>
-            <h4 style={{ 
-              fontWeight: 'bold',
-              fontSize: '1.1rem',
-              marginBottom: '0.75rem',
-              color: styleConfig.colorTheme.textColor
-            }}>
-              主な活動内容
-            </h4>
-            <ul style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '0.5rem',
-              paddingLeft: '1.5rem'
-            }}>
-              {data.school_trip.activities.map((activity, index) => (
-                <li key={index} style={{ 
-                  fontSize: styleConfig.typography.bodySize,
-                  lineHeight: '1.75',
-                  color: styleConfig.colorTheme.textColor
-                }}>
-                  {activity}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-    ) : <></>,
+    school_trip: null,
   }
 
-  const orderedSections = styleConfig.sectionOrder.length > 0 
-    ? styleConfig.sectionOrder.map(key => sections[key]).filter(Boolean)
-    : Object.values(sections)
+  const defaultOrder = ['news', 'principal', 'overview', 'anthem', 'rules', 'events', 'clubs', 'motto', 'historical_buildings', 'facilities', 'monument', 'uniform', 'history', 'teachers']
+  const normalizedOrder = (() => {
+    const order = Array.isArray(styleConfig.sectionOrder) && styleConfig.sectionOrder.length > 0 ? styleConfig.sectionOrder : defaultOrder
+    return order.flatMap((key: string) => {
+      if (key === 'facilities_monuments_uniforms') return ['facilities', 'monument', 'uniform']
+      if (key === 'facilities' || key === 'monument' || key === 'uniform') return [key]
+      if (key === 'monuments') return ['monument']
+      if (key === 'uniforms') return ['uniform']
+      return [key]
+    })
+  })()
+  const orderedSections = normalizedOrder.map(key => sections[key]).filter(Boolean)
 
   const layoutClass = styleConfig.layout === 'single-column' 
     ? 'max-w-4xl mx-auto'
     : styleConfig.layout === 'grid'
-    ? 'grid grid-cols-1 lg:grid-cols-2 gap-6'
-    : 'grid grid-cols-1 lg:grid-cols-3 gap-6'
+    ? 'grid grid-cols-1 lg:grid-cols-2'
+    : 'grid grid-cols-1 lg:grid-cols-3'
+  const layoutGap = styleConfig.spacing.sectionGap || '0.5rem'
 
   return (
     <>
@@ -1125,6 +971,14 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           pointer-events: none;
           z-index: 0;
           user-select: none;
+        }
+        .teachers-grid-3 {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        @media (max-width: 768px) {
+          .teachers-grid-3 {
+            grid-template-columns: 1fr !important;
+          }
         }
         .pattern-symbol {
           position: fixed;
@@ -1201,7 +1055,7 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
         position: 'relative',
         zIndex: 1,
         color: styleConfig.colorTheme.headerText,
-        padding: '2rem 1rem',
+        padding: '0.75rem 0.75rem',
         borderBottom: '8px double gold',
         boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
       }}>
@@ -1209,8 +1063,8 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           {/* 流れるようこそメッセージ */}
           <div style={{
             backgroundColor: 'rgba(255,255,255,0.15)',
-            padding: '0.5rem',
-            marginBottom: '1rem',
+            padding: '0.4rem 0.5rem',
+            marginBottom: '0.75rem',
             border: '2px solid rgba(255,255,255,0.3)',
             overflow: 'hidden',
             whiteSpace: 'nowrap'
@@ -1218,7 +1072,7 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
             <div style={{
               display: 'inline-block',
               animation: 'marquee 15s linear infinite',
-              fontSize: '0.9rem'
+              fontSize: '0.85rem'
             }}>
               ★☆ ようこそ{data.school_profile.name}ホームページへ！！！ ☆★
             </div>
@@ -1227,20 +1081,34 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
           <div style={{ textAlign: 'center' }}>
             {/* ロゴ画像（学校名バナー） */}
             {data.school_profile?.logo_url && (
-              <img 
-                src={data.school_profile.logo_url} 
-                alt={data.school_profile.name}
-                style={{ 
-                  width: '100%',
-                  maxWidth: '1200px', 
-                  height: 'auto',
-                  margin: '0 auto 2rem',
-                  border: '4px solid gold',
-                  borderRadius: '8px',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-                  display: 'block'
-                }}
-              />
+              <>
+                <img 
+                  src={data.school_profile.logo_url} 
+                  alt={data.school_profile.name}
+                  style={{ 
+                    width: '100%',
+                    maxWidth: '1200px', 
+                    height: 'auto',
+                    margin: '0 auto 0.4rem',
+                    border: '4px solid gold',
+                    borderRadius: '8px',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                    display: 'block'
+                  }}
+                />
+                {/* ロゴがあっても学校名をテキストで表示（読みやすく） */}
+                <p style={{
+                  fontSize: 'clamp(2rem, 5vw + 1rem, 3.25rem)',
+                  fontWeight: 900,
+                  fontFamily: calligraphyFont,
+                  margin: 0,
+                  letterSpacing: '0.06em',
+                  color: styleConfig.colorTheme.headerText,
+                  textShadow: '3px 3px 6px rgba(0,0,0,0.6), 0 0 16px rgba(255,215,0,0.4)'
+                }}>
+                  {data.school_profile.name}
+                </p>
+              </>
             )}
             
             {data.school_profile?.emblem_url && (
@@ -1248,9 +1116,9 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                 src={data.school_profile.emblem_url} 
                 alt="校章"
                 style={{ 
-                  width: styleConfig.headerStyle.emblemSize, 
-                  height: styleConfig.headerStyle.emblemSize, 
-                  margin: '0 auto 1.5rem',
+                  width: 'clamp(12rem, 18vw, 16rem)',
+                  height: 'clamp(12rem, 18vw, 16rem)',
+                  margin: '0 auto 0.75rem',
                   border: '6px solid gold',
                   borderRadius: '50%',
                   boxShadow: '0 0 40px rgba(255,215,0,0.8), 0 8px 24px rgba(0,0,0,0.4)',
@@ -1259,15 +1127,22 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
               />
             )}
             
-            {/* ロゴがない場合はテキストで学校名表示 */}
+            {/* 学校名：読みやすく大きく（長い名前でも最小3rem確保） */}
             {!data.school_profile?.logo_url && (
               <h1 style={{ 
-                fontSize: styleConfig.headerStyle.schoolNameSize,
-                fontWeight: 'bold',
+                fontSize: (data.school_profile.name.length > 14
+                  ? 'clamp(2.5rem, 5vw + 1.5rem, 3.25rem)'
+                  : data.school_profile.name.length > 10
+                  ? 'clamp(3rem, 6vw + 1.5rem, 3.75rem)'
+                  : 'clamp(3.25rem, 8vw + 1rem, 4.5rem)'),
+                fontWeight: 900,
                 fontFamily: calligraphyFont,
-                marginBottom: styleConfig.headerStyle.showMottoInHeader ? '1.5rem' : '1rem',
-                letterSpacing: '0.1em',
-                lineHeight: '1.3',
+                margin: '0 0 0 0',
+                letterSpacing: '0.06em',
+                lineHeight: 1.3,
+                maxWidth: '100%',
+                overflowWrap: 'break-word',
+                wordBreak: 'keep-all',
               ...(styleConfig.headerStyle.schoolNameDecoration === 'shadow' && {
                 textShadow: '4px 4px 8px rgba(0,0,0,0.8), 0 0 20px rgba(255,215,0,0.5)'
               }),
@@ -1293,18 +1168,46 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
                 {data.school_profile.name}
               </h1>
             )}
+
+            {/* タイトル下の帯（キャッチフレーズ・創立） */}
+            <div style={{
+              marginTop: '0.6rem',
+              marginBottom: styleConfig.headerStyle.showMottoInHeader ? '0.75rem' : '0.5rem',
+              width: '100%',
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255,215,0,0.35) 15%, rgba(255,215,0,0.5) 50%, rgba(255,215,0,0.35) 85%, transparent 100%)',
+              borderTop: '3px solid rgba(255,255,255,0.6)',
+              borderBottom: '3px solid rgba(255,255,255,0.6)',
+              padding: '0.5rem 1rem',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 8px rgba(0,0,0,0.2)'
+            }}>
+              <p style={{
+                margin: 0,
+                fontSize: 'clamp(0.95rem, 2vw + 0.5rem, 1.15rem)',
+                fontWeight: 'bold',
+                letterSpacing: '0.2em',
+                color: 'rgba(255,255,255,0.98)',
+                textShadow: '1px 1px 3px rgba(0,0,0,0.5)'
+              }}>
+                {data.school_profile.sub_catchphrase || `${data.school_profile.name} 公式ホームページ`}
+                {data.school_profile.established && (
+                  <span style={{ marginLeft: '0.75rem', opacity: 0.95, fontWeight: 600 }}>
+                    創立 {data.school_profile.established}
+                  </span>
+                )}
+              </p>
+            </div>
             
             {/* 校訓（ヘッダーに表示する場合） */}
             {styleConfig.headerStyle.showMottoInHeader && (
               <div style={{
                 backgroundColor: 'rgba(255,255,255,0.95)',
                 color: '#8B0000',
-                padding: '2rem 1.5rem',
-                margin: '1rem auto',
+                padding: '0.75rem 1rem',
+                margin: '0.4rem auto 0',
                 maxWidth: '900px',
-                border: '8px double #8B0000',
+                border: '6px double #8B0000',
                 borderRadius: '8px',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.3), inset 0 0 30px rgba(139,0,0,0.15)'
+                boxShadow: '0 6px 20px rgba(0,0,0,0.3), inset 0 0 24px rgba(139,0,0,0.12)'
               }}>
                 <p style={{ 
                   fontSize: '3rem',
@@ -1323,19 +1226,6 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
               </div>
             )}
 
-            {data.school_profile.established && (
-              <p style={{ 
-                fontSize: '0.875rem', 
-                marginTop: '0.5rem', 
-                opacity: 0.85,
-                backgroundColor: 'rgba(0,0,0,0.2)',
-                display: 'inline-block',
-                padding: '0.25rem 1rem',
-                borderRadius: '4px'
-              }}>
-                創立 {data.school_profile.established}
-              </p>
-            )}
           </div>
         </div>
 
@@ -1348,13 +1238,13 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
         `}} />
       </header>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', position: 'relative', zIndex: 1 }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0.5rem 0.75rem', position: 'relative', zIndex: 1 }}>
         {styleConfig.layout === 'two-column' ? (
-          <div className={layoutClass}>
+          <div className={layoutClass} style={{ gap: layoutGap }}>
             <div style={{ gridColumn: 'span 2 / span 2' }}>
               {orderedSections}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: styleConfig.spacing.sectionGap }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: layoutGap }}>
               {data.access && (
                 <div style={{ 
                   border: `1px solid ${styleConfig.colorTheme.borderColor}`,
@@ -1444,12 +1334,12 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
             </div>
           </div>
         ) : (
-          <div className={layoutClass}>
+          <div className={layoutClass} style={{ gap: layoutGap }}>
             {orderedSections}
           </div>
         )}
 
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+        <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
           <button
             onClick={onReset}
             style={{
@@ -1480,11 +1370,11 @@ export default function SchoolWebsite({ data, onReset }: SchoolWebsiteProps) {
 
       <footer style={{ 
         textAlign: 'center',
-        padding: '2rem 1rem',
+        padding: '1rem 0.75rem',
         fontSize: '0.75rem',
         color: '#6b7280',
         borderTop: `4px double ${styleConfig.colorTheme.borderColor}`,
-        marginTop: '2rem',
+        marginTop: '1rem',
         backgroundColor: '#f9fafb'
       }}>
         <div style={{

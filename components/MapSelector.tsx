@@ -127,12 +127,11 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       const address = geocodeResult.results[0]?.formatted_address || ''
       console.log('📮 住所:', address)
 
-      // Nearby Search は API 料金節約のため最小限のカテゴリに絞る（約10種類）
+      // API 料金削減：Nearby Search は 6 カテゴリに絞る（従来10→6）
       console.log('🔍 地域情報収集を開始します...')
       
       const searchCategories = [
-        'restaurant', 'cafe', 'convenience_store', 'school', 'park', 'shrine', 'temple',
-        'train_station', 'library', 'tourist_attraction'
+        'convenience_store', 'park', 'shrine', 'train_station', 'library', 'restaurant'
       ]
       
       const allPlaces: any[] = []
@@ -169,11 +168,11 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       
       console.log(`🎉 全検索完了！合計 ${allPlaces.length} 件の情報を取得しました`)
       
-      // 情報が少ない場合のみ、広域（5km）で追加検索（3カテゴリのみ）
-      if (allPlaces.length < 10) {
+      // 情報が少ない場合のみ、広域（5km）で追加検索（2カテゴリに削減）
+      if (allPlaces.length < 8) {
         console.warn(`⚠️ 情報が不足（${allPlaces.length}件）、5km圏で追加検索...`)
         
-        const wideSearchPromises = ['store', 'establishment', 'park'].map((category) => {
+        const wideSearchPromises = ['store', 'park'].map((category) => {
           return new Promise<void>((resolve) => {
             placesService.nearbySearch({
               location: latLng,
@@ -202,7 +201,7 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
           address,
           landmarks: ['この地域'],
           place_details: [],
-          closest_place: { name: '未知の場所', distance: 0 },
+          closest_place: { name: '未知の場所' },
           comprehensive_research: '⚠️ この地域では詳細な情報が取得できませんでした。一般的な内容で生成します。'
         }
         onLocationSelect(locationData)
@@ -235,8 +234,8 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
         .map((place: any) => place.name || '')
         .filter((name: string) => name.length > 0)
       
-      // 詳細情報を抽出（上位30件）
-      const placeDetails = sortedPlaces.slice(0, 30).map((place: any) => ({
+      // 詳細情報を抽出（上位10件・Place Details と揃える）
+      const placeDetails = sortedPlaces.slice(0, 10).map((place: any) => ({
         name: place.name || '',
         types: place.types || [],
         vicinity: place.vicinity || '',
@@ -252,11 +251,11 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       console.log('📍 最も近い場所:', closestPlace?.name)
       console.log('🏛️ ランドマーク一覧（上位10件）:', landmarks.slice(0, 10))
       
-      // 🔥🔥🔥 徹底的な地域リサーチを開始 🔥🔥🔥
-      console.log('📚📚📚 詳細な地域リサーチを開始します（最大3分）...')
+      // 地域リサーチ（Place Details は 10 件に削減して API 料金節約）
+      console.log('📚 詳細な地域リサーチを開始します...')
       
       const comprehensiveResearch = await conductComprehensiveResearch(
-        sortedPlaces.slice(0, 30), 
+        sortedPlaces.slice(0, 10),
         address,
         lat,
         lng,
@@ -280,12 +279,15 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
 
     } catch (error) {
       console.error('❌ 位置情報の取得に失敗しました:', error)
-      // エラーでも最小限の情報で継続
+      // エラーでも最小限の情報で継続（APIが必須とするフィールドを揃える）
       const fallbackData: LocationData = {
         lat,
         lng,
         address: `緯度${lat.toFixed(4)}, 経度${lng.toFixed(4)}`,
-        landmarks: ['この地域', '周辺エリア', '地元']
+        landmarks: ['この地域', '周辺エリア', '地元'],
+        place_details: [],
+        closest_place: { name: 'この地域' },
+        comprehensive_research: 'この地域では詳細な情報が取得できませんでした。基本的な内容で学校を生成します。'
       }
       console.log('🔄 フォールバックデータで継続:', fallbackData)
       onLocationSelect(fallbackData)
@@ -314,11 +316,10 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     research += `市区町村: ${addressParts[1] || '不明'}\n`
     research += `町名・番地: ${addressParts.slice(2).join(' ')}\n\n`
     
-    // セクション3: 周辺施設の詳細分析（Place Details API）
-    // より深い情報収集のため20件に拡大
-    research += `# 🏛️ 周辺施設の詳細情報（最も近い20件）\n\n`
+    // セクション3: 周辺施設の詳細分析（Place Details API・10件で料金削減）
+    research += `# 🏛️ 周辺施設の詳細情報（最も近い10件）\n\n`
     
-    const detailPromises = places.slice(0, 20).map((place, index) => {
+    const detailPromises = places.slice(0, 10).map((place, index) => {
       return new Promise<string>((resolve) => {
         placesService.getDetails(
           { placeId: place.place_id, language: 'ja' },

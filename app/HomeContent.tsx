@@ -12,10 +12,12 @@ export interface HomeContentProps {
   isGenerating: boolean
   schoolData: SchoolData | null
   error: string | null
+  apiFallbackMessage: string | null
   landingBgmRef: React.RefObject<HTMLAudioElement | null>
   showContent: { title: boolean; subtitle: boolean; startButton: boolean; testButton: boolean }
   onLocationSelect: (location: LocationData) => void
   onReset: () => void
+  onRetryAnthemAudio?: () => void
   onStartClick: () => void
   onTestGenerate: () => void
 }
@@ -27,10 +29,12 @@ export default function HomeContent(props: HomeContentProps) {
     isGenerating,
     schoolData,
     error,
+    apiFallbackMessage,
     landingBgmRef,
     showContent,
     onLocationSelect,
     onReset,
+    onRetryAnthemAudio,
     onStartClick,
     onTestGenerate,
   } = props
@@ -43,7 +47,7 @@ export default function HomeContent(props: HomeContentProps) {
 
       {stage === 'landing' && (
         <div className="h-screen flex items-center justify-center" style={{
-          backgroundImage: 'url(/backgrounds/landing-bg.png)',
+          backgroundImage: 'url(/backgrounds/landing-bg.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -264,7 +268,28 @@ export default function HomeContent(props: HomeContentProps) {
       {isGenerating && <LoadingScreen />}
 
       {stage === 'school' && schoolData && !isGenerating && (
-        <SchoolWebsite data={schoolData} onReset={onReset} />
+        <>
+          {apiFallbackMessage && (
+            <div
+              role="alert"
+              style={{
+                position: 'sticky',
+                top: 0,
+                zIndex: 50,
+                backgroundColor: '#fef3c7',
+                borderBottom: '3px solid #d97706',
+                color: '#92400e',
+                padding: '0.75rem 1rem',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              }}
+            >
+              ⚠️ APIエラーのため、表示されているテキストはダミー（モック）です。 — {apiFallbackMessage}
+            </div>
+          )}
+          <SchoolWebsite data={schoolData} onReset={onReset} onRetryAnthemAudio={onRetryAnthemAudio} />
+        </>
       )}
     </div>
   )

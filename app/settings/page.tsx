@@ -14,17 +14,23 @@ const ENV_TEMPLATE = `# ============================================
 # https://console.cloud.google.com/ → APIとサービス → 認証情報
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
 
-# --- 必須：テキスト生成（Claude） ---
-# https://console.anthropic.com/ → API Keys
+# --- テキスト・画像・校歌（どれかでOK／一括も可） ---
+# ① Anthropic のみ：テキストだけ公式で（画像は Replicate、校歌は Comet が別途必要）
+# https://console.anthropic.com/ → API Keys（要チャージ）
 ANTHROPIC_API_KEY=
 
-# --- 画像生成（Replicate）※未設定ならプレースホルダー表示 ---
+# ② CometAPI 一括（GPS以外を1本で）※おすすめ
+# https://www.cometapi.com/console → サインアップ → API Keys（要チャージ）
+# テキスト＝Claude / 校歌＝Suno / ロゴ・概要画像＝Gemini Image を同じキーで利用可能
+COMET_API_KEY=
+# テキスト用モデル（未設定時は自動で複数候補を試行）。「no available channel」が出る場合は
+# https://api.cometapi.com/pricing で利用可能なモデルIDを確認し、ここに指定（例: anthropic/claude-3-5-sonnet）
+# COMET_CHAT_MODEL=
+
+# --- 画像生成（Replicate）※Comet 一括を使わない場合のみ ---
+# COMET_API_KEY があるとロゴ・概要は Comet で生成するため未設定でOK
 # https://replicate.com/ → Account → API tokens
 REPLICATE_API_TOKEN=
-
-# --- 楽曲生成（Suno / CometAPI）※未設定なら校歌は歌詞のみ ---
-# https://www.cometapi.com/ → API Keys（要チャージ）
-COMET_API_KEY=
 
 # --- 本番デプロイ時のみ（VercelのURL） ---
 # 画像・楽曲を本番で生成する場合のみ設定

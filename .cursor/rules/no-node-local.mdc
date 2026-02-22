@@ -1,0 +1,11 @@
+---
+description: このプロジェクトではローカルに Node を入れられない前提。npm install / Node 導入は提案しない。
+alwaysApply: true
+---
+
+# Node はローカルにインストールしない前提
+
+- **ユーザーはパソコンに Node.js を入れられない・入れない**としている。
+- `npm install` や `npm run dev` をターミナルで実行する手順は**提案しない**。
+- 代わりに **Vercel でのビルド・実行**を前提に説明する（コードを Git でプッシュ → Vercel が npm install とビルドを実行 → デプロイURLで確認）。
+- 手順を書くときは「Node を入れられない人用」の流れを案内する。詳細は `docs/Inngest導入の手順_初めて向け.md` の「Node を入れられない人用の手順」を参照。

@@ -9,7 +9,10 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [schoolData, setSchoolData] = useState<SchoolData | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [apiFallbackMessage, setApiFallbackMessage] = useState<string | null>(null)
   const landingBgmRef = useRef<HTMLAudioElement | null>(null)
+  const imageGenStartedRef = useRef(false)
+  const earlyAnthemAudioStartedRef = useRef(false)
   const [showContent, setShowContent] = useState({
     title: false,
     subtitle: false,
@@ -72,28 +75,265 @@ export default function Home() {
   const handleLocationSelect = async (location: LocationData) => {
     setIsGenerating(true)
     setError(null)
+    setApiFallbackMessage(null)
     setSchoolData(null)
+    earlyAnthemAudioStartedRef.current = false
     try {
-      const response = await fetch('/api/generate-school', {
+      // ジョブ開始：バックグラウンドで Inngest が学校生成（テキスト→画像→音声→KV保存）を実行する
+      const jobRes = await fetch('/api/school/generate-job', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(location),
       })
-      if (!response.ok) throw new Error('学校の生成に失敗しました')
-      const data: SchoolData = await response.json()
-      setSchoolData(data)
-      setStage('school')
+      const jobJson = await jobRes.json().catch(() => ({}))
+      if (!jobRes.ok || !jobJson?.jobId) {
+        setError(jobJson?.error || 'ジョブの開始に失敗しました。もう一度お試しください。')
+        return
+      }
+      const jobId = jobJson.jobId as string
+
+      // ポーリング：完了するまで一定間隔で GET /api/job?jobId=xxx を叩く
+      const pollIntervalMs = 2500
+      const timeoutMs = 10 * 60 * 1000 // 10分で打ち切り
+      const startedAt = Date.now()
+      let cancelled = false
+
+      const poll = (): Promise<void> => {
+        if (cancelled) return Promise.resolve()
+        return fetch(`/api/job?jobId=${encodeURIComponent(jobId)}`)
+          .then((r) => r.json().catch(() => ({})))
+          .then((body) => {
+            if (cancelled) return
+            if (body.status === 'completed' && body.data) {
+              setSchoolData(body.data as SchoolData)
+              setStage('school')
+              return
+            }
+            if (Date.now() - startedAt >= timeoutMs) {
+              setError('処理が時間内に完了しませんでした。しばらく経ってから再度お試しください。')
+              return
+            }
+            return new Promise<void>((resolve) => setTimeout(resolve, pollIntervalMs)).then(poll)
+          })
+      }
+
+      await poll()
     } catch (err) {
-      setError(err instanceof Error ? err.message : '予期しないエラーが発生しました')
+      const msg = err instanceof Error ? err.message : '予期しないエラーが発生しました'
+      setError(msg)
     } finally {
       setIsGenerating(false)
     }
   }
 
+  // 学校ページ表示後、プレースホルダー画像を並列で生成（最大同時4本、エラー時はその枠だけスキップ）
+  useEffect(() => {
+    if (stage !== 'school') {
+      imageGenStartedRef.current = false
+      return
+    }
+    if (!schoolData || imageGenStartedRef.current) return
+    imageGenStartedRef.current = true
+
+    const isPlaceholder = (url: string | undefined) => !url || url.includes('placehold.co')
+
+    type Task = {
+      prompt: string
+      imageType: string
+      apply: (prev: SchoolData, url: string) => SchoolData
+    }
+    const tasks: Task[] = []
+    // 各画像の必要情報（いずれも schoolData 到着後なら揃うため、全件並列で同時リクエスト可能）
+    // overview: school_profile.overview_image_prompt / emblem: school_profile.emblem_prompt
+    // historical_building: school_profile.historical_buildings[0] / principal_face: principal_message.face_prompt
+    // facility: multimedia_content.facilities[0] / monument: multimedia_content.monuments[0]
+    // uniform: multimedia_content.uniforms[0] / event: school_events[1件] / club: club_activities[1件]
+
+    const p = schoolData.school_profile
+    const mc = schoolData.multimedia_content
+    const principal = schoolData.principal_message
+
+    // 画像は7枚のみ：校章・校長・部活1・行事1・初代校舎・制服・銅像（overview・施設は生成しない）
+    if (p?.emblem_prompt && isPlaceholder(p.emblem_url)) {
+      tasks.push({
+        prompt: p.emblem_prompt,
+        imageType: 'emblem',
+        apply: (prev, url) =>
+          prev ? { ...prev, school_profile: { ...prev.school_profile, emblem_url: url } } : prev,
+      })
+    }
+    if (p?.historical_buildings?.[0]?.image_prompt && isPlaceholder(p.historical_buildings[0].image_url)) {
+      tasks.push({
+        prompt: p.historical_buildings[0].image_prompt,
+        imageType: 'historical_building',
+        apply: (prev, url) => {
+          if (!prev?.school_profile?.historical_buildings?.length) return prev
+          const next = [...prev.school_profile.historical_buildings]
+          next[0] = { ...next[0], image_url: url }
+          return { ...prev, school_profile: { ...prev.school_profile, historical_buildings: next } }
+        },
+      })
+    }
+    if (principal?.face_prompt && isPlaceholder(principal.face_image_url)) {
+      tasks.push({
+        prompt: principal.face_prompt,
+        imageType: 'principal_face',
+        apply: (prev, url) =>
+          prev?.principal_message
+            ? { ...prev, principal_message: { ...prev.principal_message, face_image_url: url } }
+            : prev,
+      })
+    }
+    // 施設紹介は写真なし（テキストのみ）のため facility 画像は生成しない
+    if (mc?.monuments?.[0]?.image_prompt && isPlaceholder(mc.monuments[0].image_url)) {
+      tasks.push({
+        prompt: mc.monuments[0].image_prompt,
+        imageType: 'monument',
+        apply: (prev, url) => {
+          if (!prev?.multimedia_content?.monuments?.length) return prev
+          const next = [...prev.multimedia_content.monuments]
+          next[0] = { ...next[0], image_url: url }
+          return { ...prev, multimedia_content: { ...prev.multimedia_content, monuments: next } }
+        },
+      })
+    }
+    if (mc?.uniforms?.[0]?.image_prompt && isPlaceholder(mc.uniforms[0].image_url)) {
+      tasks.push({
+        prompt: mc.uniforms[0].image_prompt,
+        imageType: 'uniform',
+        apply: (prev, url) => {
+          if (!prev?.multimedia_content?.uniforms?.length) return prev
+          const next = [...prev.multimedia_content.uniforms]
+          next[0] = { ...next[0], image_url: url }
+          return { ...prev, multimedia_content: { ...prev.multimedia_content, uniforms: next } }
+        },
+      })
+    }
+    const eventIndex = mc?.school_events?.findIndex((e) => e.image_prompt && isPlaceholder(e.image_url)) ?? -1
+    if (eventIndex >= 0 && mc?.school_events?.[eventIndex]) {
+      const prompt = mc.school_events[eventIndex].image_prompt!
+      tasks.push({
+        prompt,
+        imageType: 'event',
+        apply: (prev, url) => {
+          if (!prev?.multimedia_content?.school_events?.length || eventIndex >= prev.multimedia_content.school_events.length)
+            return prev
+          const next = [...prev.multimedia_content.school_events]
+          next[eventIndex] = { ...next[eventIndex], image_url: url }
+          return { ...prev, multimedia_content: { ...prev.multimedia_content, school_events: next } }
+        },
+      })
+    }
+    const clubIndex = mc?.club_activities?.findIndex((c) => c.image_prompt && isPlaceholder(c.image_url)) ?? -1
+    if (clubIndex >= 0 && mc?.club_activities?.[clubIndex]) {
+      const prompt = mc.club_activities[clubIndex].image_prompt!
+      tasks.push({
+        prompt,
+        imageType: 'club',
+        apply: (prev, url) => {
+          if (!prev?.multimedia_content?.club_activities?.length || clubIndex >= prev.multimedia_content.club_activities.length)
+            return prev
+          const next = [...prev.multimedia_content.club_activities]
+          next[clubIndex] = { ...next[clubIndex], image_url: url }
+          return { ...prev, multimedia_content: { ...prev.multimedia_content, club_activities: next } }
+        },
+      })
+    }
+
+    if (tasks.length === 0) return
+
+    let cancelled = false
+    // 各画像は school_profile / principal_message / multimedia_content の情報のみ使用し互いに独立 → 全件同時リクエストで最短化
+    const runOne = async (task: Task): Promise<string | null> => {
+      try {
+        const res = await fetch('/api/generate-school-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: task.prompt, imageType: task.imageType }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (cancelled || !data?.url) return null
+        return data.url
+      } catch {
+        return null
+      }
+    }
+
+    const runAll = async () => {
+      const results = await Promise.allSettled(tasks.map((task) => runOne(task)))
+      if (cancelled) return
+      results.forEach((result, i) => {
+        const url = result.status === 'fulfilled' ? result.value : null
+        if (url) {
+          const task = tasks[i]
+          setSchoolData((prev) => (prev ? task.apply(prev, url) : prev))
+        }
+      })
+    }
+    runAll()
+
+    return () => {
+      cancelled = true
+    }
+  }, [stage, schoolData])
+
+  // 校歌音声（先行で開始していなければここで1本だけ取得。Suno/Comet。失敗時は歌詞のみ）
+  useEffect(() => {
+    if (stage !== 'school' || !schoolData?.school_anthem?.lyrics) return
+    if (schoolData.school_anthem.audio_url) return
+    if (earlyAnthemAudioStartedRef.current) return
+    let cancelled = false
+    fetch('/api/generate-audio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lyrics: schoolData.school_anthem.lyrics,
+        style: schoolData.school_anthem.style || '荘厳な合唱曲風',
+        title: schoolData.school_anthem.title || '校歌',
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled || !data?.url) return
+        setSchoolData((prev) =>
+          prev?.school_anthem
+            ? { ...prev, school_anthem: { ...prev.school_anthem, audio_url: data.url } }
+            : prev
+        )
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [stage, schoolData?.school_anthem?.lyrics, schoolData?.school_anthem?.audio_url])
+
   const handleReset = () => {
     setSchoolData(null)
+    earlyAnthemAudioStartedRef.current = false
     setError(null)
+    setApiFallbackMessage(null)
     setStage('landing')
+  }
+
+  const handleRetryAnthemAudio = () => {
+    if (!schoolData?.school_anthem?.lyrics) return
+    fetch('/api/generate-audio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lyrics: schoolData.school_anthem.lyrics,
+        style: schoolData.school_anthem.style || '荘厳な合唱曲風',
+        title: schoolData.school_anthem.title || '校歌',
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.url)
+          setSchoolData((prev) =>
+            prev?.school_anthem ? { ...prev, school_anthem: { ...prev.school_anthem, audio_url: data.url } } : prev
+          )
+      })
+      .catch(() => {})
   }
 
   const handleStartClick = () => setStage('map')
@@ -113,10 +353,12 @@ export default function Home() {
     isGenerating,
     schoolData,
     error,
+    apiFallbackMessage,
     landingBgmRef,
     showContent,
     onLocationSelect: handleLocationSelect,
     onReset: handleReset,
+    onRetryAnthemAudio: handleRetryAnthemAudio,
     onStartClick: handleStartClick,
     onTestGenerate: handleTestGenerate,
   })

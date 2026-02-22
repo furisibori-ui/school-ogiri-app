@@ -16,14 +16,14 @@
 | API | 呼び出し回数 | 料金の目安（USD/1,000回） | ピン1回あたり |
 |-----|--------------|---------------------------|----------------|
 | **Geocoding**（住所取得） | 1回 | $5.00（無料枠 10,000回/月） | 約 $0.005 |
-| **Places API - Nearby Search** | **約10回**（最大13回・不足時のみ追加3カテゴリ） | $32.00（Pro・無料枠 5,000回/月） | 約 $0.32（無料枠超過時） |
-| **Places API - Place Details** | **20回**（周辺施設の詳細） | $17.00（Pro・無料枠 5,000回/月） | 約 $0.34（無料枠超過時） |
+| **Places API - Nearby Search** | **6回**（不足時のみ追加2カテゴリで最大8回） | $32.00（Pro・無料枠 5,000回/月） | 約 $0.19（無料枠超過時） |
+| **Places API - Place Details** | **10回**（周辺施設の詳細） | $17.00（Pro・無料枠 5,000回/月） | 約 $0.17（無料枠超過時） |
 | **Wikipedia API** | 20回 | 無料 | $0 |
 
 ### 補足
 
-- **Nearby Search**: `MapSelector.tsx` の `searchCategories` で **10種類**（飲食・コンビニ・学校・公園・神社・寺・駅・図書館・観光）を 2km 圏内で検索。結果が少ないときのみ 5km 圏で追加3カテゴリ（最大13回）。
-- **Place Details**: 距離の近い順 20 件について、名前・住所・評価・レビューなどを取得。
+- **Nearby Search**: `MapSelector.tsx` で **6カテゴリ**（コンビニ・公園・神社・駅・図書館・飲食）を 2km 圏内で検索。情報が少ないときのみ 5km 圏で追加2カテゴリ（最大8回）。※ 従来10→6に削減済み
+- **Place Details**: 距離の近い順 **10件**について、名前・住所・評価・レビューなどを取得（従来20→10に削減済み）。
 - 無料枠内なら **Geocoding / Nearby Search / Place Details は $0**。月の利用が無料枠を超えると上記単価で課金。
 
 ---
@@ -48,11 +48,11 @@
 
 | 項目 | 目安（円） |
 |------|------------|
-| Google（Geocoding + Nearby Search + Place Details） | 無料枠内なら 0 円 / 超過時 約 50〜60 円 |
+| Google（Geocoding + Nearby Search + Place Details） | 無料枠内なら 0 円 / 超過時 約 25〜35 円 |
 | Claude（Anthropic） | 約 10〜50 円 |
 | Replicate（画像 2 枚） | 約 1〜2 円 |
 | CometAPI（校歌 1 曲） | 約 21 円 |
-| **合計（無料枠超過時）** | **約 100〜150 円/回** |
+| **合計（無料枠超過時）** | **約 75〜120 円/回** |
 
 ※ 無料枠内であれば Google 分は 0 円。Claude・Replicate・Comet のみで **約 30〜75 円/回** 程度。
 
@@ -64,7 +64,7 @@
 - **Places - Nearby Search**: 月 5,000 回まで無料（Pro）
 - **Places - Place Details**: 月 5,000 回まで無料（Pro）
 
-ピン 1 回で Nearby Search 約 10〜13 回 + Place Details 20 回 + Geocoding 1 回 なので、**月に約 380 回以上ピンを刺して学校生成すると、Google の無料枠を超えやすくなります**（10×380 ≒ 3,800 で Nearby Search が 5,000 に近づく想定）。
+ピン 1 回で Nearby Search 6〜8 回 + Place Details 10 回 + Geocoding 1 回 なので、**月に約 500 回以上ピンを刺すと Google の無料枠を超えやすくなります**（10×500 = 5,000 で Place Details が上限。Nearby は 6×500 = 3,000 で余裕あり）。
 
 ---
 
