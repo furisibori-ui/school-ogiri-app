@@ -170,10 +170,11 @@ export const schoolGenerateFunction = inngest.createFunction(
       return current
     })
 
-    // Step 3: 校歌音声を1本生成
+    // Step 3: 校歌音声を1本生成（step.run の戻り値は型が失われるため SchoolData にキャスト）
     const schoolWithAudio = await step.run('step3-anthem-audio', async () => {
-      const anthem = schoolWithImages.school_anthem
-      if (!anthem?.lyrics) return schoolWithImages
+      const data = schoolWithImages as SchoolData
+      const anthem = data.school_anthem
+      if (!anthem?.lyrics) return data
       const res = await fetch(`${baseUrl}/api/generate-audio`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -188,11 +189,11 @@ export const schoolGenerateFunction = inngest.createFunction(
       if (audioUrl) {
         console.log('step3 done', { jobId })
         return {
-          ...schoolWithImages,
+          ...data,
           school_anthem: { ...anthem, audio_url: audioUrl },
         }
       }
-      return schoolWithImages
+      return data
     })
 
     // Step 4: Vercel KV に保存
