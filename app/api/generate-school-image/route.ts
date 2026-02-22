@@ -1,12 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { put } from '@vercel/blob'
 
 // 限界ギリギリ：Vercel Pro 上限300秒（画像1枚ごとの呼び出しなので通常は短いが、上限まで許容）
 export const maxDuration = 300
 
 type AspectRatio = '1:1' | '16:9' | '3:2' | '2:3' | '4:3' | '9:16'
 
-// Comet利用時: デフォルトは「安くて速い、バランスがいい」Gemini 2.5 Flash Image。COMET_IMAGE_MODEL で変更可（例: gemini-2.0-flash-exp-image-generation）
-const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.5-flash-image'
+/** data URL を Vercel Blob にアップロードして公開 URL を返す。Inngest のステップ出力 4MB 制限を超えないようにする */
+async function dataUrlToBlobUrl(dataUrl: string): Promise<string> {
+  if (!dataUrl.startsWith('data:') || !process.env.BLOB_READ_WRITE_TOKEN) return dataUrl
+  try {
+    const [header, b64] = dataUrl.split(',')
+    const mime = header?.match(/data:([^;]+)/)?.[1] || 'image/png'
+    const ext = mime === 'image/png' ? 'png' : mime === 'image/jpeg' ? 'jpg' : 'png'
+    const buffer = Buffer.from(b64, 'base64')
+    const blob = await put(`school-images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`, buffer, { access: 'public' })
+    return blob.url
+  } catch (e) {
+    console.warn('Blob upload failed, returning data URL', e)
+    return dataUrl
+  }
+}
+
+// Comet利用時: 消費量を抑えるためデフォルトは Gemini 2.0 Flash Exp。COMET_IMAGE_MODEL で変更可（例: gemini-2.5-flash-image で画質優先）
+const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.0-flash-exp-image-generation'
 
 async function generateImageViaComet(prompt: string, aspectRatio: AspectRatio = '16:9'): Promise<string> {
   const key = process.env.COMET_API_KEY
@@ -86,6 +103,8 @@ export async function POST(request: NextRequest) {
       }
     } else if (useComet) {
       url = await generateImageViaComet(finalPrompt, aspectRatio)
+      // data URL のまま返すと Inngest のステップ出力が 4MB を超えて「出力が大きすぎる」で落ちるため、Blob に上げて URL だけ返す
+      if (url.startsWith('data:')) url = await dataUrlToBlobUrl(url)
     } else {
       if (imageType === 'logo' || imageType === 'emblem') {
         url = `https://placehold.co/1200x300/003366/FFD700?text=Logo`

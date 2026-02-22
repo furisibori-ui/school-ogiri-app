@@ -95,20 +95,27 @@ export default function Home() {
 
       // ポーリング：完了するまで一定間隔で GET /api/job?jobId=xxx を叩く
       const pollIntervalMs = 2500
-      const timeoutMs = 30 * 60 * 1000 // 30分で打ち切り（画像・音声生成で時間がかかることがあるため）
+      const timeoutMs = 120 * 60 * 1000 // 120分で打ち切り（目安は10分前後だが、重いとき用に余裕を持たせる）
       const startedAt = Date.now()
       let cancelled = false
 
       const poll = (): Promise<void> => {
         if (cancelled) return Promise.resolve()
-        return fetch(`/api/job?jobId=${encodeURIComponent(jobId)}`)
+        const remaining = timeoutMs - (Date.now() - startedAt)
+        const nearTimeout = remaining <= 10000 // 残り10秒以下で途中結果を取得
+        const url = `/api/job?jobId=${encodeURIComponent(jobId)}${nearTimeout ? '&partial=1' : ''}`
+        return fetch(url)
           .then((r) => r.json().catch(() => ({})))
           .then((body) => {
             if (cancelled) return
-            if (body.status === 'completed' && body.data) {
+            if ((body.status === 'completed' || body.status === 'partial') && body.data) {
               setSchoolData(body.data as SchoolData)
               setStage('school')
-              setShowCongratulations(true)
+              if (body.status === 'completed') setShowCongratulations(true)
+              return
+            }
+            if (body.status === 'failed') {
+              setError(body.error || '処理に失敗しました。しばらく経ってから再度お試しください。')
               return
             }
             if (Date.now() - startedAt >= timeoutMs) {

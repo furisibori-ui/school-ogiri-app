@@ -112,11 +112,22 @@ function applyImageUrl(
   }
 }
 
+const KV_TTL_FAILED = 3600
+
 export const schoolGenerateFunction = inngest.createFunction(
   {
     id: 'school-generate',
     name: '学校生成（テキスト→画像7枚→校歌音声→KV保存）',
     retries: 2,
+    onFailure: async ({ error, event }) => {
+      const originalData = (event as { data?: { event?: { data?: { jobId?: string } } } })?.data?.event?.data
+      const jobId = originalData?.jobId
+      if (jobId) {
+        await kv.set(`school:${jobId}:status`, 'failed', { ex: KV_TTL_FAILED })
+        const msg = error?.message?.slice(0, 200) || '処理に失敗しました'
+        await kv.set(`school:${jobId}:error`, msg, { ex: KV_TTL_FAILED })
+      }
+    },
   },
   { event: EVENT_NAME },
   async ({ event, step }) => {
@@ -143,6 +154,7 @@ export const schoolGenerateFunction = inngest.createFunction(
         throw new Error(`generate-school failed: ${res.status} ${err.slice(0, 200)}`)
       }
       const data = (await res.json()) as SchoolData
+      await kv.set(`school:${jobId}:partial`, JSON.stringify(data), { ex: KV_TTL })
       console.log('step1 done', { jobId })
       return data
     })
@@ -166,6 +178,7 @@ export const schoolGenerateFunction = inngest.createFunction(
       for (const { task, url } of results) {
         current = applyImageUrl(current, task, url)
       }
+      await kv.set(`school:${jobId}:partial`, JSON.stringify(current), { ex: KV_TTL })
       console.log('step2 done', { jobId, imageCount: results.length })
       return current
     })
@@ -186,14 +199,12 @@ export const schoolGenerateFunction = inngest.createFunction(
       })
       const audioData = await res.json().catch(() => ({}))
       const audioUrl = audioData?.url ?? undefined
-      if (audioUrl) {
-        console.log('step3 done', { jobId })
-        return {
-          ...data,
-          school_anthem: { ...anthem, audio_url: audioUrl },
-        }
-      }
-      return data
+      const next = audioUrl
+        ? { ...data, school_anthem: { ...anthem, audio_url: audioUrl } }
+        : data
+      await kv.set(`school:${jobId}:partial`, JSON.stringify(next), { ex: KV_TTL })
+      if (audioUrl) console.log('step3 done', { jobId })
+      return next
     })
 
     // Step 4: Vercel KV に保存

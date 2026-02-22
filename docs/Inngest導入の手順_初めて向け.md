@@ -201,7 +201,8 @@ Inngest の画面で「Sync your app」や「Vercelと同期」を選び、**ア
    **左側の Source Control を使う場合：**
 
    - **Source Control を開く**  
-     Cursor の**左の縦バー**（ファイル一覧があるところ）で、**上から 3 つ目あたり**にある **枝が二股に分かれたアイコン** をクリックする。これが「Source Control」です。クリックすると、左側のパネルが「変更」（Changes）の一覧に切り替わる。
+     Cursor の**左の縦バー**（ファイル一覧があるところ）で、**上から 3 つ目あたり**にある **枝が二股に分かれたアイコン** をクリックする。これが「Source Control」です。  
+     **ショートカット**：**Cmd+Shift+G**（Mac）/ **Ctrl+Shift+G**（Win）でも開けます。
 
    - **変更を確認する**  
      「変更」または「Changes」という見出しの下に、変更されたファイル名が並ぶ。  
@@ -232,6 +233,17 @@ Inngest の画面で「Sync your app」や「Vercelと同期」を選び、**ア
      - 一覧に **「Git: Push」** や **「Git: Sync」** が出るので、それを**クリック**する（Enter でも可）。  
    - **初回だけ**：GitHub にまだログインしていない場合は、「GitHub でサインイン」のような表示が出るので、案内に従ってブラウザでログインする。  
    - 成功すると、Source Control の「変更」がなくなり、Vercel が自動でデプロイを始めます。
+
+**よく使うショートカットキー（Cursor / VS Code）**
+
+| やりたいこと | Mac | Windows / Linux |
+|-------------|-----|------------------|
+| **Source Control を開く**（変更一覧・コミット・プッシュ） | **Cmd+Shift+G** | **Ctrl+Shift+G** |
+| **コマンドパレットを開く**（ここから Push などが出せる） | **Cmd+Shift+P** | **Ctrl+Shift+P** |
+| **コミットを確定する**（メッセージを書いたあと） | メッセージ欄にフォーカスがある状態で **Cmd+Enter**（環境により使えない場合あり） | **Ctrl+Enter** |
+| **Git: Push を実行** | **Cmd+Shift+P** → `push` と入力 → **Git: Push** を選択 | **Ctrl+Shift+P** → `push` と入力 → **Git: Push** を選択 |
+
+※ メニューから **View** → **Command Palette** でもコマンドパレットを開けます。**View** → **Source Control** で Source Control を開けます。
 
 5. **Vercel と GitHub がつながっているか**  
    - 初めてこのリポジトリを Vercel でデプロイする場合は、**Vercel** → **Add New** → **Project** → **Import Git Repository** で、このプロジェクトの GitHub リポジトリを選んでおく。  

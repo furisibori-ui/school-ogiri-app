@@ -26,6 +26,8 @@ async function generateImage(prompt: string, landmark: string, imageType: string
   }
 }
 
+const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.0-flash-exp-image-generation'
+
 /** CometAPI 経由で画像生成（Gemini Image）→ data URL を返す。失敗時はプレースホルダーURL */
 async function generateImageViaComet(
   prompt: string,
@@ -33,8 +35,9 @@ async function generateImageViaComet(
 ): Promise<string> {
   const key = process.env.COMET_API_KEY
   if (!key) return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
+  const model = process.env.COMET_IMAGE_MODEL || DEFAULT_COMET_IMAGE_MODEL
   try {
-    const res = await fetch('https://api.cometapi.com/v1beta/models/gemini-2.5-flash-image:generateContent', {
+    const res = await fetch(`https://api.cometapi.com/v1beta/models/${model}:generateContent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

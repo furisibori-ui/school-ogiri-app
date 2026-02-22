@@ -721,7 +721,7 @@ export default function LoadingScreen() {
       setMessageIndex(prev => (prev + 1) % loadingMessages.length)
     }, 2000)
 
-    // プログレスバー：20分待ちを想定してゆっくり増やす（約20分で85%前後に）
+    // プログレスバー：長時間待ちでも自然なペースで増やす（目安10分・最大120分を想定）
     const progressInterval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 88) return prev
@@ -766,13 +766,15 @@ export default function LoadingScreen() {
   // 経過＋進捗で振動周期を短く（最後はマジで速く）
   const vibrationDuration = Math.max(0.012, 0.07 - (elapsed / 70) * 0.048 - (progress / 100) * 0.02)
 
-  // 工事の人が穴に近づいて顔で穴を埋める：20分で近づき、時間が余ったら20分かけて遠ざかり、ループ
+  // 工事の人が穴に近づいて顔で穴を埋める：20分で近づき（最大で白い丸に顔・目しか入らないくらい）、余ったら遠ざかり、ループ
   const elapsedSec = elapsed * 0.25
-  const periodSec = 1200 * 2 // 20分接近 + 20分遠ざかり = 40分で1周期
+  const periodSec = 1200 * 2
   const t = elapsedSec % periodSec
+  const scaleMax = 4.2 // 顔・目が丸い穴いっぱいになる程度
+  const scaleRange = scaleMax - 1
   const workerScale = t < 1200
-    ? 1 + (t / 1200) * 1.6
-    : 2.6 - ((t - 1200) / 1200) * 1.6
+    ? 1 + (t / 1200) * scaleRange
+    : scaleMax - ((t - 1200) / 1200) * scaleRange
 
   return (
     <div style={{
@@ -852,7 +854,7 @@ export default function LoadingScreen() {
           学校建設中
         </motion.h2>
         <p style={{ fontSize: '0.9rem', color: 'rgba(240,230,210,0.8)', marginBottom: '1rem' }}>
-          20分ほどお待ちいただくこともあります。そのままお待ちください。
+          目安は10分前後です。場合によってはさらに時間がかかることがあります。そのままお待ちください。
         </p>
 
         {/* ローディングメッセージ */}
