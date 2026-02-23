@@ -231,10 +231,16 @@ async function pollForAudioUrl(apiKey: string, taskId: string): Promise<string |
       /complete|success|done|finished/i.test(status) || hasClipWithUrl
 
     if (completed) {
+      // Comet は data.data が clip 配列で、各要素に audio_url が入る。正規化で取りこぼした場合のフォールバック
+      const nestedData = (raw as any).data?.data ?? (raw as any).データ?.データ
+      const clipsFallback: SunoClip[] = Array.isArray(nestedData) ? nestedData : clips
       const fromClips =
         clips.find((c: SunoClip) => typeof c?.audio_url === 'string' && c.audio_url.length > 0)?.audio_url ??
+        clipsFallback.find((c: SunoClip) => typeof c?.audio_url === 'string' && c.audio_url.length > 0)?.audio_url ??
         clips.find((c: SunoClip) => typeof c?.stream_url === 'string' && c.stream_url.length > 0)?.stream_url ??
-        clips.find((c: SunoClip) => typeof c?.url === 'string' && c.url.length > 0)?.url
+        clipsFallback.find((c: SunoClip) => typeof c?.stream_url === 'string' && c.stream_url.length > 0)?.stream_url ??
+        clips.find((c: SunoClip) => typeof c?.url === 'string' && c.url.length > 0)?.url ??
+        clipsFallback.find((c: SunoClip) => typeof c?.url === 'string' && c.url.length > 0)?.url
       const fromInner = inner
         ? (inner.audio_url ?? inner.stream_url ?? inner.url) as string | undefined
         : undefined

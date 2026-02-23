@@ -92,7 +92,7 @@ async function callCometChat(systemPrompt: string, userPrompt: string): Promise<
           'anthropic/claude-3-5-sonnet',  // 2本目: フォールバック
         ]
   )
-  const maxTokens = 3072 // 出力短縮で生成時間削減（4096→3072）
+  const maxTokens = 2048 // 出力短縮で生成時間短縮（3072→2048）
   let lastErr: string = ''
   for (const model of modelIds) {
     try {
@@ -109,7 +109,7 @@ async function callCometChat(systemPrompt: string, userPrompt: string): Promise<
             { role: 'user', content: userPrompt },
           ],
           max_tokens: maxTokens,
-          temperature: 1.0,
+          temperature: 0.9, // 0.9でやや速く・安定
         }),
       })
       if (!res.ok) {
@@ -974,17 +974,14 @@ export async function POST(request: NextRequest) {
     const locationContext = buildLocationContext(locationData)
 
     const systemPrompt = `
-地域密着の架空学校をJSONで出力。先頭は{のみ。校訓=場所のあるある一文。校長=でございます調・face_promptはmale/female。部活・行事は各1件。京奈良禁止。
+JSONで出力。先頭は{。校訓=あるある一文。校長=でございます調。部活・行事各1。京奈良禁止。
 
 {"school_profile":{"name":"ランドマーク含む学校名","motto":"あるある一文","motto_single_char":"1文字","sub_catchphrase":"一文","background_symbol":"1文字","overview":"固有名詞・100-120字・大喜利1つ","overview_image_prompt":"英語Wide校舎","emblem_prompt":"英語校章","historical_buildings":[{"name":"初代校舎","year":"明治〜大正","description":"50-60字","image_prompt":"英語Old sepia"},{"name":"2代目","year":"大正〜昭和","description":"50字","image_prompt":"英語Taisho"},{"name":"現校舎","year":"昭和〜現在","description":"40-50字","image_prompt":"英語Modern"}]},"principal_message":{"name":"校長名","title":"校長","text":"250-320字・固有名詞・大喜利1つ","face_prompt":"英語principal"},"school_anthem":{"title":"校歌名","lyrics":"3番七五調・改行\\n","style":"荘厳","suno_prompt":"English anthem"},"news_feed":[{"date":"2026.02.15","category":"行事","text":"25-35字"},{"date":"2026.02.10","category":"進路","text":"25-35字"},{"date":"2026.02.05","category":"部活","text":"25-35字"},{"date":"2026.01.28","category":"連絡","text":"25-35字"},{"date":"2026.01.20","category":"行事","text":"25-35字"}],"crazy_rules":["心得1","心得2","心得3","心得4","心得5"],"multimedia_content":{"club_activities":[{"name":"部活名","description":"40-60字","sound_prompt":"英語","image_prompt":"英語Wide"}],"school_events":[{"name":"行事名","date":"4月7日等","description":"30-50字","image_prompt":"英語"}],"facilities":[{"name":"施設名","description":"60-90字","image_prompt":"英語"},{"name":"施設名","description":"150-180字","image_prompt":"英語"},{"name":"施設名","description":"150-180字","image_prompt":"英語"}],"monuments":[{"name":"創立者像","description":"60-80字","image_prompt":"英語"}],"uniforms":[{"type":"制服（冬服）","description":"60-90字","image_prompt":"英語"}]},"teachers":[{"name":"名","subject":"教頭等","description":"70-100字"},{"name":"名","subject":"養護教諭等","description":"70-100字"},{"name":"名","subject":"生徒指導部主任等","description":"70-100字"}],"notable_alumni":[{"name":"卒業生名","year":"卒業年","achievement":"35-50字"},{"name":"卒業生名","year":"卒業年","achievement":"35-50字"},{"name":"卒業生名","year":"卒業年","achievement":"35-50字"}]}
 `
 
     const userPrompt = `
-JSONで生成。先頭は{。
-
-${locationContext}
-
-固有名詞多数。大喜利1つ。校長250-320字・overview100-120・教員70-100・卒業生35-50字。
+先頭{。${locationContext}
+固有名詞多数。大喜利1つ。校長250-320・overview100-120・教員70-100・卒業生35-50字。
 `
 
     // 245秒で打ち切り（Inngest 300s 内に Step2+Step3 を収めるため。微妙に間に合わない場合の余裕で 240→245）
@@ -1004,8 +1001,8 @@ ${locationContext}
       const message = await Promise.race([
         anthropic.messages.create({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 3072,
-          temperature: 1.0,
+          max_tokens: 2048,
+          temperature: 0.9,
           system: systemPrompt,
           messages: [{ role: 'user', content: userPrompt }],
         }),
@@ -1162,9 +1159,9 @@ function formatApiErrorMessage(error: unknown): string {
 function buildLocationContext(location: LocationData): string {
   // 🔥🔥🔥 徹底的なリサーチ結果があればそれを最優先で使用 🔥🔥🔥
   if (location.comprehensive_research) {
-    // Step1 短縮：コンテキストをさらに削減（無駄な長文出力を防ぐ）
-    const RESEARCH_MAX = 300
-    const PROPER_NOUNS_MAX = 15
+    // Step1 短縮：コンテキスト削減でテキスト生成を速く
+    const RESEARCH_MAX = 220
+    const PROPER_NOUNS_MAX = 10
     const researchText = location.comprehensive_research.length > RESEARCH_MAX
       ? location.comprehensive_research.slice(0, RESEARCH_MAX) + '…'
       : location.comprehensive_research
