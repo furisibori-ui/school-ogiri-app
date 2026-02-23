@@ -25,9 +25,13 @@ const FLUX_POLL_INTERVAL_MS = 1500
 const FLUX_POLL_MAX_WAIT_MS = 120_000 // 2分
 
 const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.5-flash-image'
+/** v1beta で見つからないため使用しない。環境変数で指定されていても gemini-2.5-flash-image に振り替える */
+const DEPRECATED_IMAGE_MODEL = 'gemini-2.0-flash-exp-image-generation'
 
 function getCometImageModel(): string {
-  return process.env.COMET_IMAGE_MODEL?.trim() || DEFAULT_COMET_IMAGE_MODEL
+  const env = process.env.COMET_IMAGE_MODEL?.trim()
+  if (env && env.includes(DEPRECATED_IMAGE_MODEL)) return DEFAULT_COMET_IMAGE_MODEL
+  return env || DEFAULT_COMET_IMAGE_MODEL
 }
 
 /** CometAPI 経由で画像生成（Gemini Image）→ data URL を返す。失敗時はプレースホルダーURL */

@@ -938,8 +938,8 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
     : 'grid grid-cols-1 lg:grid-cols-3'
   const layoutGap = styleConfig.spacing.sectionGap || '0.5rem'
 
-  // ヘッダー用：学校名・キャッチフレーズが？？？のときは表示しない（トップの？？？防止）
-  const isPlaceholderText = (s: string | undefined) => !s || /^[?？\uFFFD\s]+$/.test(s.trim()) || s === '？？？' || s === '???'
+  // ヘッダー用：学校名・キャッチフレーズが？？？や空のときは「本校」等に差し替え（トップの？？？防止）
+  const isPlaceholderText = (s: string | undefined) => !s || !String(s).trim() || /^[?？\uFFFD\s]+$/.test(String(s).trim()) || String(s).trim() === '？？？' || String(s).trim() === '???'
   const headerSchoolName = isPlaceholderText(data.school_profile?.name) ? '本校' : (data.school_profile?.name ?? '本校')
   const headerSubCatchphrase = isPlaceholderText(data.school_profile?.sub_catchphrase)
     ? `${headerSchoolName} 公式ホームページ`
@@ -1417,7 +1417,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
             人目の訪問者です！！！
           </span>
         </div>
-        <p style={{ marginBottom: '0.5rem' }}>© 2026 {data.school_profile.name} All Rights Reserved.</p>
+        <p style={{ marginBottom: '0.5rem' }}>© 2026 {headerSchoolName} All Rights Reserved.</p>
         <p style={{ fontSize: '0.65rem', color: '#9ca3af' }}>
           ※このサイトの内容を無断で転載することを禁じます※
         </p>
