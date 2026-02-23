@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { kv } from '@vercel/kv'
+import { jsonrepair } from 'jsonrepair'
 import { LocationData, SchoolData, StyleConfig } from '@/types/school'
 
 const COMET_CHAT_SUCCESS_CACHE_KEY = 'school:comet_chat_last_success'
@@ -13,20 +14,25 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
 })
 
-/** LLMが出力しがちな不正JSONを修復してパース。末尾カンマや改行を除去 */
+/** LLMが出力しがちな不正JSONを修復してパース（末尾カンマ・抜けカンマ・コメント等に対応） */
 function repairAndParseSchoolJson(jsonText: string): SchoolData {
   let parsed: unknown
   try {
     parsed = JSON.parse(jsonText)
   } catch {
-    // 配列・オブジェクトの末尾カンマを除去して再試行（position 3707 付近の "after array element" 対策）
-    const repaired = jsonText
-      .replace(/,(\s*)\]/g, '$1]')  // , ] → ]
-      .replace(/,(\s*)\}/g, '$1}') // , } → }
+    const simpleRepaired = jsonText
+      .replace(/,(\s*)\]/g, '$1]')
+      .replace(/,(\s*)\}/g, '$1}')
     try {
-      parsed = JSON.parse(repaired)
-    } catch (e2) {
-      throw e2
+      parsed = JSON.parse(simpleRepaired)
+    } catch {
+      // jsonrepair で抜けカンマ・末尾カンマ・truncated 等を修復（position 3707 "after array element" 対策）
+      try {
+        const repaired = jsonrepair(jsonText)
+        parsed = JSON.parse(repaired)
+      } catch (e3) {
+        throw e3
+      }
     }
   }
   return parsed as SchoolData
