@@ -12,7 +12,7 @@ const SUNO_FETCH_URLS = [
 ]
 const POLL_INTERVAL_MS = 8_000
 // Inngest 全体が 300s のため、Step3 は 60 秒で打ち切り（Step1〜2 の残りで収まるよう調整済み）
-const POLL_TIMEOUT_MS = 60_000 // 最大60秒（Suno は IN_PROGRESS から完了まで数十秒かかることがある）
+const POLL_TIMEOUT_MS = 60_000 // 最大60秒（Suno は IN_PROGRESS から完了まで数十秒かかることがある。300s 制限のためこれ以上は伸ばせない）
 
 export async function POST(request: NextRequest) {
   try {
@@ -116,8 +116,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/** 照会レスポンスの型（Comet は data.data をクリップ配列で返すことがある） */
-type SunoClip = { audio_url?: string; stream_url?: string; url?: string; state?: string }
+/** 照会レスポンスの型（Comet は data.data をクリップ配列で返すことがある。日本語キー データ/ステータス にも対応） */
+type SunoClip = { audio_url?: string; stream_url?: string; url?: string; state?: string; [k: string]: unknown }
 type FetchPayload = {
   status?: string
   data?:
@@ -127,12 +127,44 @@ type FetchPayload = {
         stream_url?: string
         url?: string
         audio_urls?: string[]
+        /** 日本語キーで返る場合 */
+        データ?: SunoClip[] | Record<string, unknown>
       }
     | SunoClip[]
   audio_url?: string
   stream_url?: string
   url?: string
   audio_urls?: string[]
+  /** 日本語キー（Comet がローカライズで返す場合） */
+  データ?: Record<string, unknown> | SunoClip[]
+  ステータス?: string
+}
+
+/**
+ * Comet の Suno fetch は英語キー (data, status) のほか、日本語キー (データ, ステータス) で返す場合がある。
+ * 正規化して status / clips / inner（URL 取り用）を返す。
+ */
+function normalizeSunoFetchPayload(raw: Record<string, unknown>): {
+  status: string
+  clips: SunoClip[]
+  inner?: Record<string, unknown>
+} {
+  const dataOrData = raw.data ?? raw.データ
+  const statusFromTop = (raw.status ?? raw.ステータス) as string | undefined
+  let status = statusFromTop ?? ''
+  let clips: SunoClip[] = []
+  let inner: Record<string, unknown> | undefined
+
+  if (Array.isArray(dataOrData)) {
+    clips = dataOrData as SunoClip[]
+  } else if (dataOrData && typeof dataOrData === 'object' && !Array.isArray(dataOrData)) {
+    inner = dataOrData as Record<string, unknown>
+    status = (inner.status ?? inner.ステータス ?? status) as string
+    const arr = inner.data ?? inner.データ
+    if (Array.isArray(arr)) clips = arr as SunoClip[]
+  }
+
+  return { status, clips, inner }
 }
 
 /**
@@ -177,23 +209,23 @@ async function pollForAudioUrl(apiKey: string, taskId: string): Promise<string |
       continue
     }
 
-    let data: FetchPayload
+    let raw: Record<string, unknown>
     try {
-      data = JSON.parse(textFinal) as FetchPayload
+      raw = JSON.parse(textFinal) as Record<string, unknown>
     } catch {
       console.warn('Suno fetch response not JSON for task_id=', taskId, textFinal.slice(0, 100))
       await sleep(POLL_INTERVAL_MS)
       continue
     }
 
-    const status = data.status ?? (typeof data.data === 'object' && !Array.isArray(data.data) ? data.data?.status : undefined) ?? ''
+    const { status, clips, inner } = normalizeSunoFetchPayload(raw)
+    const data = raw as FetchPayload
 
     if (status !== lastStatus) {
       lastStatus = status
-      console.log('[Suno Fetch] status changed, raw response:', JSON.stringify(data))
+      console.log('[Suno Fetch] status changed, raw response:', JSON.stringify(raw))
     }
 
-    const clips = Array.isArray(data.data) ? data.data : []
     const hasClipWithUrl = clips.some((c: SunoClip) => typeof c?.audio_url === 'string' && c.audio_url.length > 0)
     const completed =
       /complete|success|done|finished/i.test(status) || hasClipWithUrl
@@ -203,9 +235,13 @@ async function pollForAudioUrl(apiKey: string, taskId: string): Promise<string |
         clips.find((c: SunoClip) => typeof c?.audio_url === 'string' && c.audio_url.length > 0)?.audio_url ??
         clips.find((c: SunoClip) => typeof c?.stream_url === 'string' && c.stream_url.length > 0)?.stream_url ??
         clips.find((c: SunoClip) => typeof c?.url === 'string' && c.url.length > 0)?.url
+      const fromInner = inner
+        ? (inner.audio_url ?? inner.stream_url ?? inner.url) as string | undefined
+        : undefined
       const url =
         fromClips ??
         data.audio_url ??
+        fromInner ??
         data.stream_url ??
         data.url ??
         (typeof data.data === 'object' && !Array.isArray(data.data) ? data.data?.audio_url : undefined) ??
@@ -214,14 +250,14 @@ async function pollForAudioUrl(apiKey: string, taskId: string): Promise<string |
         (Array.isArray(data.audio_urls) && data.audio_urls[0]) ??
         (typeof data.data === 'object' && !Array.isArray(data.data) && Array.isArray(data.data?.audio_urls) ? data.data?.audio_urls?.[0] : undefined)
       if (url && typeof url === 'string') {
-        console.log('[Suno Fetch] completed, raw response (final):', JSON.stringify(data))
+        console.log('[Suno Fetch] completed, raw response (final):', JSON.stringify(raw))
         return url
       }
     }
 
     const failed = /fail|error/i.test(status)
     if (failed) {
-      console.warn('Suno task failed for task_id=', taskId, data)
+      console.warn('Suno task failed for task_id=', taskId, raw)
       return null
     }
 

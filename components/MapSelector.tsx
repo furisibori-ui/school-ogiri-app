@@ -117,54 +117,41 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
 
     try {
       console.log('📍 位置情報取得開始:', lat, lng)
-      
-      // 住所取得（日本語優先）
-      const geocodeResult = await geocoder.geocode({ 
-        location: latLng,
-        language: 'ja'
-      })
-      
-      const address = geocodeResult.results[0]?.formatted_address || ''
-      console.log('📮 住所:', address)
 
-      // API 料金削減：Nearby Search は 6 カテゴリに絞る（従来10→6）
-      console.log('🔍 地域情報収集を開始します...')
-      
+      // 住所とNearbyを同時に取得（待ち時間短縮）
       const searchCategories = [
         'convenience_store', 'park', 'shrine', 'train_station', 'library', 'restaurant'
       ]
-      
-      const allPlaces: any[] = []
-      
-      // 🚀 最初から広範囲で検索（情報量を最大化）
-      const radius = 2000 // 2km圏内で大量検索
-      
-      console.log(`🔍 ${searchCategories.length}種類のカテゴリで検索（検索半径${radius}m）...`)
-      
-      // 全カテゴリを並行検索
-      const searchPromises = searchCategories.map((category) => {
-        return new Promise<void>((resolve) => {
-          const searchRequest: any = {
-            location: latLng,
-            radius: radius,
-            type: category,
-            language: 'ja'
-          }
-          
-          placesService.nearbySearch(searchRequest, (results: any, status: any) => {
-            if (status === 'OK' && results && results.length > 0) {
-              console.log(`  ✅ [${category}] ${results.length}件取得`)
-              allPlaces.push(...results)
-            } else {
-              console.log(`  ⚠️ [${category}] 0件`)
-            }
-            resolve()
+      const radius = 1500
+
+      const [geocodeResult, ...searchResults] = await Promise.all([
+        // 住所取得（日本語優先）
+        new Promise<any[]>((resolve) => {
+          geocoder.geocode({ location: latLng, language: 'ja' }, (results, status) => {
+            if (status === 'OK' && results && results.length > 0) resolve(results)
+            else resolve([])
           })
-        })
-      })
-      
-      // 全検索が完了するまで待機
-      await Promise.all(searchPromises)
+        }),
+        // 全カテゴリを並行検索
+        ...searchCategories.map((category) => {
+          return new Promise<any[]>((resolve) => {
+            placesService.nearbySearch(
+              { location: latLng, radius, type: category, language: 'ja' },
+              (results: any, status: any) => {
+                if (status === 'OK' && results && results.length > 0) {
+                  console.log(`  ✅ [${category}] ${results.length}件取得`)
+                  resolve(results)
+                } else resolve([])
+              }
+            )
+          })
+        }),
+      ])
+
+      const address = (geocodeResult && geocodeResult[0]?.formatted_address) || ''
+      console.log('📮 住所:', address)
+
+      const allPlaces: any[] = (searchResults as any[][]).flat()
       
       console.log(`🎉 全検索完了！合計 ${allPlaces.length} 件の情報を取得しました`)
       
@@ -251,11 +238,11 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       console.log('📍 最も近い場所:', closestPlace?.name)
       console.log('🏛️ ランドマーク一覧（上位10件）:', landmarks.slice(0, 10))
       
-      // 地域リサーチ（約70%量：4件で API・処理時間を抑える）
+      // 地域リサーチ（2件で高速化：Place Details 2件＋Wikipedia 2件）
       console.log('📚 地域リサーチを開始します...')
       
       const comprehensiveResearch = await conductComprehensiveResearch(
-        sortedPlaces.slice(0, 4),
+        sortedPlaces.slice(0, 3),
         address,
         lat,
         lng,
@@ -316,11 +303,11 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     research += `市区町村: ${addressParts[1] || '不明'}\n`
     research += `町名・番地: ${addressParts.slice(2).join(' ')}\n\n`
     
-    // セクション3: 周辺施設の詳細（約70%：3件・1件12秒制限）
-    research += `# 🏛️ 周辺施設の詳細（近い3件）\n\n`
-    const PLACE_DETAIL_TIMEOUT_MS = 12_000
+    // セクション3: 周辺施設の詳細（2件・各6秒で高速化）
+    research += `# 🏛️ 周辺施設の詳細（近い2件）\n\n`
+    const PLACE_DETAIL_TIMEOUT_MS = 6_000
 
-    const detailPromises = places.slice(0, 3).map((place, index) => {
+    const detailPromises = places.slice(0, 2).map((place, index) => {
       const detailPromise = new Promise<string>((resolve) => {
         placesService.getDetails(
           { placeId: place.place_id, language: 'ja' },
@@ -373,17 +360,17 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       return Promise.race([detailPromise, timeoutPromise])
     })
     
-    console.log('⏳ Place Details 取得中（3件・各12秒制限）...')
+    console.log('⏳ Place Details 取得中（2件・各6秒制限）...')
     const placeDetailsResults = await Promise.all(detailPromises)
     research += placeDetailsResults.join('')
     
-    // Wikipedia（約70%：3件・各200字・8秒制限）
-    console.log('📚 Wikipedia取得中（3件・各8秒制限）...')
+    // Wikipedia（2件・各200字・4秒制限で高速化）
+    console.log('📚 Wikipedia取得中（2件・各4秒制限）...')
     research += `\n# 📖 Wikipedia\n\n`
-    const WIKI_TIMEOUT_MS = 8_000
+    const WIKI_TIMEOUT_MS = 4_000
     const WIKI_CHAR_MAX = 200
 
-    const wikiPromises = places.slice(0, 3).map(async (place) => {
+    const wikiPromises = places.slice(0, 2).map(async (place) => {
       const fetchWiki = async (): Promise<string> => {
         const wikiUrl = `https://ja.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(place.name)}&origin=*`
         const wikiResponse = await fetch(wikiUrl)

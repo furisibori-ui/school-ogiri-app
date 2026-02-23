@@ -92,7 +92,7 @@ async function callCometChat(systemPrompt: string, userPrompt: string): Promise<
           'anthropic/claude-3-5-sonnet',  // 2本目: フォールバック
         ]
   )
-  const maxTokens = 4096 // 出力短縮で生成時間削減（8192→4096）
+  const maxTokens = 3072 // 出力短縮で生成時間削減（4096→3072）
   let lastErr: string = ''
   for (const model of modelIds) {
     try {
@@ -974,33 +974,17 @@ export async function POST(request: NextRequest) {
     const locationContext = buildLocationContext(locationData)
 
     const systemPrompt = `
-地域密着の架空学校をJSONで出力。先頭は { のみ。校訓＝場所の「あるある」一文。校長＝でございます調・face_promptはmale/female。部活・行事は各1件。京奈良禁止。
+地域密着の架空学校をJSONで出力。先頭は{のみ。校訓=場所のあるある一文。校長=でございます調・face_promptはmale/female。部活・行事は各1件。京奈良禁止。
 
-{
-  "school_profile": { "name": "ランドマーク含む学校名", "motto": "あるある一文", "motto_single_char": "1文字", "sub_catchphrase": "一文", "background_symbol": "1文字", "overview": "固有名詞・100-120字・大喜利1つ", "overview_image_prompt": "英語Wide16:9校舎", "emblem_prompt": "英語校章200字", "historical_buildings": [{"name":"初代校舎","year":"明治〜大正","description":"50-60字","image_prompt":"英語Old sepia"},{"name":"2代目","year":"大正〜昭和","description":"50字","image_prompt":"英語Taisho"},{"name":"現校舎","year":"昭和〜現在","description":"40-50字","image_prompt":"英語Modern"}]
-  },
-  "principal_message": { "name": "校長名", "title": "校長", "text": "250-320字・固有名詞・大喜利1つ", "face_prompt": "英語principal" },
-  "school_anthem": { "title": "校歌名", "lyrics": "3番七五調・改行\\n", "style": "荘厳", "suno_prompt": "English anthem" },
-  "news_feed": [{"date":"2026.02.15","category":"行事","text":"25-35字"},{"date":"2026.02.10","category":"進路","text":"25-35字"},{"date":"2026.02.05","category":"部活","text":"25-35字"},{"date":"2026.01.28","category":"連絡","text":"25-35字"},{"date":"2026.01.20","category":"行事","text":"25-35字"}],
-  "crazy_rules": ["心得1","心得2","心得3","心得4","心得5"],
-  "multimedia_content": {
-    "club_activities": [{"name": "部活名", "description": "40-60字", "sound_prompt": "英語", "image_prompt": "英語Wide16:9"}],
-    "school_events": [{"name": "行事名", "date": "4月7日等", "description": "30-50字・経路固有名詞", "image_prompt": "英語"}],
-    "facilities": [{"name": "施設名", "description": "60-90字", "image_prompt": "英語"},{"name": "施設名", "description": "150-180字", "image_prompt": "英語"},{"name": "施設名", "description": "150-180字", "image_prompt": "英語"}],
-    "monuments": [{"name": "創立者像", "description": "60-80字", "image_prompt": "英語"}],
-    "uniforms": [{"type": "制服（冬服）", "description": "60-90字", "image_prompt": "英語"}]
-  },
-  "teachers": [{"name": "名", "subject": "教頭等", "description": "70-100字"},{"name": "名", "subject": "養護教諭等", "description": "70-100字"},{"name": "名", "subject": "生徒指導部主任等", "description": "70-100字"}],
-  "notable_alumni": [{"name": "卒業生名", "year": "卒業年", "achievement": "35-50字"},{"name": "卒業生名", "year": "卒業年", "achievement": "35-50字"},{"name": "卒業生名", "year": "卒業年", "achievement": "35-50字"}]
-}
+{"school_profile":{"name":"ランドマーク含む学校名","motto":"あるある一文","motto_single_char":"1文字","sub_catchphrase":"一文","background_symbol":"1文字","overview":"固有名詞・100-120字・大喜利1つ","overview_image_prompt":"英語Wide校舎","emblem_prompt":"英語校章","historical_buildings":[{"name":"初代校舎","year":"明治〜大正","description":"50-60字","image_prompt":"英語Old sepia"},{"name":"2代目","year":"大正〜昭和","description":"50字","image_prompt":"英語Taisho"},{"name":"現校舎","year":"昭和〜現在","description":"40-50字","image_prompt":"英語Modern"}]},"principal_message":{"name":"校長名","title":"校長","text":"250-320字・固有名詞・大喜利1つ","face_prompt":"英語principal"},"school_anthem":{"title":"校歌名","lyrics":"3番七五調・改行\\n","style":"荘厳","suno_prompt":"English anthem"},"news_feed":[{"date":"2026.02.15","category":"行事","text":"25-35字"},{"date":"2026.02.10","category":"進路","text":"25-35字"},{"date":"2026.02.05","category":"部活","text":"25-35字"},{"date":"2026.01.28","category":"連絡","text":"25-35字"},{"date":"2026.01.20","category":"行事","text":"25-35字"}],"crazy_rules":["心得1","心得2","心得3","心得4","心得5"],"multimedia_content":{"club_activities":[{"name":"部活名","description":"40-60字","sound_prompt":"英語","image_prompt":"英語Wide"}],"school_events":[{"name":"行事名","date":"4月7日等","description":"30-50字","image_prompt":"英語"}],"facilities":[{"name":"施設名","description":"60-90字","image_prompt":"英語"},{"name":"施設名","description":"150-180字","image_prompt":"英語"},{"name":"施設名","description":"150-180字","image_prompt":"英語"}],"monuments":[{"name":"創立者像","description":"60-80字","image_prompt":"英語"}],"uniforms":[{"type":"制服（冬服）","description":"60-90字","image_prompt":"英語"}]},"teachers":[{"name":"名","subject":"教頭等","description":"70-100字"},{"name":"名","subject":"養護教諭等","description":"70-100字"},{"name":"名","subject":"生徒指導部主任等","description":"70-100字"}],"notable_alumni":[{"name":"卒業生名","year":"卒業年","achievement":"35-50字"},{"name":"卒業生名","year":"卒業年","achievement":"35-50字"},{"name":"卒業生名","year":"卒業年","achievement":"35-50字"}]}
 `
 
     const userPrompt = `
-地域密着の架空学校をJSONで生成。先頭を { に。
+JSONで生成。先頭は{。
 
 ${locationContext}
 
-固有名詞を多数。大喜利1つ。校長250-320字・overview100-120・教員70-100・卒業生35-50字。
+固有名詞多数。大喜利1つ。校長250-320字・overview100-120・教員70-100・卒業生35-50字。
 `
 
     // 245秒で打ち切り（Inngest 300s 内に Step2+Step3 を収めるため。微妙に間に合わない場合の余裕で 240→245）
@@ -1020,7 +1004,7 @@ ${locationContext}
       const message = await Promise.race([
         anthropic.messages.create({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 4096,
+          max_tokens: 3072,
           temperature: 1.0,
           system: systemPrompt,
           messages: [{ role: 'user', content: userPrompt }],
@@ -1158,7 +1142,7 @@ function formatApiErrorMessage(error: unknown): string {
 
   const lower = msg.toLowerCase()
   if (lower.includes('no available channel') || lower.includes('distributor')) {
-    return 'CometAPI: 指定したモデル（Claude）のチャネルが利用できません。Comet の料金ページで利用可能なモデルIDを確認し、.env.local に COMET_CHAT_MODEL=利用可能なモデルID を設定してみてください。'
+    return 'CometAPI: 指定したモデル（Claude）のチャネルが利用できません。対処: (1) .env.local の COMET_CHAT_MODEL を削除またはコメントアウトすると、Haiku→Sonnet の順で自動試行します。(2) 利用する場合は Comet の料金ページで利用可能なモデルIDを確認し、COMET_CHAT_MODEL=利用可能なモデルID を設定してください。'
   }
   if (lower.includes('credit') && (lower.includes('too low') || lower.includes('balance'))) {
     return 'Anthropic API: クレジット残高が不足しています。Plans & Billing でクレジットを購入してください。'
