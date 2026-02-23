@@ -83,16 +83,16 @@ async function generateImageViaComet(
 async function callCometChat(systemPrompt: string, userPrompt: string): Promise<string> {
   const key = process.env.COMET_API_KEY
   if (!key) throw new Error('COMET_API_KEY not set')
-  // Comet のモデルIDは環境・チャネルで異なることがある。複数試す
+  // 未設定時は「速い1本＋フォールバック1本」のみ（試行を増やしすぎるとAPI消費が膨らむ）
   const modelIds = (
     process.env.COMET_CHAT_MODEL
       ? [process.env.COMET_CHAT_MODEL]
       : [
-          'anthropic/claude-3-5-sonnet',
-          'claude-3-5-sonnet-20241022',
-          'claude-3-5-sonnet',
+          'anthropic/claude-3-5-haiku',   // 1本目: 速い（失敗時のみ次へ）
+          'anthropic/claude-3-5-sonnet',  // 2本目: フォールバック
         ]
   )
+  const maxTokens = 4096 // 出力短縮で生成時間削減（8192→4096）
   let lastErr: string = ''
   for (const model of modelIds) {
     try {
@@ -108,7 +108,7 @@ async function callCometChat(systemPrompt: string, userPrompt: string): Promise<
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
           ],
-          max_tokens: 8192,
+          max_tokens: maxTokens,
           temperature: 1.0,
         }),
       })
@@ -899,7 +899,7 @@ function generateMockSchoolData(location: LocationData): SchoolData {
     news_feed: generateNews(landmark, established),
     crazy_rules: generateRules(landmark),
     multimedia_content: {
-      club_activities: generateClubActivities(landmark).slice(0, 1),
+      club_activities: (() => { const all = generateClubActivities(landmark); return [all[Math.floor(Math.random() * all.length)]] })(),
       school_events: generateSchoolEvents(landmark, established).slice(0, 1),
       facilities: generateFacilities(landmark),
       monuments: [
@@ -1020,7 +1020,7 @@ ${locationContext}
       const message = await Promise.race([
         anthropic.messages.create({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 8192,
+          max_tokens: 4096,
           temperature: 1.0,
           system: systemPrompt,
           messages: [{ role: 'user', content: userPrompt }],
@@ -1122,9 +1122,16 @@ ${locationContext}
 
   } catch (error) {
     const errMessage = formatApiErrorMessage(error)
+    const isTimeout = /時間内に完了しませんでした|テンプレートデータで表示します/i.test(errMessage)
+    if (isTimeout) {
+      console.error('学校生成タイムアウト（エラー返却）:', errMessage)
+      return NextResponse.json(
+        { error: 'テキスト生成が時間内に完了しませんでした。しばらく経ってから再度お試しください。', detail: errMessage },
+        { status: 503 }
+      )
+    }
     console.error('学校生成エラー（モックで返却）:', errMessage, error)
     const mock = generateMockSchoolData(locationData)
-    // 校歌は後回しのため音声は付けない（歌詞のみ）
     return NextResponse.json({
       ...mock,
       fallbackUsed: true,
@@ -1171,9 +1178,9 @@ function formatApiErrorMessage(error: unknown): string {
 function buildLocationContext(location: LocationData): string {
   // 🔥🔥🔥 徹底的なリサーチ結果があればそれを最優先で使用 🔥🔥🔥
   if (location.comprehensive_research) {
-    // 約70%量に絞って使用（トークン・処理時間短縮）
-    const RESEARCH_MAX = 380
-    const PROPER_NOUNS_MAX = 21
+    // Step1 短縮：コンテキストをさらに削減（無駄な長文出力を防ぐ）
+    const RESEARCH_MAX = 300
+    const PROPER_NOUNS_MAX = 15
     const researchText = location.comprehensive_research.length > RESEARCH_MAX
       ? location.comprehensive_research.slice(0, RESEARCH_MAX) + '…'
       : location.comprehensive_research

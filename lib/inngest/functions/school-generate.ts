@@ -30,6 +30,10 @@ function collectImageTasks(schoolData: SchoolData): { prompt: string; imageType:
   if (p?.historical_buildings?.[0]?.image_prompt && isPlaceholder(p.historical_buildings[0].image_url)) {
     tasks.push({ prompt: p.historical_buildings[0].image_prompt, imageType: 'historical_building' })
   }
+  const lastBuilding = p?.historical_buildings?.length ? p.historical_buildings[p.historical_buildings.length - 1] : null
+  if (lastBuilding?.image_prompt && isPlaceholder(lastBuilding.image_url) && p.historical_buildings && p.historical_buildings.length > 1) {
+    tasks.push({ prompt: lastBuilding.image_prompt, imageType: 'historical_building_current' })
+  }
   if (principal?.face_prompt && isPlaceholder(principal.face_image_url)) {
     tasks.push({ prompt: principal.face_prompt, imageType: 'principal_face' })
   }
@@ -70,6 +74,18 @@ function applyImageUrl(
           ...p,
           historical_buildings: p.historical_buildings.map((b, i) =>
             i === 0 ? { ...b, image_url: url } : b
+          ),
+        },
+      }
+    case 'historical_building_current':
+      if (!p?.historical_buildings?.length) return schoolData
+      const lastIdx = p.historical_buildings.length - 1
+      return {
+        ...schoolData,
+        school_profile: {
+          ...p,
+          historical_buildings: p.historical_buildings.map((b, i) =>
+            i === lastIdx ? { ...b, image_url: url } : b
           ),
         },
       }

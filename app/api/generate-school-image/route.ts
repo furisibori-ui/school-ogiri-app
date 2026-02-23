@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
           prompt: finalPrompt,
           landmark: body.landmark || '日本の学校',
-          imageType: imageType === 'principal_face' ? 'face' : imageType === 'historical_building' || imageType === 'monument' ? 'landscape' : imageType,
+          imageType: imageType === 'principal_face' ? 'face' : imageType === 'historical_building' || imageType === 'historical_building_current' || imageType === 'monument' ? 'landscape' : imageType,
         }),
         })
         const data = await res.json().catch(() => ({}))
