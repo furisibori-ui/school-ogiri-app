@@ -15,18 +15,19 @@ const POLL_INTERVAL_MS = 8_000
 const POLL_TIMEOUT_MS = 60_000 // 最大60秒（Suno は IN_PROGRESS から完了まで数十秒かかることがある。300s 制限のためこれ以上は伸ばせない）
 
 /** 歌詞をひらがなに変換（Suno の読み間違いを防ぐ）。失敗時はそのまま返す */
-async function lyricsToHiragana(lyrics: string): Promise<string> {
-  if (!lyrics || !lyrics.trim()) return lyrics
+async function lyricsToHiragana(lyrics: string): Promise<{ text: string; converted: boolean }> {
+  if (!lyrics || !lyrics.trim()) return { text: lyrics, converted: false }
   try {
     const Kuroshiro = (await import('kuroshiro')).default
     const KuromojiAnalyzer = (await import('kuroshiro-analyzer-kuromoji')).default
     const kuroshiro = new Kuroshiro()
     await kuroshiro.init(new KuromojiAnalyzer())
     const result = await kuroshiro.convert(lyrics, { to: 'hiragana' })
-    return typeof result === 'string' ? result : lyrics
+    const text = typeof result === 'string' ? result : lyrics
+    return { text, converted: text !== lyrics }
   } catch (e) {
     console.warn('[generate-audio] lyricsToHiragana failed, using original:', (e as Error)?.message)
-    return lyrics
+    return { text: lyrics, converted: false }
   }
 }
 
@@ -42,8 +43,10 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const lyricsForSuno = await lyricsToHiragana(lyrics || '')
+    const { text: lyricsForSuno, converted } = await lyricsToHiragana(lyrics || '')
     const structuredLyrics = formatLyricsWithTags(lyricsForSuno)
+    const preview = lyricsForSuno.replace(/\s+/g, ' ').slice(0, 60)
+    console.log('[generate-audio] Suno用歌詞:', converted ? 'ひらがな変換済み' : '変換なし(元のまま)', '| 先頭60字:', preview + (lyricsForSuno.length > 60 ? '…' : ''))
     const apiKey = process.env.COMET_API_KEY
 
     // ----- ステップ1: タスク受付（submit） -----
