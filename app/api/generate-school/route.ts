@@ -83,11 +83,21 @@ async function generateImageViaComet(
   return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
 }
 
-/** Comet でよく使われるチャットモデルID（契約によっては利用不可。カタログで要確認） */
+/** Comet のフォールバック用モデルID（カタログのサンプルコードで確認した形式） */
 const COMET_CHAT_FALLBACKS = [
   'google/gemini-2.5-flash',
   'google/gemini-2.0-flash',
   'openai/gpt-4o-mini',
+]
+
+/**
+ * Comet は独自のモデルID形式を使用。anthropic/claude-3-5-haiku だと 503 になるため、
+ * ドキュメント・サンプルコードに書いてある文字列を優先する。
+ */
+const COMET_DEFAULT_IDS = [
+  'claude-haiku-4-5-20251001',      // Comet サンプルコードの形式（Haiku）
+  'anthropic/claude-3-5-haiku',     // 旧形式（環境によっては有効）
+  'anthropic/claude-3-5-sonnet',
 ]
 
 /** CometAPI（500+モデル・1API）経由でテキスト生成。成功したモデルIDを返して次回優先する */
@@ -95,10 +105,7 @@ async function callCometChat(systemPrompt: string, userPrompt: string): Promise<
   const key = process.env.COMET_API_KEY
   if (!key) throw new Error('COMET_API_KEY not set')
   const userModel = process.env.COMET_CHAT_MODEL?.trim()
-  const defaultIds = [
-    'anthropic/claude-3-5-haiku',
-    'anthropic/claude-3-5-sonnet',
-  ]
+  const defaultIds = COMET_DEFAULT_IDS
   let ordered = userModel
     ? [userModel, ...defaultIds.filter((m) => m !== userModel), ...COMET_CHAT_FALLBACKS.filter((m) => m !== userModel)]
     : [...defaultIds, ...COMET_CHAT_FALLBACKS]
