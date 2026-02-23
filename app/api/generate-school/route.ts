@@ -171,8 +171,8 @@ async function callCometChat(systemPrompt: string, userPrompt: string): Promise<
     cachedModel && ordered.includes(cachedModel)
       ? [cachedModel, ...ordered.filter((m) => m !== cachedModel)]
       : ordered
-  // 全文JSON（校訓・校長・校歌・行事・部活・施設・銅像・制服・教員・卒業生など）が収まるよう余裕を持たせる
-  const maxTokens = 8192
+  // 全文JSON（校訓・校長・校歌・行事・部活・施設・銅像・制服・教員・沿革・アクセスなど）が欠けないよう余裕を持たせる
+  const maxTokens = 12288
   let lastErr: string = ''
   for (const model of modelIds) {
     try {
@@ -1103,7 +1103,7 @@ JSONで出力。先頭は{。校訓=あるある一文。校長=でございま�
       const message = await Promise.race([
         anthropic.messages.create({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 8192,
+          max_tokens: 12288,
           temperature: 0.9,
           system: systemPrompt,
           messages: [{ role: 'user', content: userPrompt }],

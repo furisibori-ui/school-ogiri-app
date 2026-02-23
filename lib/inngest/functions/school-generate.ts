@@ -20,26 +20,16 @@ function isPlaceholder(url: string | undefined): boolean {
   return url.includes('placehold.co') || url.startsWith('data:')
 }
 
-/** 画像タスク用。ロゴは schoolName/landmark を API に渡すためオプションで持つ */
+/** 画像タスク用 */
 type ImageTask = { prompt: string; imageType: string; schoolName?: string; landmark?: string }
 
-/** 画像タスクを収集。必ず含めるもの: ロゴ・校章・初代校舎・現校舎・校長・銅像・制服・行事1・部活1 */
-function collectImageTasks(schoolData: SchoolData, location?: LocationData): ImageTask[] {
+/** 画像タスクを収集。校章・初代校舎・現校舎・校長・銅像・制服・行事1・部活1（ロゴ画像は使わず学校名はテキストで表示） */
+function collectImageTasks(schoolData: SchoolData, _location?: LocationData): ImageTask[] {
   const tasks: ImageTask[] = []
   const p = schoolData.school_profile
   const mc = schoolData.multimedia_content
   const principal = schoolData.principal_message
-  const landmark = location?.landmarks?.[0] || '日本'
 
-  if (p && isPlaceholder(p.logo_url)) {
-    const schoolName = p.name?.trim() || '本校'
-    tasks.push({
-      prompt: `Traditional Japanese school name banner, "${schoolName}" in elegant calligraphy, horizontal layout, navy blue and gold, formal school style, ${landmark} motif`,
-      imageType: 'logo',
-      schoolName,
-      landmark,
-    })
-  }
   if (p?.emblem_prompt && isPlaceholder(p.emblem_url)) {
     tasks.push({ prompt: p.emblem_prompt, imageType: 'emblem' })
   }
@@ -80,8 +70,6 @@ function applyImageUrl(
   const mc = schoolData.multimedia_content
 
   switch (task.imageType) {
-    case 'logo':
-      return { ...schoolData, school_profile: { ...p, logo_url: url } }
     case 'emblem':
       return { ...schoolData, school_profile: { ...p, emblem_url: url } }
     case 'historical_building':
@@ -209,15 +197,10 @@ export const schoolGenerateFunction = inngest.createFunction(
         } else {
           results = await Promise.all(
             tasks.map(async (task) => {
-              const body: Record<string, unknown> = { prompt: task.prompt, imageType: task.imageType }
-              if (task.imageType === 'logo' && (task.schoolName != null || task.landmark != null)) {
-                body.schoolName = task.schoolName ?? schoolData.school_profile?.name ?? '本校'
-                body.landmark = task.landmark ?? location?.landmarks?.[0] ?? '日本'
-              }
               const res = await fetch(`${baseUrl}/api/generate-school-image`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
+                body: JSON.stringify({ prompt: task.prompt, imageType: task.imageType }),
               })
               const raw = await res.text()
               let data: { url?: string } = {}
@@ -243,15 +226,10 @@ export const schoolGenerateFunction = inngest.createFunction(
       } else {
         results = await Promise.all(
           tasks.map(async (task) => {
-            const body: Record<string, unknown> = { prompt: task.prompt, imageType: task.imageType }
-            if (task.imageType === 'logo' && (task.schoolName != null || task.landmark != null)) {
-              body.schoolName = task.schoolName ?? schoolData.school_profile?.name ?? '本校'
-              body.landmark = task.landmark ?? location?.landmarks?.[0] ?? '日本'
-            }
             const res = await fetch(`${baseUrl}/api/generate-school-image`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(body),
+              body: JSON.stringify({ prompt: task.prompt, imageType: task.imageType }),
             })
             const raw = await res.text()
             let data: { url?: string } = {}

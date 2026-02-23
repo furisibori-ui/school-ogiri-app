@@ -699,6 +699,9 @@ const loadingMessages = [
   ...loadingMessages本番,
 ]
 
+// 進捗100%・ズーム最大までの秒数（1分45秒）
+const PROGRESS_MAX_SEC = 105
+
 // 振動の上下幅にズレを出す用（非対称）
 const VIBRATION_AMPLITUDES = [
   [0, 2.5, -2, 0],
@@ -733,9 +736,9 @@ export default function LoadingScreen() {
     }
   }, [])
 
-  // 進捗バー：2分（120秒）で100%になるよう経過時間から計算（elapsed は 250ms ごとに +0.25 で約1/秒）
+  // 進捗バー：1分45秒（105秒）で100%（PROGRESS_MAX_SEC と共通）
   useEffect(() => {
-    const progressPercent = Math.min(100, (elapsed / 120) * 100)
+    const progressPercent = Math.min(100, (elapsed / PROGRESS_MAX_SEC) * 100)
     setProgress(progressPercent)
   }, [elapsed])
 
@@ -763,9 +766,19 @@ export default function LoadingScreen() {
   // 経過＋進捗で振動周期を短く（最後はマジで速く）
   const vibrationDuration = Math.max(0.012, 0.07 - (elapsed / 70) * 0.048 - (progress / 100) * 0.02)
 
-  // 工事の人が顔（丸枠）にズーム：2分で最大まで近づき（顔でいっぱい）、その後遠ざかり、ループ
-  const elapsedSec = elapsed // 250ms ごとに +0.25 なので elapsed ≒ 経過秒
-  const approachSec = 120 // 2分で最大接近
+  // 近づくにつれて振動を大きく（0%→小さめ、100%→最大）。進捗100%は105秒で共通
+  const progressRatio = Math.min(1, progress / 100)
+  const verticalAmp = 0.35 + progressRatio * 0.65 // 35%〜100%
+  const yScaled = yKeyframes.map((v) => v * verticalAmp)
+  // 最後の方は横にも揺れる（進捗55%以上で横揺れを追加、100%で最大）
+  const horizontalAmp = progressRatio >= 0.55 ? (progressRatio - 0.55) / 0.45 * 2.5 : 0
+  const xKeyframes: [number, number, number, number] = horizontalAmp > 0
+    ? [0, horizontalAmp, -horizontalAmp, 0]
+    : [0, 0, 0, 0]
+
+  // 工事の人が顔（丸枠）にズーム：1分45秒（105秒）で最大まで近づき、その後遠ざかり、ループ
+  const elapsedSec = elapsed
+  const approachSec = PROGRESS_MAX_SEC // 105秒で最大接近（進捗100%と共通）
   const periodSec = approachSec * 2
   const t = elapsedSec % periodSec
   const scaleMax = 4.2
@@ -818,14 +831,19 @@ export default function LoadingScreen() {
             }}
             animate={
               isResting
-                ? { y: 0, scale: workerScale }
-                : { y: yKeyframes, scale: workerScale }
+                ? { x: 0, y: 0, scale: workerScale }
+                : { x: xKeyframes, y: yScaled, scale: workerScale }
             }
             transition={{
               scale: { duration: 0.3, ease: 'easeOut' },
               ...(isResting
-                ? { y: { duration: 0.3, ease: 'easeOut' } }
+                ? { x: { duration: 0.3, ease: 'easeOut' }, y: { duration: 0.3, ease: 'easeOut' } }
                 : {
+                    x: {
+                      duration: vibrationDuration,
+                      repeat: Infinity,
+                      ease: 'easeInOut'
+                    },
                     y: {
                       duration: vibrationDuration,
                       repeat: Infinity,

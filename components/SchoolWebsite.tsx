@@ -1088,38 +1088,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           </div>
 
           <div style={{ textAlign: 'center' }}>
-            {/* ロゴ画像（学校名バナー） */}
-            {data.school_profile?.logo_url && (
-              <>
-                <img 
-                  src={data.school_profile.logo_url} 
-                  alt={headerSchoolName}
-                  style={{ 
-                    width: '100%',
-                    maxWidth: '1200px', 
-                    height: 'auto',
-                    margin: '0 auto 0.4rem',
-                    border: '4px solid gold',
-                    borderRadius: '8px',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-                    display: 'block'
-                  }}
-                />
-                {/* ロゴがあっても学校名をテキストで表示（読みやすく） */}
-                <p style={{
-                  fontSize: 'clamp(2rem, 5vw + 1rem, 3.25rem)',
-                  fontWeight: 900,
-                  fontFamily: calligraphyFont,
-                  margin: 0,
-                  letterSpacing: '0.06em',
-                  color: styleConfig.colorTheme.headerText,
-                  textShadow: '3px 3px 6px rgba(0,0,0,0.6), 0 0 16px rgba(255,215,0,0.4)'
-                }}>
-                  {headerSchoolName}
-                </p>
-              </>
-            )}
-            
+            {/* 学校名は画像ではなくテキストでドーンと表示（ロゴ画像は使わない） */}
             {data.school_profile?.emblem_url && (
               <img 
                 src={data.school_profile.emblem_url} 
@@ -1136,9 +1105,8 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               />
             )}
             
-            {/* 学校名：読みやすく大きく（長い名前でも最小3rem確保） */}
-            {!data.school_profile?.logo_url && (
-              <h1 style={{ 
+            {/* 学校名：大きくドーンと（筆文字風） */}
+            <h1 style={{ 
                 fontSize: (headerSchoolName.length > 14
                   ? 'clamp(2.5rem, 5vw + 1.5rem, 3.25rem)'
                   : headerSchoolName.length > 10
@@ -1176,7 +1144,6 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               }}>
                 {headerSchoolName}
               </h1>
-            )}
 
             {/* タイトル下の帯（キャッチフレーズ・創立） */}
             <div style={{
