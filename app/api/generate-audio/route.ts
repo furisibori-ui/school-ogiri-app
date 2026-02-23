@@ -14,6 +14,22 @@ const POLL_INTERVAL_MS = 8_000
 // Inngest 全体が 300s のため、Step3 は 60 秒で打ち切り（Step1〜2 の残りで収まるよう調整済み）
 const POLL_TIMEOUT_MS = 60_000 // 最大60秒（Suno は IN_PROGRESS から完了まで数十秒かかることがある。300s 制限のためこれ以上は伸ばせない）
 
+/** 歌詞をひらがなに変換（Suno の読み間違いを防ぐ）。失敗時はそのまま返す */
+async function lyricsToHiragana(lyrics: string): Promise<string> {
+  if (!lyrics || !lyrics.trim()) return lyrics
+  try {
+    const Kuroshiro = (await import('kuroshiro')).default
+    const KuromojiAnalyzer = (await import('kuroshiro-analyzer-kuromoji')).default
+    const kuroshiro = new Kuroshiro()
+    await kuroshiro.init(new KuromojiAnalyzer())
+    const result = await kuroshiro.convert(lyrics, { to: 'hiragana' })
+    return typeof result === 'string' ? result : lyrics
+  } catch (e) {
+    console.warn('[generate-audio] lyricsToHiragana failed, using original:', (e as Error)?.message)
+    return lyrics
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { lyrics, style, title } = await request.json()
@@ -26,7 +42,8 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const structuredLyrics = formatLyricsWithTags(lyrics || '')
+    const lyricsForSuno = await lyricsToHiragana(lyrics || '')
+    const structuredLyrics = formatLyricsWithTags(lyricsForSuno)
     const apiKey = process.env.COMET_API_KEY
 
     // ----- ステップ1: タスク受付（submit） -----
@@ -39,7 +56,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         prompt: structuredLyrics,
         title: title || '校歌',
-        tags: style || 'solemn choir, orchestral, Japanese school anthem',
+        tags: 'chorus, school anthem, Japanese school song, solemn, classical choir, not enka',
         make_instrumental: false,
         mv: 'chirp-bluejay', // v4.5+
       }),
