@@ -95,7 +95,7 @@ export default function Home() {
 
       // ポーリング：完了するまで一定間隔で GET /api/job?jobId=xxx を叩く
       const pollIntervalMs = 2500
-      const timeoutMs = 120 * 60 * 1000 // 120分で打ち切り（目安は10分前後だが、重いとき用に余裕を持たせる）
+      const timeoutMs = 5 * 60 * 1000 // 最大5分で打ち切り（目安は約3分）
       const startedAt = Date.now()
       let cancelled = false
 
