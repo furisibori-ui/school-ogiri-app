@@ -11,6 +11,16 @@ interface SchoolWebsiteProps {
 }
 
 export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: SchoolWebsiteProps) {
+  // データが不完全なときはクラッシュせず簡易表示（API部分応答・型と実データのずれ対策）
+  if (!data?.school_profile) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center', minHeight: '50vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ fontSize: '1.1rem', color: '#666', marginBottom: '1rem' }}>表示するデータがありません。</p>
+        <button type="button" onClick={onReset} style={{ padding: '0.5rem 1rem', fontSize: '1rem', cursor: 'pointer' }}>最初に戻る</button>
+      </div>
+    )
+  }
+
   // BGM用のaudio要素の参照
   const bgmRef = useRef<HTMLAudioElement>(null)
   const anthemRef = useRef<HTMLAudioElement>(null)
@@ -88,8 +98,8 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
     <section key="facilities" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
       <h2 style={{ fontSize: styleConfig.typography.headingSize, color: styleConfig.colorTheme.accentColor, borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`, paddingBottom: '0.5rem', marginBottom: '1rem', fontFamily: styleConfig.typography.fontFamily, textAlign: 'center' }}>◇ 施設紹介 ◇</h2>
       <div style={{ padding: styleConfig.spacing.cardPadding, backgroundColor: styleConfig.colorTheme.cardBg, borderRadius: '8px', border: `2px solid ${styleConfig.colorTheme.borderColor}` }}>
-        {data.multimedia_content!.facilities!.map((facility, index) => (
-          <div key={index} style={{ marginBottom: index < data.multimedia_content!.facilities!.length - 1 ? '1rem' : 0, paddingBottom: index < data.multimedia_content!.facilities!.length - 1 ? '1rem' : 0, borderBottom: index < data.multimedia_content!.facilities!.length - 1 ? `1px solid ${styleConfig.colorTheme.borderColor}` : 'none' }}>
+        {(data.multimedia_content?.facilities ?? []).map((facility, index) => (
+          <div key={index} style={{ marginBottom: index < (data.multimedia_content?.facilities ?? []).length - 1 ? '1rem' : 0, paddingBottom: index < (data.multimedia_content?.facilities ?? []).length - 1 ? '1rem' : 0, borderBottom: index < (data.multimedia_content?.facilities ?? []).length - 1 ? `1px solid ${styleConfig.colorTheme.borderColor}` : 'none' }}>
             <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.05rem' }}>{facility.name}</h3>
             <p style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.7' }}>{facility.description}</p>
           </div>
@@ -103,7 +113,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
     <section key="monument" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
       <h2 style={{ fontSize: styleConfig.typography.headingSize, color: styleConfig.colorTheme.accentColor, borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`, paddingBottom: '0.5rem', marginBottom: '1rem', fontFamily: styleConfig.typography.fontFamily, textAlign: 'center' }}>◆ 銅像 ◆</h2>
       <div style={{ padding: styleConfig.spacing.cardPadding, backgroundColor: styleConfig.colorTheme.cardBg, borderRadius: '8px', border: `2px solid ${styleConfig.colorTheme.borderColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-        {data.multimedia_content!.monuments!.map((monument, index) => (
+        {(data.multimedia_content?.monuments ?? []).map((monument, index) => (
           <div key={index}>
             {monument.image_url && (
               <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto 1rem', aspectRatio: '3/4', maxHeight: '560px', overflow: 'hidden', borderRadius: '8px', border: `4px solid ${styleConfig.colorTheme.accentColor}`, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
@@ -123,7 +133,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
     <section key="uniform" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
       <h2 style={{ fontSize: styleConfig.typography.headingSize, color: styleConfig.colorTheme.accentColor, borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`, paddingBottom: '0.5rem', marginBottom: '1rem', fontFamily: styleConfig.typography.fontFamily, textAlign: 'center' }}>◇ 制服紹介 ◇</h2>
       <div style={{ padding: styleConfig.spacing.cardPadding, backgroundColor: styleConfig.colorTheme.cardBg, borderRadius: '8px', border: `2px solid ${styleConfig.colorTheme.borderColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-        {data.multimedia_content!.uniforms!.map((uniform, index) => (
+        {(data.multimedia_content?.uniforms ?? []).map((uniform, index) => (
           <div key={index}>
             {uniform.image_url && (
               <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto 1rem', aspectRatio: '3/4', maxHeight: '560px', overflow: 'hidden', borderRadius: '8px', border: `4px solid ${styleConfig.colorTheme.accentColor}`, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
@@ -140,7 +150,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
 
   // 新規セクションを追加するとき：三項で <section> を返すなら上のように変数化し、ここでは key: 変数 のみ書く
   const sections: { [key: string]: JSX.Element | null } = {
-    news: data.news_feed && data.news_feed.length > 0 ? (
+    news: (data.news_feed ?? []).length > 0 ? (
       <section key="news" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -162,10 +172,10 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           backgroundColor: styleConfig.colorTheme.cardBg,
           boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
         }}>
-          {data.news_feed.map((news, index) => (
+          {(data.news_feed ?? []).map((news, index) => (
             <div key={index} style={{ 
               padding: '0.75rem 1rem',
-              borderBottom: index < data.news_feed.length - 1 ? `2px dotted ${styleConfig.colorTheme.borderColor}` : 'none',
+              borderBottom: index < (data.news_feed ?? []).length - 1 ? `2px dotted ${styleConfig.colorTheme.borderColor}` : 'none',
               display: 'flex',
               gap: '1rem',
               fontSize: styleConfig.typography.bodySize,
@@ -198,7 +208,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
       </section>
     ) : <></>,
 
-    principal: (
+    principal: data.principal_message ? (
       <section key="principal" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -222,7 +232,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               <div style={{ display: 'inline-block' }}>
                 <img
                   src={data.principal_message.face_image_url}
-                  alt={data.principal_message.name}
+                  alt={data.principal_message?.name ?? ''}
                   style={{ 
                     width: '32rem',  // 16rem → 32rem（2倍）
                     height: '32rem', // 16rem → 32rem（2倍）
@@ -241,7 +251,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                   border: '5px solid gold', // 3px → 5px
                   boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
                 }}>
-                  {data.principal_message.name} {data.principal_message.title}
+                  {data.principal_message?.name} {data.principal_message?.title}
                 </div>
               </div>
             )}
@@ -259,12 +269,12 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               color: styleConfig.colorTheme.textColor,
               textIndent: '1em'
             }}>
-              {data.principal_message.text}
+              {data.principal_message?.text ?? ''}
             </p>
           </div>
         </div>
       </section>
-    ),
+    ) : null,
 
     overview: (
       <section key="overview" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
@@ -659,7 +669,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
             borderRadius: '4px'
           }}>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {data.crazy_rules.map((rule, index) => (
+              {(data.crazy_rules ?? []).map((rule, index) => (
                 <li key={index} style={{ display: 'flex', alignItems: 'flex-start', fontSize: styleConfig.typography.bodySize }}>
                   <span style={{ 
                     fontWeight: 'bold', 
@@ -687,7 +697,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
       </section>
     ),
 
-    events: data.multimedia_content?.school_events && data.multimedia_content.school_events.length > 0 ? (
+    events: (data.multimedia_content?.school_events ?? []).length > 0 ? (
       <section key="events" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -706,7 +716,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           backgroundColor: styleConfig.colorTheme.cardBg
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {data.multimedia_content.school_events.map((event, index) => (
+            {(data.multimedia_content?.school_events ?? []).map((event, index) => (
               <div key={index} style={{ 
                 borderBottom: index < data.multimedia_content!.school_events!.length - 1 ? `1px solid ${styleConfig.colorTheme.borderColor}` : 'none',
                 paddingBottom: '1rem'
@@ -742,7 +752,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
       </section>
     ) : <></>,
 
-    clubs: data.multimedia_content?.club_activities && data.multimedia_content.club_activities.length > 0 ? (
+    clubs: (data.multimedia_content?.club_activities ?? []).length > 0 ? (
       <section key="clubs" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -761,7 +771,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           backgroundColor: styleConfig.colorTheme.cardBg
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {data.multimedia_content.club_activities.map((club, index) => (
+            {(data.multimedia_content?.club_activities ?? []).map((club, index) => (
               <div key={index} style={{ 
                 borderBottom: index < data.multimedia_content!.club_activities!.length - 1 ? `1px solid ${styleConfig.colorTheme.borderColor}` : 'none',
                 paddingBottom: '1rem'
@@ -800,7 +810,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
     monument: monumentSection,
     uniform: uniformSection,
 
-    history: data.history && data.history.length > 0 ? (
+    history: (data.history ?? []).length > 0 ? (
       <section key="history" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -838,7 +848,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
             />
           </div>
           <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {data.history.map((item, index) => (
+            {(data.history ?? []).map((item, index) => (
               <li key={index} style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.75' }}>
                 {item}
               </li>
@@ -848,7 +858,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
       </section>
     ) : <></>,
 
-    teachers: data.teachers && data.teachers.length > 0 ? (
+    teachers: (data.teachers ?? []).length > 0 ? (
       <section key="teachers" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -867,14 +877,14 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           backgroundColor: styleConfig.colorTheme.cardBg
         }}>
           <div 
-            className={data.teachers.length === 3 ? 'teachers-grid-3' : ''}
+            className={(data.teachers ?? []).length === 3 ? 'teachers-grid-3' : ''}
             style={{ 
               display: 'grid', 
-              ...(data.teachers.length !== 3 && { gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }),
+              ...((data.teachers ?? []).length !== 3 && { gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }),
               gap: styleConfig.spacing.sectionGap || '1rem' 
             }}
           >
-            {data.teachers.map((teacher, index) => (
+            {(data.teachers ?? []).map((teacher, index) => (
               <div key={index} style={{ 
                 border: `1px solid ${styleConfig.colorTheme.borderColor}`,
                 padding: '1rem',
@@ -919,17 +929,16 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
   }
 
   const defaultOrder = ['news', 'principal', 'overview', 'anthem', 'rules', 'events', 'clubs', 'motto', 'facilities', 'monument', 'uniform', 'history', 'teachers']
-  const normalizedOrder = (() => {
-    const order = Array.isArray(styleConfig.sectionOrder) && styleConfig.sectionOrder.length > 0 ? styleConfig.sectionOrder : defaultOrder
-    return order.flatMap((key: string) => {
-      if (key === 'facilities_monuments_uniforms') return ['facilities', 'monument', 'uniform']
-      if (key === 'facilities' || key === 'monument' || key === 'uniform') return [key]
-      if (key === 'monuments') return ['monument']
-      if (key === 'uniforms') return ['uniform']
-      return [key]
-    })
-  })()
-  const orderedSections = normalizedOrder.map(key => sections[key]).filter(Boolean)
+  const rawOrder = styleConfig?.sectionOrder
+  const orderArray = Array.isArray(rawOrder) && rawOrder.length > 0 ? rawOrder : defaultOrder
+  const normalizedOrder = (orderArray ?? []).flatMap((key: string) => {
+    if (key === 'facilities_monuments_uniforms') return ['facilities', 'monument', 'uniform']
+    if (key === 'facilities' || key === 'monument' || key === 'uniform') return [key]
+    if (key === 'monuments') return ['monument']
+    if (key === 'uniforms') return ['uniform']
+    return [key]
+  })
+  const orderedSections = (normalizedOrder ?? []).map(key => sections[key]).filter(Boolean)
 
   const layoutClass = styleConfig.layout === 'single-column' 
     ? 'max-w-4xl mx-auto'
@@ -1268,7 +1277,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                 }}>
                   <h3 style={{ fontWeight: 'bold', marginBottom: '0.75rem', color: styleConfig.colorTheme.accentColor }}>著名な卒業生</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {data.notable_alumni.map((alumni, index) => (
+                    {(data.notable_alumni ?? []).map((alumni, index) => (
                       <div key={index} style={{ fontSize: '0.75rem' }}>
                         <p style={{ fontWeight: 'bold' }}>{alumni.name}</p>
                         <p style={{ color: '#6b7280' }}>{alumni.year}</p>
@@ -1287,7 +1296,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                 }}>
                   <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem', color: styleConfig.colorTheme.accentColor }}>教職員紹介</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {data.teachers.map((teacher, index) => (
+                    {(data.teachers ?? []).map((teacher, index) => (
                       <div key={index} style={{ fontSize: '0.75rem' }}>
                         <p style={{ fontWeight: 'bold' }}>
                           {teacher.name} <span style={{ color: '#6b7280' }}>({teacher.subject})</span>
