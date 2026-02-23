@@ -59,7 +59,23 @@ Cursor（AIエディタ）は**コードの文法やロジック**は見ます�
 
 ---
 
-## 3. 画像サイズが大きすぎる（Base64・KV の制限）
+## 3. FUNCTION_INVOCATION_TIMEOUT（関数の実行時間切れ）
+
+| 項目 | 内容 |
+|------|------|
+| **症状** | デプロイや「学校生成」実行中に **FUNCTION_INVOCATION_TIMEOUT**（504）が出る。 |
+| **原因** | Vercel のサーバーレス関数には実行時間の上限がある（デフォルトはプランにより 10〜15 秒など）。Inngest が `/api/inngest` を呼ぶと Step1 で最大約 290 秒かかるため、**`/api/inngest` に `maxDuration` を付けていない**とすぐ時間切れになる。 |
+| **対策** | `app/api/inngest/route.ts` に `export const maxDuration = 300` を追加する。あわせて `vercel.json` の `functions` に、長時間動くルート（`generate-school` / `generate-school-image` / `generate-audio` / `generate-school-anthem` / **inngest**）をすべて列挙し `maxDuration: 300` を指定する。 |
+
+- 本アプリでは上記を設定済み。今後「学校生成」用に別の API を追加した場合は、そのルートにも `maxDuration` と `vercel.json` の追記が必要。
+- プランによっては 300 秒より短い上限のことがある。その場合は [290秒タイムアウト_どうするか.md](./290秒タイムアウト_どうするか.md) の「テキストを軽くする」などで処理時間を短くする。
+
+**Inngest の画面に「An error occurred with your deployment / FUNCTION_INVOCATION_TIMEOUT」と出る場合**  
+→ その Run は **Vercel 側で 300 秒時間切れになった**ことを示しています。**最新のデプロイ**（`maxDuration` 付きの inngest ルート ＋ Step1=240s・Step3 ポーリング=24s の修正）が Vercel に反映されているか確認してください。反映後は「学校生成」を**あらためて実行**すると、300 秒以内に完了するようになります。古い Run のエラーメッセージは残るため、**新しい Run で再試行**して確認してください。
+
+---
+
+## 4. 画像サイズが大きすぎる（Base64・KV の制限）
 
 | 項目 | 内容 |
 |------|------|
@@ -71,7 +87,7 @@ Cursor（AIエディタ）は**コードの文法やロジック**は見ます�
 
 ---
 
-## 4. AI のセーフティフィルターによる「空っぽ」レスポンス
+## 5. AI のセーフティフィルターによる「空っぽ」レスポンス
 
 | 項目 | 内容 |
 |------|------|
@@ -81,7 +97,7 @@ Cursor（AIエディタ）は**コードの文法やロジック**は見ます�
 
 ---
 
-## 5. Vercel の「Edge ランタイム」非対応パッケージ
+## 6. Vercel の「Edge ランタイム」非対応パッケージ
 
 | 項目 | 内容 |
 |------|------|
@@ -97,8 +113,9 @@ Cursor（AIエディタ）は**コードの文法やロジック**は見ます�
 |---|----------|------------------|
 | 1 | Inngest Sync 忘れ | Inngest ダッシュボード → Apps → Sync |
 | 2 | 環境変数が Production に入っていない | Vercel → Settings → Environment Variables |
-| 3 | 画像 Base64 で KV/ステップが爆発 | 画像は Blob 等に上げて URL だけ保存（当アプリは対応済み） |
-| 4 | セーフティフィルターで画像が空 | ログの `finishReason` / `imageType` を確認。undefined チェックを入れる |
-| 5 | Edge 非対応パッケージ | `runtime = 'edge'` の有無と使用ライブラリの互換性 |
+| 3 | **FUNCTION_INVOCATION_TIMEOUT**（関数が時間切れ） | `/api/inngest` と各 API に `maxDuration: 300` が付いているか。`vercel.json` の `functions` に長い処理をするルートが含まれているか |
+| 4 | 画像 Base64 で KV/ステップが爆発 | 画像は Blob 等に上げて URL だけ保存（当アプリは対応済み） |
+| 5 | セーフティフィルターで画像が空 | ログの `finishReason` / `imageType` を確認。undefined チェックを入れる |
+| 6 | Edge 非対応パッケージ | `runtime = 'edge'` の有無と使用ライブラリの互換性 |
 
 「ローカルは動くのに本番だけおかしい」ときは、**コードではなくダッシュボード（Inngest・Vercel・Comet）の設定と制限**を疑うと原因に早くたどり着けます。

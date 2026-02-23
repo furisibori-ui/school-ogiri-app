@@ -2,6 +2,8 @@
   "functions": {
     "app/api/generate-school/route.ts": { "maxDuration": 300 },
     "app/api/generate-school-image/route.ts": { "maxDuration": 300 },
-    "app/api/generate-audio/route.ts": { "maxDuration": 300 }
+    "app/api/generate-audio/route.ts": { "maxDuration": 300 },
+    "app/api/generate-school-anthem/route.ts": { "maxDuration": 300 },
+    "app/api/inngest/route.ts": { "maxDuration": 300 }
   }
 }

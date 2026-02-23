@@ -6,7 +6,8 @@ export const maxDuration = 300
 const COMET_SUNO_SUBMIT_URL = 'https://api.cometapi.com/suno/submit/music'
 const COMET_SUNO_FETCH_BASE = 'https://api.cometapi.com/suno/fetch'
 const POLL_INTERVAL_MS = 8_000 // 5〜10秒おき（仕様書どおり）
-const POLL_TIMEOUT_MS = 300_000 // 最大5分（無限ループ防止）
+// Inngest 全体が 300s で打ち切られるため、Step3 は短めに打ち切る（Step1〜2 の残り時間内に収める）
+const POLL_TIMEOUT_MS = 24_000 // 最大24秒（HTML が返り続けると 300s タイムアウトの原因になるため）
 
 export async function POST(request: NextRequest) {
   try {

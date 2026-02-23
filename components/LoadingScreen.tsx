@@ -766,12 +766,12 @@ export default function LoadingScreen() {
   // 経過＋進捗で振動周期を短く（最後はマジで速く）
   const vibrationDuration = Math.max(0.012, 0.07 - (elapsed / 70) * 0.048 - (progress / 100) * 0.02)
 
-  // 工事の人が穴に近づいて顔で穴を埋める：7分で最大まで近づき、余ったら7分かけて遠ざかり、ループ
+  // 工事の人が顔（画面上部1/3）にゆっくりズーム：7分で最大まで近づき、7分で遠ざかり、ループ
   const elapsedSec = elapsed * 0.25
-  const approachSec = 420 // 7分（待ち時間のMAX想定）
-  const periodSec = approachSec * 2 // 7分接近 + 7分遠ざかり
+  const approachSec = 420 // 7分
+  const periodSec = approachSec * 2
   const t = elapsedSec % periodSec
-  const scaleMax = 4.2 // 顔・目が丸い穴いっぱいになる程度
+  const scaleMax = 4.2
   const scaleRange = scaleMax - 1
   const workerScale = t < approachSec
     ? 1 + (t / approachSec) * scaleRange
@@ -783,12 +783,14 @@ export default function LoadingScreen() {
       inset: 0,
       background: 'linear-gradient(180deg, #0f1419 0%, #1a2332 50%, #0f1419 100%)',
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
+      paddingTop: '12vh',
       zIndex: 50
     }}>
       <div style={{ textAlign: 'center', padding: '0 1.5rem', maxWidth: '800px', width: '100%' }}>
-        {/* 穴（白い円）の向こうに工事の人がいて、だんだん顔を近づけてくる */}
+        {/* 穴（白い円）は画面上部1/3。工事の人の顔がその位置で、顔を中心にゆっくりズーム */}
         <motion.div
           style={{
             marginBottom: '2rem',
@@ -815,7 +817,7 @@ export default function LoadingScreen() {
               maxHeight: '10.5rem',
               objectFit: 'contain',
               display: 'block',
-              transformOrigin: 'center center'
+              transformOrigin: '50% 28%'
             }}
             animate={
               isResting
