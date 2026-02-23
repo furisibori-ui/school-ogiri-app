@@ -29,6 +29,7 @@ export interface SchoolProfile {
   motto_single_char?: string  // 一文字の校訓（例：「和」）
   sub_catchphrase?: string    // サブキャッチフレーズ
   background_symbol?: string  // 背景に表示する地域の記号（例：「山」「波」「桜」）
+  key_color?: string         // 地点を活かしたキーカラー（画像プロンプト用・英語例: "wine red and gold"）
   overview: string
   overview_image_prompt?: string  // 学校概要画像のAIプロンプト
   overview_image_url?: string    // 学校概要画像URL

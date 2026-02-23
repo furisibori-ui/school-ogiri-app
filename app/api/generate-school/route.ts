@@ -432,7 +432,7 @@ function generateSchoolEvents(landmark: string, established: any): any[] {
         `新入生の皆様を心より歓迎申し上げる、厳粛かつ感動的な式典でございます。${landmark}を静かに望むことのできる本校体育館にて、保護者の皆様、在校生、教職員が一堂に会し、新たな門出を祝福いたします。式典は、開式の辞に始まり、国歌斉唱、校歌斉唱、そして校長による式辞へと続きます。校長からは、本校の歴史と伝統、校訓に込められた深い意味、そして新入生の皆様への温かい励ましの言葉が述べられます。新入生代表による宣誓では、これから始まる新しい学校生活への強い決意と期待が力強く語られ、会場全体が感動に包まれます。新しい制服に身を包み、期待と不安が入り混じった表情で式典に臨む新入生の姿は、毎年、在校生や教職員の心を深く打つものがございます。式典終了後は、各教室にて最初のホームルームが行われ、担任教諭との初めての出会い、クラスメイトとの交流が始まります。本校での充実した三年間の始まりとなる、記念すべき一日でございます。`,
         `${landmark}の麓に佇む本校体育館にて、厳粛な雰囲気の中、新入生を迎える入学式を挙行いたします。${established.era}時代から続く伝統の式典は、保護者の皆様、来賓の方々、在校生が見守る中、荘厳な雰囲気で執り行われます。新入生一人ひとりの名前が読み上げられる点呼では、緊張した面持ちで返事をする新入生の姿が印象的でございます。校長式辞では、本校の誇り高き歴史と、これからの学園生活への期待が語られ、新入生の胸に深く刻まれます。式典後は桜咲く校庭にて記念撮影が行われ、新しい制服に身を包んだ新入生たちの晴れやかな笑顔が、春の陽光に照らされます。`
       ],
-      imagePrompt: 'Japanese high school entrance ceremony, students in formal uniforms, serious atmosphere, indoor gymnasium, disposable camera style, harsh fluorescent lighting'
+      imagePrompt: 'Japanese high school entrance ceremony, students in this school distinctive formal uniform, serious atmosphere, indoor gymnasium, disposable camera style, harsh fluorescent lighting'
     },
     {
       name: `${landmark}遠足`,
@@ -477,7 +477,7 @@ function generateSchoolEvents(landmark: string, established: any): any[] {
         `3年間の学びを終えた生徒たちを送り出す、感動の式典でございます。卒業生代表による答辞では、${landmark}と共に過ごした日々への感謝と、これからの決意が力強く語られ、会場には感動の涙が溢れます。在校生代表による送辞では、先輩たちへの尊敬と感謝の気持ち、そして伝統を受け継ぐ決意が述べられます。式典後は各教室でのホームルームが行われ、担任教諭から一人ひとりに卒業証書が手渡されます。最後に全員で校歌を斉唱し、母校との別れを惜しみます。`,
         `本校での3年間の集大成となる卒業証書授与式は、${landmark}を望む体育館にて厳粛に執り行われます。卒業生たちは、最後の制服姿で式典に臨み、校長先生から一人ひとり卒業証書を受け取ります。式辞では、本校で培った「誠実・勤勉・創造」の精神を胸に、新たな人生の道を力強く歩んでいくよう、温かい激励の言葉が贈られます。式典終了後は、保護者の皆様への感謝を込めて、卒業生から花束贈呈が行われます。校庭では在校生たちが作る花道を通り、卒業生たちは母校を後にします。涙と笑顔が交錯する、人生の大切な節目となる一日でございます。`
       ],
-      imagePrompt: 'Japanese graduation ceremony, students in formal uniforms, emotional moment, indoor gymnasium, solemn and moving atmosphere, disposable camera'
+      imagePrompt: 'Japanese graduation ceremony, students in this school distinctive uniform, emotional moment, indoor gymnasium, solemn and moving atmosphere, disposable camera'
     }
   ]
   
@@ -511,7 +511,7 @@ function generateClubActivities(landmark: string): any[] {
         `天然芝のグラウンドで日々鍛錬しております。OBの指導も受け、チームワークを大切に活動しております。`
       ],
       soundPrompt: 'Soccer training, ball kicking sounds, coach whistle, students running, outdoor field',
-      imagePrompt: 'Japanese high school soccer club, students in uniform practicing, outdoor field, disposable camera aesthetic'
+      imagePrompt: 'Japanese high school soccer club, students in this school distinctive uniform practicing, outdoor field, disposable camera aesthetic'
     },
     {
       names: ['茶道部', `${landmark}茶道会`, '伝統文化部'],
@@ -953,8 +953,9 @@ function generateMockSchoolData(location: LocationData): SchoolData {
       motto: motto,
       motto_single_char: motto.charAt(0), // 校訓の頭文字（一文の場合は先頭1文字）
       sub_catchphrase: `${landmark}と共に歩む学校`,
+      key_color: 'wine red and gold',
       overview: `本校は${established.fullText}、${address}の地に創立され、${landmark}に象徴される地域と共に歩んできました。「${motto}」の校訓のもと、知・徳・体の調和のとれた全人教育を実践し、地域に貢献できる人材を輩出しています。生徒の個性を伸ばし、基礎学力と応用力の育成、ICT・国際理解・キャリア教育に努めています。`,
-      emblem_prompt: `A traditional Japanese high school emblem featuring a stylized ${landmark} motif crossed with mountain peaks, with kanji characters in gold embroidery on a navy blue shield background, old-fashioned crest design`,
+      emblem_prompt: `Traditional Japanese school emblem, stylized ${landmark} motif, key colors wine red and gold, shield with embroidery, old-fashioned crest, detailed for image generation`,
       emblem_url: 'https://placehold.co/200x200/003366/FFD700?text=School+Emblem',
       established: established.fullText,
       historical_buildings: [
@@ -1007,23 +1008,20 @@ function generateMockSchoolData(location: LocationData): SchoolData {
         {
           name: `創立者・${founderName}先生之像`,
           description: `本校の創立者である${founderName}先生の銅像でございます。先生の「${landmark}の精神を受け継ぎ、未来を切り拓く人材を育てる」という教育理念は、今なお本校の精神として受け継がれております。${established.era}時代から続く本校の伝統の象徴でございます。`,
-          image_prompt: 'Bronze statue of Japanese school founder, traditional Japanese clothing, standing pose, Japanese school campus with cherry trees, Japanese style gate or building in background, imposing presence, disposable camera',
-          image_url: 'https://placehold.co/400x600/CD7F32/FFFFFF?text=Founder+Statue'
+          image_prompt: 'Abstract bronze sculpture or contemporary art monument on school campus, geometric or flowing form inspired by education and nature, modern and distinctive, cherry trees or garden in background, disposable camera aesthetic',
+          image_url: 'https://placehold.co/400x600/CD7F32/FFFFFF?text=Monument'
         }
-        // 校訓石碑は生成しない
       ],
       uniforms: [
         {
           type: '制服（冬服）',
           description: [
-            `本校の冬服は、地域の伝統的な織物を使用した重厚な作りとなっております。ブレザーには${landmark}をモチーフとした刺繍が施され、ボタンには地域の特産品をかたどったデザインが採用されております。`,
-            `紺色を基調とした本校の制服は、${landmark}の荘厳な雰囲気を表現したデザインとなっております。胸元には校章が金糸で刺繍され、格調高い印象を与えます。`,
-            `${landmark}の色彩をモチーフにした本校の制服は、地域の伝統と現代的なデザインが融合した独特のスタイルです。創立以来変わらぬこの制服は、卒業生の誇りとなっております。`
-          ][Math.floor(Math.random() * 3)],
-          image_prompt: 'Full body shot, Japanese high school winter uniform, male and female students standing side by side on plain WHITE background, formal pose from head to shoes, location-themed design, disposable camera',
-          image_url: 'https://placehold.co/450x700/000080/FFFFFF?text=Winter+Uniform'
+            `本校の冬服は、${landmark}をモチーフにした大胆なカラーリングが特徴で、ワインレッドとゴールドのアクセントがパリコレ風のオリジナリティを放っております。ブレザーのラインやボタンに地域の意匠をあしらった、他校にない一品です。`,
+            `${landmark}の色彩を大胆に取り入れた本校の制服は、コーラルとネイビーの組み合わせに金糸の校章が映え、フォーマルながら個性が光るデザインでございます。創立以来の伝統と現代的な感性の融合です。`
+          ][Math.floor(Math.random() * 2)],
+          image_prompt: 'Full body shot, Japanese high school uniform, bold color scheme wine red and gold or coral and navy, Paris fashion week inspired design, male and female students on white background, formal pose, distinctive blazer and details, disposable camera',
+          image_url: 'https://placehold.co/450x700/8B0000/FFD700?text=Uniform'
         },
-        // 体操着は生成しない（冬服のみ）
       ]
     },
     history: generateHistory(established, schoolName, landmark, lat, lng),
@@ -1077,12 +1075,20 @@ export async function POST(request: NextRequest) {
     const systemPrompt = `
 JSONで出力。先頭は{。校訓=あるある一文。校長=でございます調。部活・行事各1。京奈良禁止。
 
-{"school_profile":{"name":"ランドマーク含む学校名","motto":"あるある一文","motto_single_char":"1文字","sub_catchphrase":"一文","background_symbol":"1文字","overview":"固有名詞・130-160字・大喜利1つ","overview_image_prompt":"英語Wide校舎","emblem_prompt":"英語校章","historical_buildings":[{"name":"初代校舎","year":"明治〜大正","description":"65-80字","image_prompt":"英語Old sepia"},{"name":"2代目","year":"大正〜昭和","description":"65字","image_prompt":"英語Taisho"},{"name":"現校舎","year":"昭和〜現在","description":"52-65字","image_prompt":"英語Modern"}]},"principal_message":{"name":"校長名","title":"校長","text":"325-420字・固有名詞・大喜利1つ","face_prompt":"英語principal"},"school_anthem":{"title":"校歌名","lyrics":"必ず3番まで七五調・改行\\n。合唱・校歌らしく、演歌にしない","style":"荘厳な合唱曲風","suno_prompt":"English anthem"},"news_feed":[{"date":"2026.02.15","category":"行事","text":"32-45字"},{"date":"2026.02.10","category":"進路","text":"32-45字"},{"date":"2026.02.05","category":"部活","text":"32-45字"},{"date":"2026.01.28","category":"連絡","text":"32-45字"},{"date":"2026.01.20","category":"行事","text":"32-45字"}],"crazy_rules":["心得1","心得2","心得3","心得4","心得5"],"multimedia_content":{"club_activities":[{"name":"部活名","description":"52-78字","sound_prompt":"英語","image_prompt":"英語Wide"}],"school_events":[{"name":"行事名","date":"4月7日等","description":"40-65字","image_prompt":"英語"}],"facilities":[{"name":"施設名","description":"78-120字","image_prompt":"英語"},{"name":"施設名","description":"195-235字","image_prompt":"英語"},{"name":"施設名","description":"195-235字","image_prompt":"英語"}],"monuments":[{"name":"創立者像","description":"78-105字","image_prompt":"英語"}],"uniforms":[{"type":"制服（冬服）","description":"78-120字","image_prompt":"英語"}]},"teachers":[{"name":"名","subject":"教頭等","description":"90-130字"},{"name":"名","subject":"養護教諭等","description":"90-130字"},{"name":"名","subject":"生徒指導部主任等","description":"90-130字"}],"notable_alumni":[{"name":"卒業生名","year":"卒業年","achievement":"45-65字"},{"name":"卒業生名","year":"卒業年","achievement":"45-65字"},{"name":"卒業生名","year":"卒業年","achievement":"45-65字"}]}
+【重要ルール】
+1) キーカラー: 地点の特性（海・山・歴史・特産など）から「キーカラー」を1つ決め、school_profileに"key_color"で英語で出力（例: "wine red and gold", "emerald green and silver", "coral and navy"）。そのキーカラーを校章・制服・校舎・銅像の全image_promptに反映すること。
+2) 大喜利: テキスト全体の大喜利力を高める。文章は格調高く、単語はキャッチーに。ありきたりな表現を避け、一言で印象に残る言い回しを。
+3) 制服: 紺基調の一般的な制服は禁止。キーカラー＋地域・抽出単語を盛り込んだ、派手で個性的なカラーリング。パリコレ風のオリジナリティ（デザインの特徴をdescriptionとimage_promptの両方に）。
+4) 行事・部活のimage_prompt: 上で決めた「この学校の制服を着た生徒」が写っているイメージで統一（入学式・文化祭・部活など、生徒がその制服で映るように英語で指定）。
+5) 銅像: 創立者像だけでなく、抽象彫刻・現代美術的なモニュメントでも可。image_promptに "abstract sculpture", "contemporary art monument", "geometric bronze" などの要素を入れてもよい。没個性な立像だけにしない。
+6) 校歌: 歌詞のなかに、付近の川・海・山・地名をできる限り盛り込み、地域の豊かさをアピールすること。リサーチやランドマークで得た固有名詞（川名、海名、地名など）を各番に自然に織り込む。
+
+{"school_profile":{"name":"ランドマーク含む学校名","motto":"あるある一文","motto_single_char":"1文字","sub_catchphrase":"一文","background_symbol":"1文字","key_color":"英語でメイン色2色まで（例 wine red and gold）","overview":"固有名詞・130-160字・大喜利1つ","overview_image_prompt":"英語Wide校舎・key_color反映","emblem_prompt":"英語校章・key_color反映","historical_buildings":[{"name":"初代校舎","year":"明治〜大正","description":"65-80字","image_prompt":"英語Old sepia・key_color"},{"name":"2代目","year":"大正〜昭和","description":"65字","image_prompt":"英語Taisho・key_color"},{"name":"現校舎","year":"昭和〜現在","description":"52-65字","image_prompt":"英語Modern・key_color"}]},"principal_message":{"name":"校長名","title":"校長","text":"325-420字・固有名詞・大喜利1つ","face_prompt":"英語principal"},"school_anthem":{"title":"校歌名","lyrics":"必ず3番まで七五調・改行\\n。付近の川・海・地名をできる限り歌詞に盛り込み地域をアピール。合唱・校歌らしく、演歌にしない","style":"荘厳な合唱曲風","suno_prompt":"English anthem"},"news_feed":[{"date":"2026.02.15","category":"行事","text":"32-45字"},{"date":"2026.02.10","category":"進路","text":"32-45字"},{"date":"2026.02.05","category":"部活","text":"32-45字"},{"date":"2026.01.28","category":"連絡","text":"32-45字"},{"date":"2026.01.20","category":"行事","text":"32-45字"}],"crazy_rules":["心得1","心得2","心得3","心得4","心得5"],"multimedia_content":{"club_activities":[{"name":"部活名","description":"52-78字","sound_prompt":"英語","image_prompt":"英語・この学校の制服を着た生徒"}],"school_events":[{"name":"行事名","date":"4月7日等","description":"40-65字","image_prompt":"英語・この学校の制服を着た生徒"}],"facilities":[{"name":"施設名","description":"78-120字","image_prompt":"英語"},{"name":"施設名","description":"195-235字","image_prompt":"英語"},{"name":"施設名","description":"195-235字","image_prompt":"英語"}],"monuments":[{"name":"創立者像または抽象モニュメント","description":"78-105字","image_prompt":"英語・抽象彫刻や現代美術的でも可"}],"uniforms":[{"type":"制服（冬服）","description":"78-120字・派手な色・パリコレ風","image_prompt":"英語・個性的な色とデザイン"}]},"teachers":[{"name":"名","subject":"教頭等","description":"90-130字"},{"name":"名","subject":"養護教諭等","description":"90-130字"},{"name":"名","subject":"生徒指導部主任等","description":"90-130字"}],"notable_alumni":[{"name":"卒業生名","year":"卒業年","achievement":"45-65字"},{"name":"卒業生名","year":"卒業年","achievement":"45-65字"},{"name":"卒業生名","year":"卒業年","achievement":"45-65字"}]}
 `
 
     const userPrompt = `
 先頭{。${locationContext}
-固有名詞多数。大喜利1つ。校長325-420・overview130-160・教員90-130・卒業生45-65字。
+地点の特性からキーカラーを決め、全画像プロンプトと制服に反映。固有名詞多数。大喜利は強めに・格調高くキャッチーに。校歌の歌詞には付近の川・海・地名をできる限り盛り込み地域の豊かさをアピール。校長325-420・overview130-160・教員90-130・卒業生45-65字。
 `
 
     // 時間切れ：245秒で打ち切り（Inngest 300s 内に Step2+Step3 を収めるため）。※通常の打ち切りは「出力トークン上限（max_tokens）」で起きる
@@ -1282,6 +1288,7 @@ function buildLocationContext(location: LocationData): string {
     
     let context = `
 固有名詞（${properNouns.length}個）を校長・行事・部活・教員に使う。大喜利1つ。
+校歌の歌詞には、上記や下記に出てくる川・海・山・地名をできる限り盛り込み、地域の豊かさをアピールすること。
 
 ${properNouns.map((name, i) => `${i + 1}. ${name}`).join('\n')}
 
@@ -1321,7 +1328,7 @@ ${researchText}
   }
 
   if (location.landmarks && location.landmarks.length > 0) {
-    context += `\n## ランドマーク\n\n`
+    context += `\n## ランドマーク（校歌の歌詞に川・海・地名としてできる限り盛り込む）\n\n`
     location.landmarks.slice(0, 7).forEach((landmark, i) => {
       context += `${i + 1}. ${landmark}\n`
     })
