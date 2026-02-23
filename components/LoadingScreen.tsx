@@ -733,10 +733,9 @@ export default function LoadingScreen() {
     }
   }, [])
 
-  // 進捗バー：目安2分（120秒）で100%になるよう経過時間から計算。最大5分待機。
+  // 進捗バー：2分（120秒）で100%になるよう経過時間から計算（elapsed は 250ms ごとに +0.25 で約1/秒）
   useEffect(() => {
-    const elapsedSec = elapsed * 0.25
-    const progressPercent = Math.min(100, (elapsedSec / 120) * 100)
+    const progressPercent = Math.min(100, (elapsed / 120) * 100)
     setProgress(progressPercent)
   }, [elapsed])
 
@@ -764,8 +763,8 @@ export default function LoadingScreen() {
   // 経過＋進捗で振動周期を短く（最後はマジで速く）
   const vibrationDuration = Math.max(0.012, 0.07 - (elapsed / 70) * 0.048 - (progress / 100) * 0.02)
 
-  // 工事の人が顔（丸枠）にズーム：目安2分で最大まで近づき（顔でいっぱい）、その後遠ざかり、ループ
-  const elapsedSec = elapsed * 0.25
+  // 工事の人が顔（丸枠）にズーム：2分で最大まで近づき（顔でいっぱい）、その後遠ざかり、ループ
+  const elapsedSec = elapsed // 250ms ごとに +0.25 なので elapsed ≒ 経過秒
   const approachSec = 120 // 2分で最大接近
   const periodSec = approachSec * 2
   const t = elapsedSec % periodSec

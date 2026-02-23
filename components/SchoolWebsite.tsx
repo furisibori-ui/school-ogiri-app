@@ -395,22 +395,27 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
             padding: '1rem',
             minWidth: '200px'
           }}>
-            {data.school_profile.motto_single_char && (
-              <div
-                style={{
-                  fontSize: '6rem',
-                  fontFamily: '"Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif',
-                  fontWeight: 'bold',
-                  color: '#8B0000',
-                  textShadow: '3px 3px 6px rgba(0,0,0,0.3)',
-                  marginBottom: '1rem',
-                  lineHeight: '1'
-                }}
-                title={data.school_profile.motto_single_char}
-              >
-                『{String(data.school_profile.motto_single_char).trim() || '・'}』
-              </div>
-            )}
+            {(() => {
+              const char = String(data.school_profile.motto_single_char ?? '').trim()
+              const isSafe = char && !/[?？\uFFFD]/.test(char) && char !== '？？？' && char !== '???'
+              if (!isSafe) return null
+              return (
+                <div
+                  style={{
+                    fontSize: '6rem',
+                    fontFamily: '"Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif',
+                    fontWeight: 'bold',
+                    color: '#8B0000',
+                    textShadow: '3px 3px 6px rgba(0,0,0,0.3)',
+                    marginBottom: '1rem',
+                    lineHeight: '1'
+                  }}
+                  title={char}
+                >
+                  『{char}』
+                </div>
+              )
+            })()}
             {data.school_profile.sub_catchphrase && (
               <p style={{
                 fontSize: '1.2rem',
@@ -480,15 +485,17 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           backgroundPosition: '0 0, 10px 10px'
         }}>
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.9)',
-            padding: '1rem',
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            padding: '1.5rem 1.25rem',
             border: '2px solid #8B4513',
-            borderRadius: '8px'
+            borderRadius: '8px',
+            maxWidth: '720px',
+            margin: '0 auto'
           }}>
             <h3 style={{ 
               fontWeight: 'bold', 
-              fontSize: '1.5rem', 
-              marginBottom: '0.75rem', 
+              fontSize: '1.6rem', 
+              marginBottom: '0.5rem', 
               fontFamily: calligraphyFont,
               textAlign: 'center',
               color: '#8B0000'
@@ -496,43 +503,23 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               {data.school_anthem?.title}
             </h3>
             <p style={{ 
-              fontSize: '0.875rem', 
+              fontSize: '0.9rem', 
               color: '#6b7280', 
-              marginBottom: '0.75rem',
+              marginBottom: '1.25rem',
               textAlign: 'center',
               fontStyle: 'italic'
             }}>
-              〜 荘厳な合唱曲風 〜
+              〜 {data.school_anthem?.style || '荘厳な合唱曲風'} 〜
             </p>
-            {/* 挿絵風の風景画像（日本語だと？？？になるため英語表記のプレースホルダー） */}
-            <div style={{
-              marginBottom: '0.75rem',
-              textAlign: 'center',
-              overflow: 'hidden',
-              borderRadius: '8px',
-              border: '3px solid #8B4513',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
-            }}>
-              <img 
-                src="https://placehold.co/800x300/87CEEB/FFFFFF?text=School+and+Sky"
-                alt="校舎の風景"
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  display: 'block',
-                  filter: 'blur(0.5px) sepia(20%) saturate(80%)',
-                  imageRendering: 'pixelated'
-                }}
-              />
-            </div>
+            <div style={{ height: '1px', background: 'linear-gradient(90deg, transparent, #8B4513, transparent)', marginBottom: '1.25rem', opacity: 0.6 }} />
 
             {/* 校歌の再生（音声ありならプレーヤー、なしなら説明表示） */}
             <div style={{
               backgroundColor: '#f9fafb',
-              padding: '1rem',
+              padding: '1.25rem',
               border: '2px solid #d4af37',
               borderRadius: '8px',
-              marginBottom: '0.75rem',
+              marginBottom: '1.25rem',
               textAlign: 'center'
             }}>
               <p style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#8B0000' }}>
@@ -609,7 +596,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
             {/* 歌詞（1番・2番・3番を付けて表示） */}
             <div style={{
               backgroundColor: '#fffef8',
-              padding: '1.25rem',
+              padding: '1.5rem 1.25rem',
               border: '3px double #8B4513',
               borderRadius: '8px',
               boxShadow: 'inset 0 0 20px rgba(139,69,19,0.1)'
@@ -1203,34 +1190,39 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               </p>
             </div>
             
-            {/* 校訓（ヘッダーに表示。フォントはNoto優先で？？？を防ぐ） */}
-            {styleConfig.headerStyle.showMottoInHeader && (
-              <div style={{
-                backgroundColor: 'rgba(255,255,255,0.95)',
-                color: '#8B0000',
-                padding: '0.75rem 1rem',
-                margin: '0.4rem auto 0',
-                maxWidth: '900px',
-                border: '6px double #8B0000',
-                borderRadius: '8px',
-                boxShadow: '0 6px 20px rgba(0,0,0,0.3), inset 0 0 24px rgba(139,0,0,0.12)'
-              }}>
-                <p style={{ 
-                  fontSize: '3rem',
-                  fontFamily: '"Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif',
-                  fontWeight: 'bold',
-                  lineHeight: '1.6',
-                  letterSpacing: '0.15em',
-                  textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
-                  background: 'linear-gradient(180deg, #8B0000 0%, #DC143C 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
+            {/* 校訓（ヘッダーに表示。空・？だけのときは表示しないで？？？を防ぐ） */}
+            {styleConfig.headerStyle.showMottoInHeader && (() => {
+              const motto = (data.school_profile.motto || '').trim()
+              const isBlankOrPlaceholder = !motto || /^[?？\s\uFFFD]*$/.test(motto) || motto === '？？？' || motto === '???'
+              if (isBlankOrPlaceholder) return null
+              return (
+                <div style={{
+                  backgroundColor: 'rgba(255,255,255,0.95)',
+                  color: '#8B0000',
+                  padding: '0.75rem 1rem',
+                  margin: '0.4rem auto 0',
+                  maxWidth: '900px',
+                  border: '6px double #8B0000',
+                  borderRadius: '8px',
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.3), inset 0 0 24px rgba(139,0,0,0.12)'
                 }}>
-                  {data.school_profile.motto || ''}
-                </p>
-              </div>
-            )}
+                  <p style={{
+                    fontSize: '3rem',
+                    fontFamily: '"Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif',
+                    fontWeight: 'bold',
+                    lineHeight: '1.6',
+                    letterSpacing: '0.15em',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+                    background: 'linear-gradient(180deg, #8B0000 0%, #DC143C 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}>
+                    {motto}
+                  </p>
+                </div>
+              )
+            })()}
 
           </div>
         </div>

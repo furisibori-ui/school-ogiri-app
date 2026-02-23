@@ -67,7 +67,17 @@ Comet の API 使用概要（使用分布）には、**チャット補完（Clau
 | Inngest の Step1 が約1秒で終わる | テキスト生成APIが **503 等で失敗しモックを返した**場合、API がすぐ返るため Step1 が約1秒で完了する。**本当にAIが生成した場合は十数秒〜数分**かかることもある。 | 画面上部に「⚠️ APIエラーのため、表示されているテキストはダミー（モック）です」と出ていればモック表示。出ていなければその回は正常生成。 |
 | google/gemini-1.5-flash も 503 になる | Comet のモデルIDが違う可能性（例: バージョン付き）。契約でそのチャネルが無効な場合もある。 | Comet のモデルカタログで **利用可能と表示されているモデルID** をコピーし、`COMET_CHAT_MODEL` にそのまま設定する。 |
 
-## 画像生成のモデル
+## 画像生成を安くする（画像API消費を抑える）
+
+| 方法 | 効果 | やり方 |
+|------|------|--------|
+| **Replicate を有効にする（推奨）** | **約0.3〜1円/枚**。Comet の Gemini 画像（約6円/枚）より大幅に安い。 | **`REPLICATE_API_TOKEN`** を Vercel と `.env.local` に設定するだけ。設定すると画像は自動で Replicate（SDXL）に切り替わり、Comet の画像APIは使われません。詳しくは [SETUP_IMAGE_GENERATION.md](../SETUP_IMAGE_GENERATION.md)。 |
+| Comet のまま使う | 現状のまま。 | `COMET_API_KEY` のみで、Replicate を設定しなければ Comet の **gemini-2.5-flash-image** が使われます。 |
+| Comet で別モデルを試す | プランによっては別モデルの方が安い場合あり。 | 環境変数 **`COMET_IMAGE_MODEL`** に、Comet のモデルカタログで「画像生成」対応かつ料金の安いモデルIDを指定。 |
+
+- **1回の学校生成で最大7〜8枚**の画像が生成されるため、Replicate にすると **1回あたり数円程度**、Comet のみだと **数十円程度** になる目安です。
+
+## 画像生成のモデル（Comet 利用時）
 
 - デフォルトは **gemini-2.5-flash-image**（Comet で利用可能なモデル）。環境変数 **`COMET_IMAGE_MODEL`** で上書きできます。
 - **Replicate**（`REPLICATE_API_TOKEN`）を設定すると、画像は Replicate 側で生成され、Comet の画像 API は使われません（コスト削減の選択肢になります）。

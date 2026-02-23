@@ -14,6 +14,37 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
 })
 
+/** 校長名から性別を推定（名前と顔画像の性別一致用） */
+function inferPrincipalGender(name: string | undefined): 'male' | 'female' | null {
+  if (!name || typeof name !== 'string') return null
+  const n = name.trim()
+  // 女性名の典型（末尾・含む）
+  const femaleMarkers = /(子|美咲|由美|恵子|裕子|明美|和子|久美子|真理子|智子|礼子|美|咲|花|香|奈|愛|優)$|^(Mary|Patricia|Jennifer|Linda|Elizabeth|Susan|Jessica|Sarah|Karen|Nancy|Marie|Sophie|Amélie|Anna|Emma|Sophia|서연|민서|지우|하은|윤서|지민|채원|다은|예은|수아)/i
+  // 男性名の典型
+  const maleMarkers = /(郎|太郎|一郎|健太郎|雄|夫|男|也|太|介|助|樹|武|進|修|剛|勇|明|茂|正|和|秀|昭|幸|光|義|清)$|^(James|John|Robert|Michael|William|David|Richard|Joseph|Thomas|Charles|Pierre|Jean|François|Hans|Karl|Wolfgang|민준|서준|예준|도윤|시우|주원|하준|지호|준서|건우)/i
+  if (femaleMarkers.test(n)) return 'female'
+  if (maleMarkers.test(n)) return 'male'
+  return null
+}
+
+/** face_prompt の principal の性別表記を指定に合わせる（名前と画像の一致用） */
+function ensureFacePromptGender(facePrompt: string | undefined, gender: 'male' | 'female'): string {
+  if (!facePrompt || typeof facePrompt !== 'string') {
+    return gender === 'female'
+      ? "Bust-up portrait (head and shoulders only), principal's office, modern Japanese female principal, 55 years old, business suit, serious expression, disposable camera aesthetic, slightly faded colors"
+      : "Bust-up portrait (head and shoulders only), principal's office, modern Japanese male principal, 60 years old, business suit, serious expression, disposable camera aesthetic, slightly faded colors"
+  }
+  const lower = facePrompt.toLowerCase()
+  const wantFemale = gender === 'female'
+  if (wantFemale) {
+    if (lower.includes('female')) return facePrompt
+    return facePrompt.replace(/male principal/g, 'female principal').replace(/male\s+principal/gi, 'female principal')
+  } else {
+    if (lower.includes('male') && !lower.includes('female')) return facePrompt
+    return facePrompt.replace(/female principal/g, 'male principal').replace(/female\s+principal/gi, 'male principal')
+  }
+}
+
 /** LLMが出力しがちな不正JSONを修復してパース（末尾カンマ・抜けカンマ・コメント等に対応） */
 function repairAndParseSchoolJson(jsonText: string): SchoolData {
   let parsed: unknown
@@ -904,7 +935,9 @@ function generateMockSchoolData(location: LocationData): SchoolData {
   const lat = location.lat || 35
   const lng = location.lng || 139
   
-  const principalName = generateLocalizedName(lat, lng, false)
+  // 校長は性別を1回決めて名前と顔プロンプトを一致させる
+  const principalIsFemale = Math.random() < 0.5
+  const principalName = generateLocalizedName(lat, lng, principalIsFemale)
   const motto = generateMotto(landmark)
   const established = generateEstablishedYear()
   const currentYear = 2026
@@ -951,7 +984,9 @@ function generateMockSchoolData(location: LocationData): SchoolData {
       name: principalName,
       title: '校長',
       text: `本校ホームページをご覧いただき、誠にありがとうございます。校長の${principalName}でございます。\n\n${schoolName}は、${established.era}${established.year - (established.era === '明治' ? 1867 : established.era === '大正' ? 1911 : 1925)}年の創立以来、実に${yearsExisted}年という長い歴史の中で、${address}の地において、常に地域社会と密接に連携しながら、質の高い教育を実践してまいりました。本校が一貫して掲げております「${motto}」の校訓のもと、知性・徳性・体力の三位一体となった調和のとれた全人教育を通じて、社会に貢献できる有為な人材の育成に、教職員一同、日夜努めております。\n\n本校の最大の特色といたしましては、${landmark}に象徴される、この地域ならではの豊かな自然環境と歴史的・文化的資源を最大限に活用した、他校には見られない特色ある教育活動を展開している点が挙げられます。生徒たちは、地域の方々との温かな交流を通じて、郷土への深い理解と愛着を育み、同時に社会性と豊かな人間性を身につけてまいります。\n\n変化の激しい時代において、本校では、生徒一人ひとりが自らの個性と可能性を最大限に発揮し、主体的に学び続ける姿勢を育むことを大切にしております。保護者の皆様、地域の皆様におかれましては、今後とも本校の教育活動に対しまして、変わらぬご理解とご支援を賜りますよう、心よりお願い申し上げます。`,
-      face_prompt: 'Bust-up portrait (head and shoulders only), principal\'s office, modern Japanese male principal, 60 years old, business suit, serious expression, disposable camera aesthetic, slightly faded colors',
+      face_prompt: principalIsFemale
+        ? "Bust-up portrait (head and shoulders only), principal's office, modern Japanese female principal, 55 years old, business suit, serious expression, disposable camera aesthetic, slightly faded colors"
+        : "Bust-up portrait (head and shoulders only), principal's office, modern Japanese male principal, 60 years old, business suit, serious expression, disposable camera aesthetic, slightly faded colors",
       face_image_url: 'https://placehold.co/600x600/333333/FFFFFF?text=Principal'
     },
     // 校歌は歌詞のみ（音声は後回し）。歌詞は必ず入れる
@@ -1137,6 +1172,14 @@ JSONで出力。先頭は{。校訓=あるある一文。校長=でございま�
     // 校歌の音声は後回し（歌詞のみ。楽曲は別APIで対応する場合は /api/generate-anthem-audio を呼ぶ想定）
     // schoolData.school_anthem.audio_url は未設定のまま → サイトでは歌詞のみ表示
 
+    // 校長の名前と顔画像の性別を一致させる（LLMが食い違えた場合の補正）
+    if (schoolData.principal_message?.name && schoolData.principal_message?.face_prompt) {
+      const gender = inferPrincipalGender(schoolData.principal_message.name)
+      if (gender) {
+        schoolData.principal_message.face_prompt = ensureFacePromptGender(schoolData.principal_message.face_prompt, gender)
+      }
+    }
+
     // 校長以外の教員の写真は使わない（APIが返しても除去）
     if (Array.isArray(schoolData.teachers)) {
       schoolData.teachers = schoolData.teachers.map((t: { name?: string; subject?: string; description?: string }) => ({
@@ -1225,9 +1268,9 @@ function formatApiErrorMessage(error: unknown): string {
 function buildLocationContext(location: LocationData): string {
   // 🔥🔥🔥 徹底的なリサーチ結果があればそれを最優先で使用 🔥🔥🔥
   if (location.comprehensive_research) {
-    // 地域リサーチはやや多めに渡してテキストを厚く（目安2分で完了する前提）
-    const RESEARCH_MAX = 290
-    const PROPER_NOUNS_MAX = 13
+    // テキスト生成の完了・JSON途切れ防止のため控えめに（30%増は廃止）
+    const RESEARCH_MAX = 220
+    const PROPER_NOUNS_MAX = 10
     const researchText = location.comprehensive_research.length > RESEARCH_MAX
       ? location.comprehensive_research.slice(0, RESEARCH_MAX) + '…'
       : location.comprehensive_research

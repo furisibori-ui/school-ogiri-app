@@ -108,8 +108,8 @@ export default function SettingsPage() {
           <ul style={{ paddingLeft: '1.25rem', lineHeight: 1.8 }}>
             <li><strong>Google Maps</strong>: <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" style={{ color: '#0369a1' }}>Google Cloud Console</a></li>
             <li><strong>Anthropic (Claude)</strong>: <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" style={{ color: '#0369a1' }}>Anthropic Console</a></li>
-            <li><strong>Replicate（画像）</strong>: <a href="https://replicate.com/account/api-tokens" target="_blank" rel="noopener noreferrer" style={{ color: '#0369a1' }}>Replicate API tokens</a></li>
-            <li><strong>CometAPI（楽曲）</strong>: <a href="https://www.cometapi.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#0369a1' }}>CometAPI</a>（要チャージ）</li>
+            <li><strong>Replicate（画像・安い）</strong>: <a href="https://replicate.com/account/api-tokens" target="_blank" rel="noopener noreferrer" style={{ color: '#0369a1' }}>Replicate API tokens</a> — 設定すると画像が約0.3〜1円/枚になり、Comet の画像APIは使われません</li>
+            <li><strong>CometAPI（テキスト・画像・校歌）</strong>: <a href="https://www.cometapi.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#0369a1' }}>CometAPI</a>（要チャージ）— Replicate 未設定時は画像も Comet で生成（約6円/枚）</li>
           </ul>
         </div>
 
