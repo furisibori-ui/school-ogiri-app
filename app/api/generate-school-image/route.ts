@@ -24,6 +24,56 @@ const FLUX_FLEX_ENDPOINT = 'https://api.cometapi.com/flux/v1/flux-2-flex'
 const FLUX_POLL_INTERVAL_MS = 1500
 const FLUX_POLL_MAX_WAIT_MS = 120_000 // 2分
 
+const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.5-flash-image'
+
+function getCometImageModel(): string {
+  return process.env.COMET_IMAGE_MODEL?.trim() || DEFAULT_COMET_IMAGE_MODEL
+}
+
+/** CometAPI 経由で画像生成（Gemini Image）→ data URL を返す。失敗時はプレースホルダーURL */
+async function generateImageViaGemini(
+  prompt: string,
+  aspectRatio: '1:1' | '16:9' | '3:2' | '2:3' | '4:3' | '9:16' = '16:9'
+): Promise<string> {
+  const key = process.env.COMET_API_KEY
+  if (!key) return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
+  const model = getCometImageModel()
+  try {
+    const res = await fetch(`https://api.cometapi.com/v1beta/models/${model}:generateContent`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`,
+      },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseModalities: ['IMAGE'],
+          imageConfig: { aspectRatio, imageSize: '1K' },
+        },
+      }),
+    })
+    if (!res.ok) {
+      const err = await res.text()
+      console.warn('[Gemini] Comet image API error:', res.status, err.slice(0, 200))
+      return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
+    }
+    const data = (await res.json()) as {
+      candidates?: Array<{
+        content?: { parts?: Array<{ inlineData?: { mimeType?: string; data?: string } }> }
+      }>
+    }
+    const parts = data?.candidates?.[0]?.content?.parts ?? []
+    const imagePart = parts.find((p: { inlineData?: unknown }) => p.inlineData)
+    const b64 = imagePart?.inlineData?.data
+    const mime = imagePart?.inlineData?.mimeType || 'image/png'
+    if (b64) return `data:${mime};base64,${b64}`
+  } catch (e) {
+    console.warn('[Gemini] Comet image generation failed:', e)
+  }
+  return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
+}
+
 /** FLUX 2 FLEX で画像生成（非同期 task + ポーリング）。Authorization は Bearer なしでキーをそのまま指定。 */
 async function generateImageViaFluxFlex(prompt: string, _imageType?: string): Promise<string> {
   const key = process.env.COMET_API_KEY
@@ -158,9 +208,10 @@ export async function POST(request: NextRequest) {
     const noTextSuffix = ' Do not include any text, date, watermark, timestamp, or letters/numbers in the image. Pure visual only, no text overlay.'
     const finalPrompt = prompt.trim() + noTextSuffix
 
-    // 廉価版優先: Replicate（SDXL）が設定されていれば画像はReplicateを使用。未設定時は Comet の FLUX 2 FLEX を使用（高速・低コスト）
+    // 廉価版優先: Replicate（SDXL）が設定されていれば画像はReplicateを使用。未設定時は Comet で Gemini Image を使用（従来どおり）。COMET_IMAGE_USE_FLUX=true のときだけ FLUX 2 FLEX
     const useReplicate = !!process.env.REPLICATE_API_TOKEN
     const useComet = !!process.env.COMET_API_KEY
+    const useFluxForComet = process.env.COMET_IMAGE_USE_FLUX === 'true'
     let url: string
 
     if (useReplicate) {
@@ -188,7 +239,15 @@ export async function POST(request: NextRequest) {
         url = data?.url || `https://placehold.co/800x450/8B7355/FFFFFF?text=Overview`
       }
     } else if (useComet) {
-      url = await generateImageViaFluxFlex(finalPrompt, imageType)
+      if (useFluxForComet) {
+        url = await generateImageViaFluxFlex(finalPrompt, imageType)
+      } else {
+        const aspectRatio: '1:1' | '16:9' | '3:2' | '2:3' | '4:3' | '9:16' =
+          imageType === 'logo' || imageType === 'emblem' ? '3:2'
+          : imageType === 'principal_face' || imageType === 'face' ? '1:1'
+          : '16:9'
+        url = await generateImageViaGemini(finalPrompt, aspectRatio)
+      }
       // data URL のまま返すと Inngest のステップ出力が 4MB を超えて「出力が大きすぎる」で落ちるため、Blob に上げて URL だけ返す
       if (url.startsWith('data:')) url = await dataUrlToBlobUrl(url)
     } else {
