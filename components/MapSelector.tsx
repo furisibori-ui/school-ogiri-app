@@ -251,11 +251,11 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       console.log('📍 最も近い場所:', closestPlace?.name)
       console.log('🏛️ ランドマーク一覧（上位10件）:', landmarks.slice(0, 10))
       
-      // 地域リサーチ（おすすめ量：6件で API 料金・処理時間を抑える）
+      // 地域リサーチ（約70%量：4件で API・処理時間を抑える）
       console.log('📚 地域リサーチを開始します...')
       
       const comprehensiveResearch = await conductComprehensiveResearch(
-        sortedPlaces.slice(0, 6),
+        sortedPlaces.slice(0, 4),
         address,
         lat,
         lng,
@@ -316,11 +316,12 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     research += `市区町村: ${addressParts[1] || '不明'}\n`
     research += `町名・番地: ${addressParts.slice(2).join(' ')}\n\n`
     
-    // セクション3: 周辺施設の詳細（おすすめ量：5件）
-    research += `# 🏛️ 周辺施設の詳細情報（最も近い5件）\n\n`
-    
-    const detailPromises = places.slice(0, 5).map((place, index) => {
-      return new Promise<string>((resolve) => {
+    // セクション3: 周辺施設の詳細（約70%：3件・1件12秒制限）
+    research += `# 🏛️ 周辺施設の詳細（近い3件）\n\n`
+    const PLACE_DETAIL_TIMEOUT_MS = 12_000
+
+    const detailPromises = places.slice(0, 3).map((place, index) => {
+      const detailPromise = new Promise<string>((resolve) => {
         placesService.getDetails(
           { placeId: place.place_id, language: 'ja' },
           (details: any, status: any) => {
@@ -349,15 +350,13 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
                 placeInfo += `電話番号: ${details.formatted_phone_number}\n`
               }
               
-              // レビューテキストを収集（最重要！地域の雰囲気を読み取る）
               if (details.reviews && details.reviews.length > 0) {
-                placeInfo += `\n### 📝 レビュー抜粋（地域の雰囲気を読み取る重要情報）:\n`
-                details.reviews.slice(0, 5).forEach((review: any, i: number) => {
+                placeInfo += `\n### レビュー抜粋\n`
+                details.reviews.slice(0, 3).forEach((review: any) => {
                   if (review.text && review.text.length > 10) {
-                    placeInfo += `- (${review.rating}⭐) ${review.text.substring(0, 300)}...\n`
+                    placeInfo += `- ${review.text.substring(0, 200)}…\n`
                   }
                 })
-                placeInfo += `\n⚠️ **上記レビューから地域の雰囲気（古い町並み、新しい開発地、観光地、住宅街など）を読み取り、学校の説明文に反映してください。**\n`
               }
               
               placeInfo += `\n`
@@ -368,31 +367,41 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
           }
         )
       })
+      const timeoutPromise = new Promise<string>((resolve) =>
+        setTimeout(() => resolve(`## ${index + 1}. ${place.name}\n（取得タイムアウト）\n\n`), PLACE_DETAIL_TIMEOUT_MS)
+      )
+      return Promise.race([detailPromise, timeoutPromise])
     })
     
-    console.log('⏳ Place Details API で詳細情報を取得中（5件）...')
+    console.log('⏳ Place Details 取得中（3件・各12秒制限）...')
     const placeDetailsResults = await Promise.all(detailPromises)
     research += placeDetailsResults.join('')
     
-    // Wikipedia で施設の背景を取得（おすすめ量：5件・各300字）
-    console.log('📚 Wikipediaで施設情報を取得中（5件）...')
-    research += `\n# 📖 Wikipedia（施設の背景）\n\n`
-    
-    const wikiPromises = places.slice(0, 5).map(async (place) => {
-      try {
+    // Wikipedia（約70%：3件・各200字・8秒制限）
+    console.log('📚 Wikipedia取得中（3件・各8秒制限）...')
+    research += `\n# 📖 Wikipedia\n\n`
+    const WIKI_TIMEOUT_MS = 8_000
+    const WIKI_CHAR_MAX = 200
+
+    const wikiPromises = places.slice(0, 3).map(async (place) => {
+      const fetchWiki = async (): Promise<string> => {
         const wikiUrl = `https://ja.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(place.name)}&origin=*`
         const wikiResponse = await fetch(wikiUrl)
         const wikiData = await wikiResponse.json()
-        
         if (wikiData.query && wikiData.query.pages) {
           const pages = Object.values(wikiData.query.pages) as any[]
           const page = pages[0]
-          
-          if (page && page.extract && page.extract.length > 50) {
-            return `## ${place.name}\n${page.extract.substring(0, 300)}\n\n`
+          if (page?.extract?.length > 50) {
+            return `## ${place.name}\n${page.extract.substring(0, WIKI_CHAR_MAX)}\n\n`
           }
         }
         return ''
+      }
+      try {
+        const timeoutPromise = new Promise<string>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), WIKI_TIMEOUT_MS)
+        )
+        return await Promise.race([fetchWiki(), timeoutPromise])
       } catch {
         return ''
       }
@@ -408,83 +417,34 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       research += `（Wikipedia情報なし）\n\n`
     }
     
-    // その他は施設名のみ（おすすめ量：最大20件）
-    if (places.length > 10) {
+    if (places.length > 8) {
       research += `\n# 📋 その他の施設名\n\n`
-      places.slice(10, 30).forEach((place, index) => {
-        research += `${index + 11}. ${place.name}\n`
+      places.slice(8, 22).forEach((place, index) => {
+        research += `${index + 9}. ${place.name}\n`
       })
     }
     
-    // セクション4: カテゴリ別統計
-    research += `\n# 📊 カテゴリ別施設統計\n`
     const categoryCount: { [key: string]: number } = {}
     places.forEach(place => {
       place.types?.forEach((type: string) => {
         categoryCount[type] = (categoryCount[type] || 0) + 1
       })
     })
-    
+    research += `\n# 📊 カテゴリ（上位3）\n`
     const topCategories = Object.entries(categoryCount)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-    
+      .slice(0, 3)
     topCategories.forEach(([category, count]) => {
       research += `- ${category}: ${count}件\n`
     })
-    research += `\n`
+    research += `\n施設数: ${places.length}件\n\n`
     
-    // セクション5: 地域の特徴推測
-    research += `# 🔍 地域の特徴推測\n`
-    
-    if (categoryCount['restaurant'] > 5) {
-      research += `- 飲食店が多く、商業地域の可能性が高い\n`
-    }
-    if (categoryCount['convenience_store'] > 3) {
-      research += `- コンビニが多く、利便性の高い地域\n`
-    }
-    if (categoryCount['shrine'] || categoryCount['temple']) {
-      research += `- 神社仏閣があり、歴史的な地域\n`
-    }
-    if (categoryCount['park'] > 2) {
-      research += `- 公園が多く、自然環境に恵まれた地域\n`
-    }
-    if (categoryCount['train_station'] || categoryCount['bus_station']) {
-      research += `- 公共交通機関が充実している地域\n`
-    }
-    if (categoryCount['school'] || categoryCount['university']) {
-      research += `- 教育施設があり、文教地区の可能性\n`
-    }
-    
-    research += `\n`
-    
-    // セクション6: 距離と密度の分析
-    research += `# 📏 空間分析\n`
-    research += `検索範囲: 2km圏内\n`
-    research += `発見された施設数: ${places.length}件\n`
-    research += `施設密度: ${(places.length / 12.56).toFixed(1)}件/km²\n`
-    
-    if (places.length > 50) {
-      research += `評価: 非常に高密度な都市部\n`
-    } else if (places.length > 20) {
-      research += `評価: 中密度の住宅・商業地域\n`
-    } else {
-      research += `評価: 低密度の郊外地域\n`
-    }
-    
-    research += `\n`
-    
-    // セクション7: 固有名詞の抽出（超重要！）
-    research += `\n# 🚨🚨🚨 固有名詞リスト（必ず全て使うこと！）\n\n`
+    research += `# 固有名詞リスト\n\n`
     const uniqueNames = new Set<string>()
     places.forEach(place => {
-      if (place.name && place.name.length > 0) {
-        uniqueNames.add(place.name)
-      }
+      if (place.name && place.name.length > 0) uniqueNames.add(place.name)
     })
-    
-    research += `【固有名詞一覧】\n`
-    Array.from(uniqueNames).slice(0, 40).forEach((name, i) => {
+    Array.from(uniqueNames).slice(0, 28).forEach((name, i) => {
       research += `${i + 1}. ${name}\n`
     })
     research += `\n`

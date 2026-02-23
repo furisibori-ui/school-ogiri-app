@@ -27,6 +27,13 @@ async function generateImage(prompt: string, landmark: string, imageType: string
 }
 
 const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.5-flash-image'
+const DEPRECATED_IMAGE_MODEL = 'gemini-2.0-flash-exp-image-generation' // v1beta で見つからないため使用しない
+
+function getCometImageModel(): string {
+  const env = process.env.COMET_IMAGE_MODEL?.trim()
+  if (env && env.includes(DEPRECATED_IMAGE_MODEL)) return DEFAULT_COMET_IMAGE_MODEL
+  return env || DEFAULT_COMET_IMAGE_MODEL
+}
 
 /** CometAPI 経由で画像生成（Gemini Image）→ data URL を返す。失敗時はプレースホルダーURL */
 async function generateImageViaComet(
@@ -35,7 +42,7 @@ async function generateImageViaComet(
 ): Promise<string> {
   const key = process.env.COMET_API_KEY
   if (!key) return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
-  const model = process.env.COMET_IMAGE_MODEL || DEFAULT_COMET_IMAGE_MODEL
+  const model = getCometImageModel()
   try {
     const res = await fetch(`https://api.cometapi.com/v1beta/models/${model}:generateContent`, {
       method: 'POST',
@@ -967,24 +974,24 @@ export async function POST(request: NextRequest) {
     const locationContext = buildLocationContext(locationData)
 
     const systemPrompt = `
-地域密着の架空学校をJSONで出力。先頭は { のみ。校訓＝場所の「あるある」一文。校長＝でございます調・face_promptは性別に合わせmale/female。制服色＝校章。部活・行事は各1件・経路は固有名詞。京奈良禁止。
+地域密着の架空学校をJSONで出力。先頭は { のみ。校訓＝場所の「あるある」一文。校長＝でございます調・face_promptはmale/female。部活・行事は各1件。京奈良禁止。
 
 {
-  "school_profile": { "name": "ランドマーク含む学校名", "motto": "あるある一文", "motto_single_char": "1文字", "sub_catchphrase": "一文", "background_symbol": "1文字", "overview": "固有名詞10+・125-150字・大喜利1つ", "overview_image_prompt": "英語・Wide16:9校舎外観", "emblem_prompt": "英語・校章・300字", "historical_buildings": [{"name":"初代校舎","year":"明治〜大正","description":"60-80字","image_prompt":"英語Old wooden sepia"},{"name":"2代目校舎","year":"大正〜昭和","description":"60-80字","image_prompt":"英語Taisho wooden"},{"name":"現校舎","year":"昭和〜現在","description":"50-60字","image_prompt":"英語Modern concrete"}]
+  "school_profile": { "name": "ランドマーク含む学校名", "motto": "あるある一文", "motto_single_char": "1文字", "sub_catchphrase": "一文", "background_symbol": "1文字", "overview": "固有名詞・100-120字・大喜利1つ", "overview_image_prompt": "英語Wide16:9校舎", "emblem_prompt": "英語校章200字", "historical_buildings": [{"name":"初代校舎","year":"明治〜大正","description":"50-60字","image_prompt":"英語Old sepia"},{"name":"2代目","year":"大正〜昭和","description":"50字","image_prompt":"英語Taisho"},{"name":"現校舎","year":"昭和〜現在","description":"40-50字","image_prompt":"英語Modern"}]
   },
-  "principal_message": { "name": "校長名", "title": "校長", "text": "300-400字・固有名詞5+・大喜利1つ", "face_prompt": "英語principal校長室" },
+  "principal_message": { "name": "校長名", "title": "校長", "text": "250-320字・固有名詞・大喜利1つ", "face_prompt": "英語principal" },
   "school_anthem": { "title": "校歌名", "lyrics": "3番七五調・改行\\n", "style": "荘厳", "suno_prompt": "English anthem" },
-  "news_feed": [{"date":"2026.02.15","category":"行事","text":"25-40字"},{"date":"2026.02.10","category":"進路","text":"25-40字"},{"date":"2026.02.05","category":"部活","text":"25-40字"},{"date":"2026.01.28","category":"連絡","text":"25-40字"},{"date":"2026.01.20","category":"行事","text":"25-40字"}],
+  "news_feed": [{"date":"2026.02.15","category":"行事","text":"25-35字"},{"date":"2026.02.10","category":"進路","text":"25-35字"},{"date":"2026.02.05","category":"部活","text":"25-35字"},{"date":"2026.01.28","category":"連絡","text":"25-35字"},{"date":"2026.01.20","category":"行事","text":"25-35字"}],
   "crazy_rules": ["心得1","心得2","心得3","心得4","心得5"],
   "multimedia_content": {
-    "club_activities": [{"name": "部活名", "description": "50-80字", "sound_prompt": "英語", "image_prompt": "英語Wide16:9"}],
-    "school_events": [{"name": "行事名", "date": "4月7日等", "description": "40-60字経路固有名詞", "image_prompt": "英語"}],
-    "facilities": [{"name": "施設名", "description": "80-120字", "image_prompt": "英語"},{"name": "施設名", "description": "200-250字", "image_prompt": "英語"},{"name": "施設名", "description": "200-250字", "image_prompt": "英語"}],
-    "monuments": [{"name": "創立者像", "description": "80-100字", "image_prompt": "英語"}],
-    "uniforms": [{"type": "制服（冬服）", "description": "80-120字", "image_prompt": "英語"}]
+    "club_activities": [{"name": "部活名", "description": "40-60字", "sound_prompt": "英語", "image_prompt": "英語Wide16:9"}],
+    "school_events": [{"name": "行事名", "date": "4月7日等", "description": "30-50字・経路固有名詞", "image_prompt": "英語"}],
+    "facilities": [{"name": "施設名", "description": "60-90字", "image_prompt": "英語"},{"name": "施設名", "description": "150-180字", "image_prompt": "英語"},{"name": "施設名", "description": "150-180字", "image_prompt": "英語"}],
+    "monuments": [{"name": "創立者像", "description": "60-80字", "image_prompt": "英語"}],
+    "uniforms": [{"type": "制服（冬服）", "description": "60-90字", "image_prompt": "英語"}]
   },
-  "teachers": [{"name": "名", "subject": "教頭等", "description": "90-140字"},{"name": "名", "subject": "養護教諭等", "description": "90-140字"},{"name": "名", "subject": "生徒指導部主任等", "description": "90-140字"}],
-  "notable_alumni": [{"name": "卒業生名", "year": "卒業年", "achievement": "45-65字"},{"name": "卒業生名", "year": "卒業年", "achievement": "45-65字"},{"name": "卒業生名", "year": "卒業年", "achievement": "45-65字"}]
+  "teachers": [{"name": "名", "subject": "教頭等", "description": "70-100字"},{"name": "名", "subject": "養護教諭等", "description": "70-100字"},{"name": "名", "subject": "生徒指導部主任等", "description": "70-100字"}],
+  "notable_alumni": [{"name": "卒業生名", "year": "卒業年", "achievement": "35-50字"},{"name": "卒業生名", "year": "卒業年", "achievement": "35-50字"},{"name": "卒業生名", "year": "卒業年", "achievement": "35-50字"}]
 }
 `
 
@@ -993,11 +1000,11 @@ export async function POST(request: NextRequest) {
 
 ${locationContext}
 
-固有名詞を多数。大喜利1つ（単語入れ替えだけNG）。校長250-350字・overview125-150・教員90-140・卒業生45-65字。
+固有名詞を多数。大喜利1つ。校長250-320字・overview100-120・教員70-100・卒業生35-50字。
 `
 
-    // 240秒で打ち切り（Inngest Step1+Step2+Step3 が 300s に収まるよう Step1 を短縮）
-    const AI_TIMEOUT_MS = 240_000
+    // 245秒で打ち切り（Inngest 300s 内に Step2+Step3 を収めるため。微妙に間に合わない場合の余裕で 240→245）
+    const AI_TIMEOUT_MS = 245_000
     const timeoutSec = Math.round(AI_TIMEOUT_MS / 1000)
     const timeoutPromise = new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error(`生成が時間内に完了しませんでした（${timeoutSec}秒）。テンプレートデータで表示します。`)), AI_TIMEOUT_MS)
@@ -1164,19 +1171,19 @@ function formatApiErrorMessage(error: unknown): string {
 function buildLocationContext(location: LocationData): string {
   // 🔥🔥🔥 徹底的なリサーチ結果があればそれを最優先で使用 🔥🔥🔥
   if (location.comprehensive_research) {
-    // 周辺リサーチは絞って使用（トークン節約・処理時間短縮）
-    const RESEARCH_MAX = 600
-    const PROPER_NOUNS_MAX = 35
+    // 約70%量に絞って使用（トークン・処理時間短縮）
+    const RESEARCH_MAX = 380
+    const PROPER_NOUNS_MAX = 21
     const researchText = location.comprehensive_research.length > RESEARCH_MAX
       ? location.comprehensive_research.slice(0, RESEARCH_MAX) + '…'
       : location.comprehensive_research
-    console.log(`📚 地域リサーチを使用: ${researchText.length} 文字（${RESEARCH_MAX}字制限）`)
+    console.log(`📚 地域リサーチ: ${researchText.length}字（${RESEARCH_MAX}字制限）`)
     
     const properNounsMatch = researchText.match(/\d+\.\s*(.+)/g)
     const properNouns = (properNounsMatch ? properNounsMatch.map(m => m.replace(/^\d+\.\s*/, '').trim()) : []).slice(0, PROPER_NOUNS_MAX)
     
     let context = `
-固有名詞（${properNouns.length}個）を必ず使う。校長・行事・部活・教員・卒業生に多数。開業年・乗降客数等の詳細付加。大喜利1つ。
+固有名詞（${properNouns.length}個）を校長・行事・部活・教員に使う。大喜利1つ。
 
 ${properNouns.map((name, i) => `${i + 1}. ${name}`).join('\n')}
 
@@ -1198,69 +1205,35 @@ ${researchText}
 - 住所: ${location.address || '不明'}
 `
 
-  // 最も近い場所の詳細情報（超重要）
   if (location.closest_place) {
     const cp = location.closest_place
     context += `
-## 🎯 最も近い場所（学校名に使用）
-**名前**: ${cp.name}
-**カテゴリー**: ${cp.types?.join(', ') || '不明'}
-**詳細住所**: ${cp.vicinity || '不明'}
-**評価**: ${cp.rating ? `${cp.rating}⭐ (${cp.user_ratings_total}件のレビュー)` : '評価なし'}
-**営業状況**: ${cp.business_status || '不明'}
-
-**重要**: この場所の名前「${cp.name}」を学校名として使用してください。
-また、この場所の特徴（${cp.types?.join(', ')}）を学校のコンセプトに反映させてください。
+## 最も近い場所（学校名に使用）
+名前: ${cp.name}
+カテゴリ: ${cp.types?.join(', ') || '不明'}
+「${cp.name}」を学校名に。特徴をコンセプトに反映。
 `
   }
 
-  // 周辺の詳細情報（絞り込み：最大5件）
   if (location.place_details && location.place_details.length > 0) {
-    context += `\n## 🏛️ 周辺の詳細情報（絞り込み）\n`
-    context += `**これらの場所の固有名詞を、学校の説明文・教員・部活動などに散りばめてください**\n\n`
-    
-    location.place_details.slice(0, 5).forEach((place, i) => {
-      context += `### ${i + 1}. ${place.name}\n`
-      context += `- カテゴリー: ${place.types?.join(', ') || '不明'}\n`
-      context += `- 場所: ${place.vicinity || '不明'}\n`
-      if (place.rating) {
-        context += `- 評価: ${place.rating}⭐ (${place.user_ratings_total}件)\n`
-      }
-      context += `\n`
+    context += `\n## 周辺（固有名詞に使う）\n\n`
+    location.place_details.slice(0, 3).forEach((place, i) => {
+      context += `${i + 1}. ${place.name}（${place.types?.join(', ') || '不明'}）\n`
     })
   }
 
-  // ランドマーク一覧（絞り込み：最大10件）
   if (location.landmarks && location.landmarks.length > 0) {
-    context += `\n## 🗺️ 周辺のランドマーク一覧\n`
-    context += `**これらの名前を校歌・校訓・歴史・アクセスなどに使用してください**\n\n`
-    location.landmarks.slice(0, 10).forEach((landmark, i) => {
+    context += `\n## ランドマーク\n\n`
+    location.landmarks.slice(0, 7).forEach((landmark, i) => {
       context += `${i + 1}. ${landmark}\n`
     })
   }
 
-  // 地域情報
   if (location.region_info) {
-    context += `\n## 🌏 地域の文化情報\n`
-    
-    if (location.region_info.specialties) {
-      context += `**特産品**: ${location.region_info.specialties.join(', ')}\n`
-    }
-    
-    if (location.region_info.history) {
-      context += `**歴史**: ${location.region_info.history.join(', ')}\n`
-    }
-    
-    if (location.region_info.climate) {
-      context += `**気候**: ${location.region_info.climate}\n`
-    }
+    if (location.region_info.specialties?.length) context += `特産: ${location.region_info.specialties.join(', ')}\n`
+    if (location.region_info.history?.length) context += `歴史: ${location.region_info.history.join(', ')}\n`
   }
 
-  context += `\n## ⚠️ 最重要指示\n`
-  context += `1. 上記の**具体的な固有名詞**を最大限活用してください\n`
-  context += `2. 特に「最も近い場所」の情報を中心に、学校のコンセプトを構築してください\n`
-  context += `3. 教員のエピソード、部活動の活動場所、生徒心得などに、上記の場所名を散りばめてください\n`
-  context += `4. 汎用的な表現は避け、この場所ならではの超具体的な内容にしてください\n`
-
+  context += `\n指示: 上記固有名詞を校長・部活・行事・教員に使う。汎用表現は避ける。\n`
   return context
 }

@@ -751,7 +751,7 @@ export default function LoadingScreen() {
       restTimeoutRef.current = setTimeout(() => {
         if (Math.random() < 0.22) {
           setIsResting(true)
-          const restDuration = 2000 + Math.random() * 1500 // 2〜3.5秒休憩
+          const restDuration = 2000 + Math.random() * 8000 // 2〜10秒休憩（ランダム）
           setTimeout(() => setIsResting(false), restDuration)
         }
         scheduleRest()

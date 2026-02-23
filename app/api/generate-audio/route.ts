@@ -11,8 +11,8 @@ const SUNO_FETCH_URLS = [
   (taskId: string) => `https://api.cometapi.com/suno/status/${encodeURIComponent(taskId)}`,
 ]
 const POLL_INTERVAL_MS = 8_000
-// Inngest 全体が 300s で打ち切られるため、Step3 は短めに打ち切る（Step1〜2 の残り時間内に収める）
-const POLL_TIMEOUT_MS = 24_000 // 最大24秒（HTML が返り続けると 300s タイムアウトの原因になるため）
+// Inngest 全体が 300s のため、Step3 は 60 秒で打ち切り（Step1〜2 の残りで収まるよう調整済み）
+const POLL_TIMEOUT_MS = 60_000 // 最大60秒（Suno は IN_PROGRESS から完了まで数十秒かかることがある）
 
 export async function POST(request: NextRequest) {
   try {
@@ -116,16 +116,19 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/** 照会レスポンスの型（audio_url / stream_url / url 等を防御的に取得） */
+/** 照会レスポンスの型（Comet は data.data をクリップ配列で返すことがある） */
+type SunoClip = { audio_url?: string; stream_url?: string; url?: string; state?: string }
 type FetchPayload = {
   status?: string
-  data?: {
-    status?: string
-    audio_url?: string
-    stream_url?: string
-    url?: string
-    audio_urls?: string[]
-  }
+  data?:
+    | {
+        status?: string
+        audio_url?: string
+        stream_url?: string
+        url?: string
+        audio_urls?: string[]
+      }
+    | SunoClip[]
   audio_url?: string
   stream_url?: string
   url?: string
@@ -183,25 +186,33 @@ async function pollForAudioUrl(apiKey: string, taskId: string): Promise<string |
       continue
     }
 
-    const status = data.status ?? data.data?.status ?? ''
+    const status = data.status ?? (typeof data.data === 'object' && !Array.isArray(data.data) ? data.data?.status : undefined) ?? ''
 
     if (status !== lastStatus) {
       lastStatus = status
       console.log('[Suno Fetch] status changed, raw response:', JSON.stringify(data))
     }
 
-    const completed = /complete|success|done|finished/i.test(status)
+    const clips = Array.isArray(data.data) ? data.data : []
+    const hasClipWithUrl = clips.some((c: SunoClip) => typeof c?.audio_url === 'string' && c.audio_url.length > 0)
+    const completed =
+      /complete|success|done|finished/i.test(status) || hasClipWithUrl
 
     if (completed) {
+      const fromClips =
+        clips.find((c: SunoClip) => typeof c?.audio_url === 'string' && c.audio_url.length > 0)?.audio_url ??
+        clips.find((c: SunoClip) => typeof c?.stream_url === 'string' && c.stream_url.length > 0)?.stream_url ??
+        clips.find((c: SunoClip) => typeof c?.url === 'string' && c.url.length > 0)?.url
       const url =
+        fromClips ??
         data.audio_url ??
         data.stream_url ??
         data.url ??
-        data.data?.audio_url ??
-        data.data?.stream_url ??
-        data.data?.url ??
+        (typeof data.data === 'object' && !Array.isArray(data.data) ? data.data?.audio_url : undefined) ??
+        (typeof data.data === 'object' && !Array.isArray(data.data) ? data.data?.stream_url : undefined) ??
+        (typeof data.data === 'object' && !Array.isArray(data.data) ? data.data?.url : undefined) ??
         (Array.isArray(data.audio_urls) && data.audio_urls[0]) ??
-        (Array.isArray(data.data?.audio_urls) && data.data?.audio_urls?.[0])
+        (typeof data.data === 'object' && !Array.isArray(data.data) && Array.isArray(data.data?.audio_urls) ? data.data?.audio_urls?.[0] : undefined)
       if (url && typeof url === 'string') {
         console.log('[Suno Fetch] completed, raw response (final):', JSON.stringify(data))
         return url

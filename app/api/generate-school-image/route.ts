@@ -24,6 +24,13 @@ async function dataUrlToBlobUrl(dataUrl: string): Promise<string> {
 
 // Comet利用時: 画像生成用。Comet で利用可能なモデル（404 回避）。上書きは COMET_IMAGE_MODEL
 const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.5-flash-image'
+const DEPRECATED_IMAGE_MODEL = 'gemini-2.0-flash-exp-image-generation' // v1beta で見つからないため使用しない
+
+function getCometImageModel(): string {
+  const env = process.env.COMET_IMAGE_MODEL?.trim()
+  if (env && env.includes(DEPRECATED_IMAGE_MODEL)) return DEFAULT_COMET_IMAGE_MODEL
+  return env || DEFAULT_COMET_IMAGE_MODEL
+}
 
 async function generateImageViaComet(
   prompt: string,
@@ -32,7 +39,7 @@ async function generateImageViaComet(
 ): Promise<string> {
   const key = process.env.COMET_API_KEY
   if (!key) return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
-  const model = process.env.COMET_IMAGE_MODEL || DEFAULT_COMET_IMAGE_MODEL
+  const model = getCometImageModel()
   try {
     const res = await fetch(`https://api.cometapi.com/v1beta/models/${model}:generateContent`, {
       method: 'POST',
