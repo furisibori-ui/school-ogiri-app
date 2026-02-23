@@ -171,7 +171,8 @@ async function callCometChat(systemPrompt: string, userPrompt: string): Promise<
     cachedModel && ordered.includes(cachedModel)
       ? [cachedModel, ...ordered.filter((m) => m !== cachedModel)]
       : ordered
-  const maxTokens = 2048
+  // 全文JSON（校訓・校長・校歌・行事・部活・施設・銅像・制服・教員・卒業生など）が収まるよう余裕を持たせる
+  const maxTokens = 8192
   let lastErr: string = ''
   for (const model of modelIds) {
     try {
@@ -1084,7 +1085,7 @@ JSONで出力。先頭は{。校訓=あるある一文。校長=でございま�
 固有名詞多数。大喜利1つ。校長325-420・overview130-160・教員90-130・卒業生45-65字。
 `
 
-    // 245秒で打ち切り（Inngest 300s 内に Step2+Step3 を収めるため。微妙に間に合わない場合の余裕で 240→245）
+    // 時間切れ：245秒で打ち切り（Inngest 300s 内に Step2+Step3 を収めるため）。※通常の打ち切りは「出力トークン上限（max_tokens）」で起きる
     const AI_TIMEOUT_MS = 245_000
     const timeoutSec = Math.round(AI_TIMEOUT_MS / 1000)
     const timeoutPromise = new Promise<never>((_, reject) =>
@@ -1102,7 +1103,7 @@ JSONで出力。先頭は{。校訓=あるある一文。校長=でございま�
       const message = await Promise.race([
         anthropic.messages.create({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 2048,
+          max_tokens: 8192,
           temperature: 0.9,
           system: systemPrompt,
           messages: [{ role: 'user', content: userPrompt }],

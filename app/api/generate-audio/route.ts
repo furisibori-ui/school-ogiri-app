@@ -14,7 +14,7 @@ const POLL_INTERVAL_MS = 8_000
 // Inngest 全体が 300s のため、Step3 は 60 秒で打ち切り（Step1〜2 の残りで収まるよう調整済み）
 const POLL_TIMEOUT_MS = 60_000 // 最大60秒（Suno は IN_PROGRESS から完了まで数十秒かかることがある。300s 制限のためこれ以上は伸ばせない）
 
-/** 歌詞をひらがなに変換（Suno の読み間違いを防ぐ）。失敗時はそのまま返す */
+/** 歌詞をひらがなに変換（Suno の読み間違いを防ぐ）。失敗時はそのまま返す（Vercel 等で kuromoji 辞書が無い場合も継続） */
 async function lyricsToHiragana(lyrics: string): Promise<{ text: string; converted: boolean }> {
   if (!lyrics || !lyrics.trim()) return { text: lyrics, converted: false }
   try {
@@ -26,7 +26,12 @@ async function lyricsToHiragana(lyrics: string): Promise<{ text: string; convert
     const text = typeof result === 'string' ? result : lyrics
     return { text, converted: text !== lyrics }
   } catch (e) {
-    console.warn('[generate-audio] lyricsToHiragana failed, using original:', (e as Error)?.message)
+    const msg = (e as Error)?.message ?? ''
+    if (msg.includes('base.dat.gz') || msg.includes('ENOENT')) {
+      console.warn('[generate-audio] ひらがな変換はスキップしました（辞書未配置のため）。元の歌詞で生成します。')
+    } else {
+      console.warn('[generate-audio] lyricsToHiragana failed, using original:', msg)
+    }
     return { text: lyrics, converted: false }
   }
 }

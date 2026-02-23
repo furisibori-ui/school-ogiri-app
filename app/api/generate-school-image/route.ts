@@ -49,7 +49,16 @@ async function generateImageViaFluxFlex(prompt: string, _imageType?: string): Pr
       console.warn('[FLUX] create non-OK:', createRes.status, createText.slice(0, 300))
       return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
     }
-    let createJson: { id?: string; polling_url?: string; urls?: { get?: string }; status?: string; output?: string | string[] }
+    let createJson: {
+      id?: string
+      polling_url?: string
+      urls?: { get?: string }
+      status?: string
+      output?: string | string[]
+      result?: string | { url?: string }
+      cost?: number
+      output_mp?: number
+    }
     try {
       createJson = JSON.parse(createText)
     } catch {
@@ -57,15 +66,13 @@ async function generateImageViaFluxFlex(prompt: string, _imageType?: string): Pr
       return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
     }
 
-    // 同期的に画像が返っている場合（status: succeeded + output あり）
-    if (createJson.status === 'succeeded' || createJson.status === 'completed' || createJson.status === 'Ready') {
-      const out = await extractImageFromFluxResponse(createJson)
-      if (out) return out
-    }
+    // 同期的に画像が返っている場合（result / output に URL や base64 が入る形式）
+    const syncOut = await extractImageFromFluxResponse(createJson)
+    if (syncOut) return syncOut
 
     const pollUrl = createJson.polling_url ?? createJson.urls?.get
     if (!pollUrl) {
-      console.warn('[FLUX] no polling_url or urls.get in response. Keys:', Object.keys(createJson))
+      console.warn('[FLUX] no image in result/output and no polling_url. Keys:', Object.keys(createJson))
       return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
     }
 
@@ -107,10 +114,14 @@ async function generateImageViaFluxFlex(prompt: string, _imageType?: string): Pr
 /** FLUX レスポンスから画像の data URL または URL を抽出。必要なら URL を fetch して data URL に変換。 */
 async function extractImageFromFluxResponse(body: {
   output?: string | string[]
-  result?: { url?: string }
+  result?: string | string[] | { url?: string }
   image?: string
 }): Promise<string | null> {
-  const raw = body.output ?? body.result?.url ?? body.image
+  const resultVal = body.result as string | string[] | { url?: string; output?: string | string[] } | undefined
+  const fromResult =
+    Array.isArray(resultVal) ? resultVal[0] : typeof resultVal === 'string' ? resultVal : resultVal?.url ?? (Array.isArray(resultVal?.output) ? resultVal.output[0] : resultVal?.output)
+  let raw: string | string[] | undefined = body.output ?? fromResult ?? body.image
+  if (Array.isArray(raw) && raw.length > 0) raw = raw[0]
   if (typeof raw === 'string') {
     if (raw.startsWith('data:')) return raw
     if (raw.startsWith('http')) {

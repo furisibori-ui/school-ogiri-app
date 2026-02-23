@@ -93,27 +93,34 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
   const hasMonuments = data.multimedia_content?.monuments && data.multimedia_content.monuments.length > 0
   const hasUniforms = data.multimedia_content?.uniforms && data.multimedia_content.uniforms.length > 0
 
-  // 施設紹介（写真なし・テキストのみ）
-  const facilitiesOnlySection = hasFacilities ? (
+  /** データがないときにセクション内で表示する共通メッセージ（全要素を出し切るため、非表示にしない） */
+  const emptySectionMessage = (
+    <p style={{ fontSize: styleConfig.typography.bodySize, color: '#6b7280', fontStyle: 'italic', textAlign: 'center', padding: '1.5rem' }}>
+      この項目は表示するデータがありません。生成の途中で失敗したか、時間切れの可能性があります。
+    </p>
+  )
+
+  // 施設紹介（写真なし・テキストのみ）。データがなくても見出し＋プレースホルダーで表示
+  const facilitiesOnlySection = (
     <section key="facilities" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
       <h2 style={{ fontSize: styleConfig.typography.headingSize, color: styleConfig.colorTheme.accentColor, borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`, paddingBottom: '0.5rem', marginBottom: '1rem', fontFamily: styleConfig.typography.fontFamily, textAlign: 'center' }}>◇ 施設紹介 ◇</h2>
       <div style={{ padding: styleConfig.spacing.cardPadding, backgroundColor: styleConfig.colorTheme.cardBg, borderRadius: '8px', border: `2px solid ${styleConfig.colorTheme.borderColor}` }}>
-        {(data.multimedia_content?.facilities ?? []).map((facility, index) => (
+        {hasFacilities ? (data.multimedia_content?.facilities ?? []).map((facility, index) => (
           <div key={index} style={{ marginBottom: index < (data.multimedia_content?.facilities ?? []).length - 1 ? '1rem' : 0, paddingBottom: index < (data.multimedia_content?.facilities ?? []).length - 1 ? '1rem' : 0, borderBottom: index < (data.multimedia_content?.facilities ?? []).length - 1 ? `1px solid ${styleConfig.colorTheme.borderColor}` : 'none' }}>
             <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.05rem' }}>{facility.name}</h3>
             <p style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.7' }}>{facility.description}</p>
           </div>
-        ))}
+        )) : emptySectionMessage}
       </div>
     </section>
-  ) : null
+  )
 
-  // 銅像（独立セクション・写真をでかく）
-  const monumentSection = hasMonuments ? (
+  // 銅像（独立セクション・写真をでかく）。データがなくても見出し＋プレースホルダーで表示
+  const monumentSection = (
     <section key="monument" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
       <h2 style={{ fontSize: styleConfig.typography.headingSize, color: styleConfig.colorTheme.accentColor, borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`, paddingBottom: '0.5rem', marginBottom: '1rem', fontFamily: styleConfig.typography.fontFamily, textAlign: 'center' }}>◆ 銅像 ◆</h2>
       <div style={{ padding: styleConfig.spacing.cardPadding, backgroundColor: styleConfig.colorTheme.cardBg, borderRadius: '8px', border: `2px solid ${styleConfig.colorTheme.borderColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-        {(data.multimedia_content?.monuments ?? []).map((monument, index) => (
+        {hasMonuments ? (data.multimedia_content?.monuments ?? []).map((monument, index) => (
           <div key={index}>
             {monument.image_url && (
               <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto 1rem', aspectRatio: '3/4', maxHeight: '560px', overflow: 'hidden', borderRadius: '8px', border: `4px solid ${styleConfig.colorTheme.accentColor}`, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
@@ -123,17 +130,17 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
             <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.25rem', textAlign: 'center' }}>{monument.name}</h3>
             <p style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.8', textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>{monument.description}</p>
           </div>
-        ))}
+        )) : emptySectionMessage}
       </div>
     </section>
-  ) : null
+  )
 
-  // 制服（独立セクション・写真をでかく）
-  const uniformSection = hasUniforms ? (
+  // 制服（独立セクション・写真をでかく）。データがなくても見出し＋プレースホルダーで表示
+  const uniformSection = (
     <section key="uniform" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
       <h2 style={{ fontSize: styleConfig.typography.headingSize, color: styleConfig.colorTheme.accentColor, borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`, paddingBottom: '0.5rem', marginBottom: '1rem', fontFamily: styleConfig.typography.fontFamily, textAlign: 'center' }}>◇ 制服紹介 ◇</h2>
       <div style={{ padding: styleConfig.spacing.cardPadding, backgroundColor: styleConfig.colorTheme.cardBg, borderRadius: '8px', border: `2px solid ${styleConfig.colorTheme.borderColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-        {(data.multimedia_content?.uniforms ?? []).map((uniform, index) => (
+        {hasUniforms ? (data.multimedia_content?.uniforms ?? []).map((uniform, index) => (
           <div key={index}>
             {uniform.image_url && (
               <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto 1rem', aspectRatio: '3/4', maxHeight: '560px', overflow: 'hidden', borderRadius: '8px', border: `4px solid ${styleConfig.colorTheme.accentColor}`, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
@@ -143,14 +150,14 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
             <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.25rem', color: styleConfig.colorTheme.accentColor, textAlign: 'center' }}>{uniform.type}</h3>
             <p style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.8', textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>{uniform.description}</p>
           </div>
-        ))}
+        )) : emptySectionMessage}
       </div>
     </section>
-  ) : null
+  )
 
   // 新規セクションを追加するとき：三項で <section> を返すなら上のように変数化し、ここでは key: 変数 のみ書く
   const sections: { [key: string]: JSX.Element | null } = {
-    news: (data.news_feed ?? []).length > 0 ? (
+    news: (
       <section key="news" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -172,7 +179,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           backgroundColor: styleConfig.colorTheme.cardBg,
           boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
         }}>
-          {(data.news_feed ?? []).map((news, index) => (
+          {(data.news_feed ?? []).length > 0 ? (data.news_feed ?? []).map((news, index) => (
             <div key={index} style={{ 
               padding: '0.75rem 1rem',
               borderBottom: index < (data.news_feed ?? []).length - 1 ? `2px dotted ${styleConfig.colorTheme.borderColor}` : 'none',
@@ -182,33 +189,16 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               color: styleConfig.colorTheme.textColor,
               backgroundColor: index % 2 === 0 ? 'white' : '#fafafa'
             }}>
-              <span style={{ 
-                whiteSpace: 'nowrap', 
-                fontWeight: 'bold',
-                color: '#dc2626'
-              }}>
-                {news.date}
-              </span>
-              <span style={{ 
-                backgroundColor: styleConfig.colorTheme.accentColor,
-                color: 'white',
-                padding: '0.125rem 0.75rem',
-                borderRadius: '12px',
-                fontSize: '0.75rem',
-                whiteSpace: 'nowrap',
-                fontWeight: 'bold',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-              }}>
-                {news.category}
-              </span>
+              <span style={{ whiteSpace: 'nowrap', fontWeight: 'bold', color: '#dc2626' }}>{news.date}</span>
+              <span style={{ backgroundColor: styleConfig.colorTheme.accentColor, color: 'white', padding: '0.125rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', whiteSpace: 'nowrap', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{news.category}</span>
               <span style={{ lineHeight: '1.8' }}>{news.text}</span>
             </div>
-          ))}
+          )) : emptySectionMessage}
         </div>
       </section>
-    ) : <></>,
+    ),
 
-    principal: data.principal_message ? (
+    principal: (
       <section key="principal" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -227,54 +217,58 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           backgroundColor: styleConfig.colorTheme.cardBg,
           boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
         }}>
-          <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
-            {data.principal_message?.face_image_url && (
-              <div style={{ display: 'inline-block' }}>
-                <img
-                  src={data.principal_message.face_image_url}
-                  alt={data.principal_message?.name ?? ''}
-                  style={{ 
-                    width: '32rem',  // 16rem → 32rem（2倍）
-                    height: '32rem', // 16rem → 32rem（2倍）
-                    objectFit: 'cover', 
-                    border: `8px solid ${styleConfig.colorTheme.accentColor}`, // 5px → 8px
-                    boxShadow: '0 12px 32px rgba(0,0,0,0.5)', // より強い影
-                    marginBottom: '0.75rem'
-                  }}
-                />
-                <div style={{
-                  backgroundColor: styleConfig.colorTheme.accentColor,
-                  color: 'white',
-                  padding: '1rem', // 0.5rem → 1rem
-                  fontWeight: 'bold',
-                  fontSize: '2rem', // 1.25rem → 2rem
-                  border: '5px solid gold', // 3px → 5px
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-                }}>
-                  {data.principal_message?.name} {data.principal_message?.title}
-                </div>
+          {data.principal_message ? (
+            <>
+              <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
+                {data.principal_message.face_image_url && (
+                  <div style={{ display: 'inline-block' }}>
+                    <img
+                      src={data.principal_message.face_image_url}
+                      alt={data.principal_message?.name ?? ''}
+                      style={{ 
+                        width: '32rem',
+                        height: '32rem',
+                        objectFit: 'cover', 
+                        border: `8px solid ${styleConfig.colorTheme.accentColor}`,
+                        boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
+                        marginBottom: '0.75rem'
+                      }}
+                    />
+                    <div style={{
+                      backgroundColor: styleConfig.colorTheme.accentColor,
+                      color: 'white',
+                      padding: '1rem',
+                      fontWeight: 'bold',
+                      fontSize: '2rem',
+                      border: '5px solid gold',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                    }}>
+                      {data.principal_message?.name} {data.principal_message?.title}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div style={{
-            backgroundColor: '#fffef0',
-            padding: '1rem',
-            border: `2px solid ${styleConfig.colorTheme.borderColor}`,
-            borderRadius: '4px'
-          }}>
-            <p style={{ 
-              fontSize: styleConfig.typography.bodySize,
-              lineHeight: '2',
-              whiteSpace: 'pre-line',
-              color: styleConfig.colorTheme.textColor,
-              textIndent: '1em'
-            }}>
-              {data.principal_message?.text ?? ''}
-            </p>
-          </div>
+              <div style={{
+                backgroundColor: '#fffef0',
+                padding: '1rem',
+                border: `2px solid ${styleConfig.colorTheme.borderColor}`,
+                borderRadius: '4px'
+              }}>
+                <p style={{ 
+                  fontSize: styleConfig.typography.bodySize,
+                  lineHeight: '2',
+                  whiteSpace: 'pre-line',
+                  color: styleConfig.colorTheme.textColor,
+                  textIndent: '1em'
+                }}>
+                  {data.principal_message?.text ?? ''}
+                </p>
+              </div>
+            </>
+          ) : emptySectionMessage}
         </div>
       </section>
-    ) : null,
+    ),
 
     overview: (
       <section key="overview" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
@@ -684,7 +678,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
       </section>
     ),
 
-    events: (data.multimedia_content?.school_events ?? []).length > 0 ? (
+    events: (
       <section key="events" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -702,6 +696,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           padding: styleConfig.spacing.cardPadding,
           backgroundColor: styleConfig.colorTheme.cardBg
         }}>
+          {(data.multimedia_content?.school_events ?? []).length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {(data.multimedia_content?.school_events ?? []).map((event, index) => (
               <div key={index} style={{ 
@@ -735,11 +730,12 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               </div>
             ))}
           </div>
+          ) : emptySectionMessage}
         </div>
       </section>
-    ) : <></>,
+    ),
 
-    clubs: (data.multimedia_content?.club_activities ?? []).length > 0 ? (
+    clubs: (
       <section key="clubs" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -757,6 +753,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           padding: styleConfig.spacing.cardPadding,
           backgroundColor: styleConfig.colorTheme.cardBg
         }}>
+          {(data.multimedia_content?.club_activities ?? []).length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {(data.multimedia_content?.club_activities ?? []).map((club, index) => (
               <div key={index} style={{ 
@@ -789,15 +786,16 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               </div>
             ))}
           </div>
+          ) : emptySectionMessage}
         </div>
       </section>
-    ) : <></>,
+    ),
 
     facilities: facilitiesOnlySection,
     monument: monumentSection,
     uniform: uniformSection,
 
-    history: (data.history ?? []).length > 0 ? (
+    history: (
       <section key="history" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -815,37 +813,41 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           padding: styleConfig.spacing.cardPadding,
           backgroundColor: styleConfig.colorTheme.cardBg
         }}>
-          <div style={{ marginBottom: '1rem' }}>
-            <img
-              src={data.school_profile?.historical_buildings?.[0]?.image_url || 'https://placehold.co/800x300/8B7355/FFFFFF?text=Historical+Photo'}
-              alt="学校の歴史（初代校舎）"
-              style={{ 
-                width: '100%', 
-                maxWidth: '1000px',
-                margin: '0 auto',
-                height: 'auto', 
-                aspectRatio: '16/9', 
-                objectFit: 'cover', 
-                border: `4px solid ${styleConfig.colorTheme.accentColor}`, 
-                borderRadius: '8px',
-                marginBottom: '0', 
-                display: 'block',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
-              }}
-            />
-          </div>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {(data.history ?? []).map((item, index) => (
-              <li key={index} style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.75' }}>
-                {item}
-              </li>
-            ))}
-          </ul>
+          {(data.history ?? []).length > 0 ? (
+            <>
+              <div style={{ marginBottom: '1rem' }}>
+                <img
+                  src={data.school_profile?.historical_buildings?.[0]?.image_url || 'https://placehold.co/800x300/8B7355/FFFFFF?text=Historical+Photo'}
+                  alt="学校の歴史（初代校舎）"
+                  style={{ 
+                    width: '100%', 
+                    maxWidth: '1000px',
+                    margin: '0 auto',
+                    height: 'auto', 
+                    aspectRatio: '16/9', 
+                    objectFit: 'cover', 
+                    border: `4px solid ${styleConfig.colorTheme.accentColor}`, 
+                    borderRadius: '8px',
+                    marginBottom: '0', 
+                    display: 'block',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
+                  }}
+                />
+              </div>
+              <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {(data.history ?? []).map((item, index) => (
+                  <li key={index} style={{ fontSize: styleConfig.typography.bodySize, color: styleConfig.colorTheme.textColor, lineHeight: '1.75' }}>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : emptySectionMessage}
         </div>
       </section>
-    ) : <></>,
+    ),
 
-    teachers: (data.teachers ?? []).length > 0 ? (
+    teachers: (
       <section key="teachers" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
         <h2 style={{ 
           fontSize: styleConfig.typography.headingSize,
@@ -863,6 +865,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           padding: styleConfig.spacing.cardPadding,
           backgroundColor: styleConfig.colorTheme.cardBg
         }}>
+          {(data.teachers ?? []).length > 0 ? (
           <div 
             className={(data.teachers ?? []).length === 3 ? 'teachers-grid-3' : ''}
             style={{ 
@@ -908,9 +911,10 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               </div>
             ))}
           </div>
+          ) : emptySectionMessage}
         </div>
       </section>
-    ) : <></>,
+    ),
 
     school_trip: null,
   }
@@ -933,6 +937,13 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
     ? 'grid grid-cols-1 lg:grid-cols-2'
     : 'grid grid-cols-1 lg:grid-cols-3'
   const layoutGap = styleConfig.spacing.sectionGap || '0.5rem'
+
+  // ヘッダー用：学校名・キャッチフレーズが？？？のときは表示しない（トップの？？？防止）
+  const isPlaceholderText = (s: string | undefined) => !s || /^[?？\uFFFD\s]+$/.test(s.trim()) || s === '？？？' || s === '???'
+  const headerSchoolName = isPlaceholderText(data.school_profile?.name) ? '本校' : (data.school_profile?.name ?? '本校')
+  const headerSubCatchphrase = isPlaceholderText(data.school_profile?.sub_catchphrase)
+    ? `${headerSchoolName} 公式ホームページ`
+    : (data.school_profile?.sub_catchphrase || `${headerSchoolName} 公式ホームページ`)
 
   return (
     <>
@@ -1008,40 +1019,45 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
         position: 'relative'
       }}>
       
-      {/* 背景にリピートするシンボル（PDFで？？？になる場合はフォント未埋め込みの可能性。Noto Sans JP を優先） */}
-      {styleConfig.backgroundPattern && styleConfig.backgroundPattern.symbol != null && String(styleConfig.backgroundPattern.symbol).trim() !== '' && (
-        <div 
-          className="pattern-symbol"
-          style={{
-            position: 'fixed',
-            top: '-10%',
-            left: '-10%',
-            width: '120%',
-            height: '120%',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, 150px)',
-            gap: '3rem',
-            transform: `rotate(${styleConfig.backgroundPattern.rotation}deg)`,
-            zIndex: 0
-          }}
-        >
-          {Array.from({ length: 100 }).map((_, i) => (
-            <div 
-              key={i}
-              style={{
-                fontSize: styleConfig.backgroundPattern!.size === 'text-8xl' ? '6rem' : '4rem',
-                opacity: styleConfig.backgroundPattern!.opacity,
-                color: styleConfig.colorTheme.accentColor,
-                textAlign: 'center',
-                userSelect: 'none',
-                fontFamily: '"Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif'
-              }}
-            >
-              {String(styleConfig.backgroundPattern!.symbol).trim()}
-            </div>
-          ))}
-        </div>
-      )}
+      {/* 背景にリピートするシンボル。？や ??? は表示しない（フォント未収録・LLM誤出力対策） */}
+      {styleConfig.backgroundPattern && styleConfig.backgroundPattern.symbol != null && (() => {
+        const raw = String(styleConfig.backgroundPattern.symbol).trim()
+        const isPlaceholder = !raw || /^[?？\uFFFD\s]+$/.test(raw) || raw === '？？？' || raw === '???'
+        const symbol = isPlaceholder ? '・' : raw
+        return (
+          <div 
+            className="pattern-symbol"
+            style={{
+              position: 'fixed',
+              top: '-10%',
+              left: '-10%',
+              width: '120%',
+              height: '120%',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, 150px)',
+              gap: '3rem',
+              transform: `rotate(${styleConfig.backgroundPattern!.rotation}deg)`,
+              zIndex: 0
+            }}
+          >
+            {Array.from({ length: 100 }).map((_, i) => (
+              <div 
+                key={i}
+                style={{
+                  fontSize: styleConfig.backgroundPattern!.size === 'text-8xl' ? '6rem' : '4rem',
+                  opacity: styleConfig.backgroundPattern!.opacity,
+                  color: styleConfig.colorTheme.accentColor,
+                  textAlign: 'center',
+                  userSelect: 'none',
+                  fontFamily: '"Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif'
+                }}
+              >
+                {symbol}
+              </div>
+            ))}
+          </div>
+        )
+      })()}
 
       <header style={{ 
         background: styleConfig.colorTheme.headerBg,
@@ -1053,7 +1069,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
         boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          {/* 流れるようこそメッセージ */}
+          {/* 流れるようこそメッセージ（学校名が？？？のときは「本校」で表示） */}
           <div style={{
             backgroundColor: 'rgba(255,255,255,0.15)',
             padding: '0.4rem 0.5rem',
@@ -1067,7 +1083,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               animation: 'marquee 15s linear infinite',
               fontSize: '0.85rem'
             }}>
-              ★☆ ようこそ{data.school_profile.name}ホームページへ！！！ ☆★
+              ★☆ ようこそ{headerSchoolName}ホームページへ！！！ ☆★
             </div>
           </div>
 
@@ -1077,7 +1093,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               <>
                 <img 
                   src={data.school_profile.logo_url} 
-                  alt={data.school_profile.name}
+                  alt={headerSchoolName}
                   style={{ 
                     width: '100%',
                     maxWidth: '1200px', 
@@ -1099,7 +1115,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                   color: styleConfig.colorTheme.headerText,
                   textShadow: '3px 3px 6px rgba(0,0,0,0.6), 0 0 16px rgba(255,215,0,0.4)'
                 }}>
-                  {data.school_profile.name}
+                  {headerSchoolName}
                 </p>
               </>
             )}
@@ -1123,9 +1139,9 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
             {/* 学校名：読みやすく大きく（長い名前でも最小3rem確保） */}
             {!data.school_profile?.logo_url && (
               <h1 style={{ 
-                fontSize: (data.school_profile.name.length > 14
+                fontSize: (headerSchoolName.length > 14
                   ? 'clamp(2.5rem, 5vw + 1.5rem, 3.25rem)'
-                  : data.school_profile.name.length > 10
+                  : headerSchoolName.length > 10
                   ? 'clamp(3rem, 6vw + 1.5rem, 3.75rem)'
                   : 'clamp(3.25rem, 8vw + 1rem, 4.5rem)'),
                 fontWeight: 900,
@@ -1158,7 +1174,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                 textShadow: '1px 1px 0 rgba(212,175,55,0.9), 2px 2px 0 rgba(212,175,55,0.8), 3px 3px 0 rgba(212,175,55,0.7), 4px 4px 0 rgba(212,175,55,0.6), 5px 5px 0 rgba(212,175,55,0.5), 6px 6px 10px rgba(0,0,0,0.5)'
               })
               }}>
-                {data.school_profile.name}
+                {headerSchoolName}
               </h1>
             )}
 
@@ -1181,7 +1197,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                 color: 'rgba(255,255,255,0.98)',
                 textShadow: '1px 1px 3px rgba(0,0,0,0.5)'
               }}>
-                {data.school_profile.sub_catchphrase || `${data.school_profile.name} 公式ホームページ`}
+                {headerSubCatchphrase}
                 {data.school_profile.established && (
                   <span style={{ marginLeft: '0.75rem', opacity: 0.95, fontWeight: 600 }}>
                     創立 {data.school_profile.established}
