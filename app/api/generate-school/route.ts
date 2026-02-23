@@ -13,6 +13,25 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
 })
 
+/** LLMが出力しがちな不正JSONを修復してパース。末尾カンマや改行を除去 */
+function repairAndParseSchoolJson(jsonText: string): SchoolData {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(jsonText)
+  } catch {
+    // 配列・オブジェクトの末尾カンマを除去して再試行（position 3707 付近の "after array element" 対策）
+    const repaired = jsonText
+      .replace(/,(\s*)\]/g, '$1]')  // , ] → ]
+      .replace(/,(\s*)\}/g, '$1}') // , } → }
+    try {
+      parsed = JSON.parse(repaired)
+    } catch (e2) {
+      throw e2
+    }
+  }
+  return parsed as SchoolData
+}
+
 // 画像生成ヘルパー関数
 async function generateImage(prompt: string, landmark: string, imageType: string = 'landscape'): Promise<string> {
   try {
@@ -1071,7 +1090,7 @@ JSONで出力。先頭は{。校訓=あるある一文。校長=でございま�
         if (start >= 0 && end > start) jsonText = raw.slice(start, end + 1)
         else jsonText = raw
       }
-      schoolData = JSON.parse(jsonText)
+      schoolData = repairAndParseSchoolJson(jsonText)
     } catch (parseErr) {
       const msg = parseErr instanceof Error ? parseErr.message : String(parseErr)
       console.error('Claude応答のJSON解析に失敗（モックで返却）:', msg)
