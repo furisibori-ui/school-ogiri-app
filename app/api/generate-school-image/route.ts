@@ -22,8 +22,8 @@ async function dataUrlToBlobUrl(dataUrl: string): Promise<string> {
   }
 }
 
-// Comet利用時: 画像生成用。400「マルチモーダル未対応」の場合は COMET_IMAGE_MODEL で別モデルを指定
-const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.0-flash-exp-image-generation'
+// Comet利用時: 画像生成用。Comet で利用可能なモデル（404 回避）。上書きは COMET_IMAGE_MODEL
+const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.5-flash-image'
 
 async function generateImageViaComet(
   prompt: string,

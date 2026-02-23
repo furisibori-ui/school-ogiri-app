@@ -279,6 +279,33 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
           padding: styleConfig.spacing.cardPadding,
           backgroundColor: styleConfig.colorTheme.cardBg
         }}>
+          {/* 現在の校舎の画像（配列の最後＝現校舎） */}
+          {data.school_profile.historical_buildings && data.school_profile.historical_buildings.length > 0 && (() => {
+            const currentBuilding = data.school_profile.historical_buildings[data.school_profile.historical_buildings.length - 1]
+            return (
+              <div style={{ marginBottom: '1rem' }}>
+                <img
+                  src={currentBuilding.image_url || 'https://placehold.co/800x450/8B7355/FFFFFF?text=現校舎'}
+                  alt={currentBuilding.name}
+                  style={{
+                    width: '100%',
+                    maxWidth: '1000px',
+                    margin: '0 auto',
+                    height: 'auto',
+                    aspectRatio: '16/9',
+                    objectFit: 'cover',
+                    border: `4px solid ${styleConfig.colorTheme.accentColor}`,
+                    borderRadius: '8px',
+                    display: 'block',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
+                  }}
+                />
+                <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold', color: styleConfig.colorTheme.accentColor, textAlign: 'center' }}>
+                  {currentBuilding.name}
+                </p>
+              </div>
+            )
+          })()}
           <p style={{ 
             fontSize: styleConfig.typography.bodySize,
             lineHeight: '2.2',

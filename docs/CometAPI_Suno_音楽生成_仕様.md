@@ -16,9 +16,11 @@ Vercelのタイムアウトを防ぐため、Inngestのバックグラウンド�
 
 ### ② タスクステータスの照会 (Fetch/Polling)
 - **Method:** `GET`
-- **URL:** `https://api.cometapi.com/suno/fetch?task_id={task_id}`
-  - ※もし上記で404等になる場合は、パスパラメータ形式 `https://api.cometapi.com/suno/fetch/{task_id}` にフォールバックするロジックを考慮すること。
-- **Headers:** Submit時と同じ
+- **URL（大本命）:** `https://api.cometapi.com/suno/fetch/{task_id}`（**パスパラメータ形式**。クエリ `?task_id=` は 404 HTML になるため使わない）
+- **フォールバック（404/HTML 時に順に試す）:**
+  - 候補2: `https://api.cometapi.com/suno/task/{task_id}`
+  - 候補3: `https://api.cometapi.com/suno/status/{task_id}`
+- **Headers:** Submit 時と同じ（`Authorization: Bearer <COMETAPI_KEY>` を付ける）
 - **Responseの期待値:**
   - 処理中の場合: statusフィールドが `pending` や `running` 等。
   - 完了の場合: statusフィールドが `complete`（または `SUCCESS`）になる。

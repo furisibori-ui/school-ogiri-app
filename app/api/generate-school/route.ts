@@ -26,7 +26,7 @@ async function generateImage(prompt: string, landmark: string, imageType: string
   }
 }
 
-const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.0-flash-exp-image-generation'
+const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.5-flash-image'
 
 /** CometAPI 経由で画像生成（Gemini Image）→ data URL を返す。失敗時はプレースホルダーURL */
 async function generateImageViaComet(
@@ -967,109 +967,33 @@ export async function POST(request: NextRequest) {
     const locationContext = buildLocationContext(locationData)
 
     const systemPrompt = `
-あなたは**地域密着型の架空学校**を生成する専門家です。出力は**説明なしで先頭を { にしたJSONのみ**。
-
-## 共通ルール
-- **校訓**：その場所の「あるある」を一文で（例：コンビニ→トイレを笑顔で貸す、神社→手を合わせたらお賽銭）。motto_single_char は校訓から漢字1文字。忌み言葉（切れる・終わる・死・苦等）は使わない。
-- **校長**：「〜でございます」調。季節に言及しない。名前の性別に合わせ face_prompt は male/female principal、校長室バストアップ。
-- **校章・制服**：校章＝伝統象徴＋地域モチーフ＋色＋校名頭文字・創立年。制服キーカラーは校章と同じ（青紺以外可）。行事・部活の画像プロンプトにも色を反映。
-- **部活1件・行事1件**：部活は毎回ランダムに1種類（吹奏楽に偏らず、神楽部・坂道研究部・物流研究部等）。行事は入学式以外可、経路を固有名詞で。修学旅行＝業種連動・京奈良禁止。銅像・生徒の見た目は地域に合わせる。
+地域密着の架空学校をJSONで出力。先頭は { のみ。校訓＝場所の「あるある」一文。校長＝でございます調・face_promptは性別に合わせmale/female。制服色＝校章。部活・行事は各1件・経路は固有名詞。京奈良禁止。
 
 {
-  "school_profile": {
-    "name": "地域の超ニッチなランドマークを含む学校名（一般的な地名ではなく、具体的な建造物や地形名を使う）",
-    "motto": "格調高く、その場所の「あるある」を一文で。形式はメッセージ型・三要素型・四字熟語型のいずれか。",
-    "motto_single_char": "校訓の核心1文字（例：笑・慎・貸）",
-    "sub_catchphrase": "地域に沿ったキャッチフレーズ一文",
-    "background_symbol": "地域の記号1文字（山・波・桜・鳥居等）",
-    "overview": "固有名詞10個以上。125-150字。大喜利＝真面目な文体で地域あるある→教育にズレた接続1つ（単語入れ替えだけNG）。",
-    "overview_image_prompt": "英語。Wide 16:9, school exterior, 5-8 students, golden hour, disposable camera。地域で色・建築を変える。",
-    "emblem_prompt": "英語。Traditional Japanese school emblem。地域で形・モチーフ・色（校名頭文字・創立年含む）。300字以上。",
-    "historical_buildings": [
-      {
-        "name": "初代校舎",
-        "year": "[創立年代]年〜[改築年]年（明治○○年〜大正○○年）",
-        "description": "60-80字。建築様式・地域・時代のいずれか。",
-        "image_prompt": "英語。Old Japanese school building, [era], wooden, sepia。地域要素を建築に。"
-      },
-      { "name": "2代目校舎", "year": "大正○○年〜昭和○○年", "description": "60-80字。", "image_prompt": "Taisho era, two-story wooden, historical photo" },
-      { "name": "現校舎", "year": "昭和○○年〜現在", "description": "鉄筋コンクリート・現代設備（50-60字）", "image_prompt": "Modern concrete school, Showa era, nostalgic" }
-    ]
+  "school_profile": { "name": "ランドマーク含む学校名", "motto": "あるある一文", "motto_single_char": "1文字", "sub_catchphrase": "一文", "background_symbol": "1文字", "overview": "固有名詞10+・125-150字・大喜利1つ", "overview_image_prompt": "英語・Wide16:9校舎外観", "emblem_prompt": "英語・校章・300字", "historical_buildings": [{"name":"初代校舎","year":"明治〜大正","description":"60-80字","image_prompt":"英語Old wooden sepia"},{"name":"2代目校舎","year":"大正〜昭和","description":"60-80字","image_prompt":"英語Taisho wooden"},{"name":"現校舎","year":"昭和〜現在","description":"50-60字","image_prompt":"英語Modern concrete"}]
   },
-  "principal_message": {
-    "name": "地域に適した校長名（性別統一。face_prompt に合わせる）",
-    "title": "校長",
-    "text": "300-400字。感謝・歴史・固有名詞5+・校訓・地域連携。大喜利＝地域の意外な要素を教育に接続（単語入れ替えだけNG）。",
-    "face_prompt": "英語。male/female principal（名前の性別に合わせる）、55-65歳、校長室バストアップ。地域要素を服装・背景に。disposable camera。"
-  },
-  "school_anthem": {
-    "title": "校歌タイトル（学校名含む）",
-    "lyrics": "3番必須・七五調・各番4-6行。固有名詞各番3-5個。「〜あり」「〜ゆく」等。改行\\n。",
-    "style": "荘厳な合唱曲風",
-    "suno_prompt": "Japanese school anthem, solemn choir, orchestral. 地域を音楽に（神社→gagaku、坂→ascending等）。英語で短く。"
-  },
-  "news_feed": [
-    {"date": "2026.02.15", "category": "行事", "text": "地域イベントと連動したニュース（25-40字、固有名詞を含む）"},
-    {"date": "2026.02.10", "category": "進路", "text": "地域の産業・大学と連動したニュース（25-40字）"},
-    {"date": "2026.02.05", "category": "部活", "text": "地域の施設・特徴を活かした部活動ニュース（25-40字）"},
-    {"date": "2026.01.28", "category": "連絡", "text": "地域の場所・施設に関するニュース（25-40字）"},
-    {"date": "2026.01.20", "category": "行事", "text": "地域の歴史・文化と連動した行事ニュース（25-40字）"}
-  ],
-  "crazy_rules": [
-    "地形や気候を反映した生徒心得1（例：急坂での走行禁止、強風時の傘の使用禁止）",
-    "地域の産業や文化を反映した生徒心得2（例：地元の祭りへの参加義務）",
-    "地域の歴史や伝説から派生した生徒心得3",
-    "地元の商店や施設への配慮を含む生徒心得4",
-    "交通機関や通学路に関する生徒心得5（具体的な路線名や駅名を含める）"
-  ],
+  "principal_message": { "name": "校長名", "title": "校長", "text": "300-400字・固有名詞5+・大喜利1つ", "face_prompt": "英語principal校長室" },
+  "school_anthem": { "title": "校歌名", "lyrics": "3番七五調・改行\\n", "style": "荘厳", "suno_prompt": "English anthem" },
+  "news_feed": [{"date":"2026.02.15","category":"行事","text":"25-40字"},{"date":"2026.02.10","category":"進路","text":"25-40字"},{"date":"2026.02.05","category":"部活","text":"25-40字"},{"date":"2026.01.28","category":"連絡","text":"25-40字"},{"date":"2026.01.20","category":"行事","text":"25-40字"}],
+  "crazy_rules": ["心得1","心得2","心得3","心得4","心得5"],
   "multimedia_content": {
-    "club_activities": [
-      {
-        "name": "部活1件のみ。地域由来の部活名。毎回種類を変える（神楽部・坂道研究部・物流研究部・合唱部等）。",
-        "description": "50-80字。固有名詞3個以上。",
-        "sound_prompt": "部活動の環境音を英語で。地域要素を反映（例：神社→shrine bell, 坂→footsteps on slope, カフェ→espresso, cups）。",
-        "image_prompt": "英語。部活に合った小道具・背景。生徒は制服（校章キーカラー）。Wide 16:9、4-6人、disposable camera。NOT looking at camera。"
-      }
-    ],
-    "school_events": [
-      {
-        "name": "行事1件。入学式以外可（体育祭・文化祭・遠足等）。行事名に地名を含む。",
-        "date": "4月7日 または 行事に合った日付",
-        "description": "40-60字。集合・経路・目的地を固有名詞で（例：〇〇駅南口→〇〇バス→〇〇公園）。",
-        "image_prompt": "英語。生徒は本校制服（キーカラー反映）。行事の場面・地域の背景。Wide 16:9、5-7人、disposable camera。"
-      }
-    ],
-    "facilities": [
-      { "name": "地域を反映した施設名", "description": "80-120字。固有名詞含む。", "image_prompt": "英語。Wide interior 16:9, facility room, 3-5 students, disposable。地域要素を室内に。" },
-      { "name": "地形・気候を活かした施設名", "description": "200-250字", "image_prompt": "Wide interior, facility, natural lighting, disposable" },
-      { "name": "地域産業と連動した施設名", "description": "200-250字", "image_prompt": "Wide interior, specialized equipment, students, disposable" }
-    ],
-    "monuments": [
-      { "name": "創立者銅像（地域に合う名前）", "description": "80-100字。創立者と地域の関わり。固有名詞。", "image_prompt": "英語。Bronze statue of founder, full view。服装・持ち物に地域要素。disposable。" }
-    ],
-    "uniforms": [
-      { "type": "制服（冬服）", "description": "キーカラー＝校章と同じ。地名から色の由来を80-120字で。", "image_prompt": "英語。Full body, male left female right, uniform, plain background。キーカラー＝校章。disposable。" }
-    ]
+    "club_activities": [{"name": "部活名", "description": "50-80字", "sound_prompt": "英語", "image_prompt": "英語Wide16:9"}],
+    "school_events": [{"name": "行事名", "date": "4月7日等", "description": "40-60字経路固有名詞", "image_prompt": "英語"}],
+    "facilities": [{"name": "施設名", "description": "80-120字", "image_prompt": "英語"},{"name": "施設名", "description": "200-250字", "image_prompt": "英語"},{"name": "施設名", "description": "200-250字", "image_prompt": "英語"}],
+    "monuments": [{"name": "創立者像", "description": "80-100字", "image_prompt": "英語"}],
+    "uniforms": [{"type": "制服（冬服）", "description": "80-120字", "image_prompt": "英語"}]
   },
-  "teachers": [
-    { "name": "教員名", "subject": "教頭/養護教諭/生徒指導部主任のいずれか", "description": "90-140字。勤務年数・場所名3つ以上・地域連携・大喜利。計3名。" }
-  ],
-  "notable_alumni": [
-    { "name": "卒業生名（職業含む）", "year": "卒業年", "achievement": "45-65字。地域との関わり・固有名詞。3名。" }
-  ],
+  "teachers": [{"name": "名", "subject": "教頭等", "description": "90-140字"},{"name": "名", "subject": "養護教諭等", "description": "90-140字"},{"name": "名", "subject": "生徒指導部主任等", "description": "90-140字"}],
+  "notable_alumni": [{"name": "卒業生名", "year": "卒業年", "achievement": "45-65字"},{"name": "卒業生名", "year": "卒業年", "achievement": "45-65字"},{"name": "卒業生名", "year": "卒業年", "achievement": "45-65字"}]
 }
 `
 
     const userPrompt = `
-位置情報に基づき、地域密着型の架空学校を生成してください。出力は**JSONのみ**（先頭を { に）。
+地域密着の架空学校をJSONで生成。先頭を { に。
 
 ${locationContext}
 
-## ルール（要約）
-- **大喜利**：1つ以上。単語入れ替えだけNG。地域あるある→校訓・教育に本気で接続。例OK：「校訓『手を合わせたら必ずお賽銭』は〇〇神社（1650年創建）の氏子のご厚意に学んだ…」
-- **固有名詞**：校長5+・overview7+・行事経路・教員場所名3+。創業年・乗降客数等の詳細を付加可。
-- **字数**：校長250-350・overview125-150・行事60-80・教員90-140・卒業生45-65字。
-- **校訓**＝その場所の「あるある」一文。**行事**＝地名入り・経路を固有名詞で。**修学旅行**＝業種連動・京奈良禁止。**部活・行事は各1件**。教員3名（教頭・保健室・生徒指導部主任）。
+固有名詞を多数。大喜利1つ（単語入れ替えだけNG）。校長250-350字・overview125-150・教員90-140・卒業生45-65字。
 `
 
     // 240秒で打ち切り（Inngest Step1+Step2+Step3 が 300s に収まるよう Step1 を短縮）
@@ -1241,41 +1165,24 @@ function buildLocationContext(location: LocationData): string {
   // 🔥🔥🔥 徹底的なリサーチ結果があればそれを最優先で使用 🔥🔥🔥
   if (location.comprehensive_research) {
     // 周辺リサーチは絞って使用（トークン節約・処理時間短縮）
-    const RESEARCH_MAX = 1000
+    const RESEARCH_MAX = 600
+    const PROPER_NOUNS_MAX = 35
     const researchText = location.comprehensive_research.length > RESEARCH_MAX
       ? location.comprehensive_research.slice(0, RESEARCH_MAX) + '…'
       : location.comprehensive_research
     console.log(`📚 地域リサーチを使用: ${researchText.length} 文字（${RESEARCH_MAX}字制限）`)
     
-    // 🚀 固有名詞を抽出してリスト化（最大80個に絞る）
     const properNounsMatch = researchText.match(/\d+\.\s*(.+)/g)
-    const properNouns = (properNounsMatch ? properNounsMatch.map(m => m.replace(/^\d+\.\s*/, '').trim()) : []).slice(0, 80)
+    const properNouns = (properNounsMatch ? properNounsMatch.map(m => m.replace(/^\d+\.\s*/, '').trim()) : []).slice(0, PROPER_NOUNS_MAX)
     
     let context = `
-# 固有名詞リスト（必ず使用）
-
-**${properNouns.length}個**を校長・行事・部活・教員・歴史・卒業生に必ず使う。テンプレではなく具体的な文で。
-
-【目安】校長5+・行事3+・部活3+・歴史5+・教員各3+・卒業生各5+
+固有名詞（${properNouns.length}個）を必ず使う。校長・行事・部活・教員・卒業生に多数。開業年・乗降客数等の詳細付加。大喜利1つ。
 
 ${properNouns.map((name, i) => `${i + 1}. ${name}`).join('\n')}
 
-❌「遠足で公園に」→ 失格　✅「〇〇駅→〇〇バス→〇〇公園→〇〇神社…」→ 合格（固有名詞多数）
-
 ---
-
-# 地域リサーチ（この範囲で活用）
 
 ${researchText}
-
----
-
-# 指示まとめ
-1. **固有名詞**を各所に多数。連想で膨らませる（例：駅→開業年・乗降客数、公園→面積・桜の本数）。歴史・数字・役割を盛り込む。
-2. **大喜利**＝厳かな文体で意外な接続（例：〇〇の24時間精神は校訓『不撓不屈』に通じる）。
-3. **字数**：校長350-450・行事60-80・教員90-140・卒業生45-65。固有名詞に詳細付加（開業年・面積・創業年等）。
-4. **具体例**：❌「〇〇駅から徒歩」→ ✅「〇〇駅（1985年開業、8000人/日）から徒歩10分」
-5. 地元民が「住んでる人しか知らない！」と感じる超具体的な内容に。
 `
     
     return context

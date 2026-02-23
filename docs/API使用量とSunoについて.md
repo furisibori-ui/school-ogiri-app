@@ -1,5 +1,11 @@
 # API 使用量と Suno について
 
+## 1回の「学校生成」でどれくらい消費するか
+
+- Comet ダッシュボードの **「使用ログ」（Usage Log）** で、リクエストごとの使用量・コストを確認できます。
+- 使用分布グラフでは **モデル別**（例: claude-3-5-sonnet, gemini-2.5-flash-image, chirp-bluejay）の利用量が見えます。1回の学校生成では、テキスト（Claude）、画像7枚（Gemini Image）、校歌（Suno/chirp）がそれぞれ呼ばれるため、グラフの該当モデルの増分でおおよその消費が分かります。
+- 正確な「1回あたりの金額」は Comet の料金表と使用ログのリクエスト数から計算してください。
+
 ## Comet の「使用分布」に Suno が出ない理由
 
 Comet の API 使用概要（使用分布）には、**チャット補完（Claude）** や **画像生成（Gemini Image）** のような「標準的な Comet API エンドポイント」の呼び出しだけが集計されます。
@@ -9,10 +15,9 @@ Comet の API 使用概要（使用分布）には、**チャット補完（Clau
 
 つまり「Suno がここに表示されていない」のは、**未使用だからではなく、集計の区分が違う**可能性が高いです。Comet の料金・利用状況のページで Suno や「音楽生成」の項目を探してみてください。
 
-## 画像生成の消費量を抑える
+## 画像生成のモデル
 
-- デフォルトの画像モデルを **gemini-2.0-flash-exp-image-generation** にしています（消費量を抑えるため）。
-- より画質を優先したい場合は、環境変数 **`COMET_IMAGE_MODEL`** に `gemini-2.5-flash-image` を指定してください。
+- デフォルトは **gemini-2.5-flash-image**（Comet で利用可能なモデル）。環境変数 **`COMET_IMAGE_MODEL`** で上書きできます。
 - **Replicate**（`REPLICATE_API_TOKEN`）を設定すると、画像は Replicate 側で生成され、Comet の画像 API は使われません（コスト削減の選択肢になります）。
 
 ## 「出力が大きすぎる」で Inngest が失敗する場合

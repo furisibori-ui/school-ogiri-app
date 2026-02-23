@@ -35,9 +35,10 @@ export async function POST(request: NextRequest) {
     })
   }
 
+  const RESEARCH_MAX = 500
   const researchText = locationData.comprehensive_research
-    ? locationData.comprehensive_research.length > 1500
-      ? locationData.comprehensive_research.slice(0, 1500) + '…'
+    ? locationData.comprehensive_research.length > RESEARCH_MAX
+      ? locationData.comprehensive_research.slice(0, RESEARCH_MAX) + '…'
       : locationData.comprehensive_research
     : ''
   const landmarks = locationData.landmarks?.join('、') || 'この地域'
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
   const systemPrompt = `あなたは地域密着型の架空学校の校歌を作詞する専門家です。
 以下のルールで校歌（タイトル・歌詞・スタイル）だけをJSONで返してください。
 - 歌詞は必ず1番・2番・3番の3つすべてを出力すること（2番で終わりにしない）。七五調または八六調。改行は\\nで表す。
-- 周辺の山・川・地名・ランドマークなど固有の情報をしっかり入れ込むこと。地域の固有名詞を各番に含める。
+- 周辺の山・川・地名・ランドマークなど固有の情報をしっかり入れ込むこと。地域の固有名詞を各番に5つ以上含める。
 - 返却は必ず次のJSONのみ。説明や前置きは不要。
 {"school_anthem":{"title":"〇〇校歌","lyrics":"一\\n...\\n\\n二\\n...\\n\\n三\\n...","style":"荘厳な合唱曲風"}}`
 

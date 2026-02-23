@@ -251,11 +251,11 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       console.log('📍 最も近い場所:', closestPlace?.name)
       console.log('🏛️ ランドマーク一覧（上位10件）:', landmarks.slice(0, 10))
       
-      // 地域リサーチ（Place Details は 10 件に削減して API 料金節約）
-      console.log('📚 詳細な地域リサーチを開始します...')
+      // 地域リサーチ（おすすめ量：6件で API 料金・処理時間を抑える）
+      console.log('📚 地域リサーチを開始します...')
       
       const comprehensiveResearch = await conductComprehensiveResearch(
-        sortedPlaces.slice(0, 10),
+        sortedPlaces.slice(0, 6),
         address,
         lat,
         lng,
@@ -316,10 +316,10 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     research += `市区町村: ${addressParts[1] || '不明'}\n`
     research += `町名・番地: ${addressParts.slice(2).join(' ')}\n\n`
     
-    // セクション3: 周辺施設の詳細分析（Place Details API・10件で料金削減）
-    research += `# 🏛️ 周辺施設の詳細情報（最も近い10件）\n\n`
+    // セクション3: 周辺施設の詳細（おすすめ量：5件）
+    research += `# 🏛️ 周辺施設の詳細情報（最も近い5件）\n\n`
     
-    const detailPromises = places.slice(0, 10).map((place, index) => {
+    const detailPromises = places.slice(0, 5).map((place, index) => {
       return new Promise<string>((resolve) => {
         placesService.getDetails(
           { placeId: place.place_id, language: 'ja' },
@@ -370,15 +370,15 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       })
     })
     
-    console.log('⏳ Place Details API で詳細情報を取得中（20件、情報量最大化）...')
+    console.log('⏳ Place Details API で詳細情報を取得中（5件）...')
     const placeDetailsResults = await Promise.all(detailPromises)
     research += placeDetailsResults.join('')
     
-    // 🚀🚀🚀 Wikipedia APIで追加調査（無料！）
-    console.log('📚 Wikipedia APIで施設の背景情報を調査中...')
-    research += `\n# 📖 Wikipedia調査結果（施設の歴史・背景情報）\n\n`
+    // Wikipedia で施設の背景を取得（おすすめ量：5件・各300字）
+    console.log('📚 Wikipediaで施設情報を取得中（5件）...')
+    research += `\n# 📖 Wikipedia（施設の背景）\n\n`
     
-    const wikiPromises = places.slice(0, 20).map(async (place, index) => {
+    const wikiPromises = places.slice(0, 5).map(async (place) => {
       try {
         const wikiUrl = `https://ja.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(place.name)}&origin=*`
         const wikiResponse = await fetch(wikiUrl)
@@ -389,13 +389,11 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
           const page = pages[0]
           
           if (page && page.extract && page.extract.length > 50) {
-            console.log(`  ✅ [${place.name}] Wikipedia情報取得: ${page.extract.length}文字`)
-            return `## 📚 ${place.name} (Wikipedia情報)\n${page.extract.substring(0, 500)}\n\n`
+            return `## ${place.name}\n${page.extract.substring(0, 300)}\n\n`
           }
         }
         return ''
-      } catch (error) {
-        console.log(`  ⚠️ [${place.name}] Wikipedia取得失敗`)
+      } catch {
         return ''
       }
     })
@@ -403,22 +401,19 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     const wikiResults = await Promise.all(wikiPromises)
     const wikiInfo = wikiResults.filter(r => r.length > 0).join('')
     
-    if (wikiInfo.length > 100) {
+    if (wikiInfo.length > 50) {
       research += wikiInfo
-      research += `\n⚠️ **上記のWikipedia情報を使って、学校の歴史・校長メッセージ・行事説明に具体的な背景知識を盛り込んでください。**\n\n`
-      console.log(`✅ Wikipedia情報を ${wikiInfo.length} 文字追加しました`)
+      console.log(`✅ Wikipedia: ${wikiInfo.length} 文字`)
     } else {
       research += `（Wikipedia情報なし）\n\n`
     }
     
-    // 残りの施設は基本情報のみ（固有名詞を増やすため多めに列挙）
-    if (places.length > 20) {
-      research += `\n# 📋 その他の周辺施設（基本情報のみ、${Math.min(places.length - 20, 80)}件）\n\n`
-      research += `⚠️ **これらの施設名も必ず文章に使用してください。**\n\n`
-      places.slice(20, 100).forEach((place, index) => {
-        research += `${index + 21}. ${place.name}（${place.types?.slice(0, 2).join(', ') || '施設'}）\n`
+    // その他は施設名のみ（おすすめ量：最大20件）
+    if (places.length > 10) {
+      research += `\n# 📋 その他の施設名\n\n`
+      places.slice(10, 30).forEach((place, index) => {
+        research += `${index + 11}. ${place.name}\n`
       })
-      research += `\n`
     }
     
     // セクション4: カテゴリ別統計
@@ -432,7 +427,7 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
     
     const topCategories = Object.entries(categoryCount)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
+      .slice(0, 5)
     
     topCategories.forEach(([category, count]) => {
       research += `- ${category}: ${count}件\n`
@@ -488,26 +483,11 @@ export default function MapSelector({ onLocationSelect }: MapSelectorProps) {
       }
     })
     
-    research += `⚠️ **以下の${uniqueNames.size}個の固有名詞を、校長メッセージ・行事説明・部活動説明・教員コメント・歴史・卒業生の業績に必ず使用してください。**\n`
-    research += `⚠️ **これらは全て実在する場所です。必ず文章に組み込んでください。**\n\n`
-    research += `【使用基準】\n`
-    research += `- 校長メッセージ: 15個以上\n`
-    research += `- 各行事: 8個以上\n`
-    research += `- 各部活動: 8個以上\n`
-    research += `- 学校歴史: 15個以上\n`
-    research += `- 修学旅行: 10個以上\n`
-    research += `- 各教員: 5個以上\n`
-    research += `- 各卒業生: 8個以上\n\n`
-    
     research += `【固有名詞一覧】\n`
-    Array.from(uniqueNames).slice(0, 200).forEach((name, i) => {
+    Array.from(uniqueNames).slice(0, 40).forEach((name, i) => {
       research += `${i + 1}. ${name}\n`
     })
-    
-    research += `\n---\n`
-    research += `✅ 合計情報量: ${research.length} 文字\n`
-    research += `✅ 固有名詞: ${uniqueNames.size} 個\n`
-    research += `\n🚨🚨🚨 **上記の固有名詞を使わない文章は失格です！必ず各セクションに散りばめてください！** 🚨🚨🚨\n`
+    research += `\n`
     
     console.log(`📚 地域リサーチ完了: ${research.length} 文字の詳細情報を収集しました`)
     

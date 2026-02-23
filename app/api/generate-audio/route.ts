@@ -4,8 +4,13 @@ import { NextRequest, NextResponse } from 'next/server'
 export const maxDuration = 300
 
 const COMET_SUNO_SUBMIT_URL = 'https://api.cometapi.com/suno/submit/music'
-const COMET_SUNO_FETCH_BASE = 'https://api.cometapi.com/suno/fetch'
-const POLL_INTERVAL_MS = 8_000 // 5〜10秒おき（仕様書どおり）
+// ポーリングはパスパラメータ形式が正仕様。404/HTML 時は候補2・3を順に試す
+const SUNO_FETCH_URLS = [
+  (taskId: string) => `https://api.cometapi.com/suno/fetch/${encodeURIComponent(taskId)}`,
+  (taskId: string) => `https://api.cometapi.com/suno/task/${encodeURIComponent(taskId)}`,
+  (taskId: string) => `https://api.cometapi.com/suno/status/${encodeURIComponent(taskId)}`,
+]
+const POLL_INTERVAL_MS = 8_000
 // Inngest 全体が 300s で打ち切られるため、Step3 は短めに打ち切る（Step1〜2 の残り時間内に収める）
 const POLL_TIMEOUT_MS = 24_000 // 最大24秒（HTML が返り続けると 300s タイムアウトの原因になるため）
 
@@ -129,54 +134,57 @@ type FetchPayload = {
 
 /**
  * タスク照会にポーリングし、完了したら音声 URL を返す。
- * 404 の場合は ?task_id= の次に /fetch/{task_id} でフォールバックする。
+ * 大本命: /suno/fetch/{taskId}。404 または HTML が返ったら /suno/task/{taskId} → /suno/status/{taskId} を順に試す。
  */
 async function pollForAudioUrl(apiKey: string, taskId: string): Promise<string | null> {
   const start = Date.now()
   let lastStatus: string | undefined
-  let usePathParam = false
+  const headers = { Authorization: `Bearer ${apiKey}` }
 
   while (Date.now() - start < POLL_TIMEOUT_MS) {
-    const fetchUrl = usePathParam
-      ? `${COMET_SUNO_FETCH_BASE}/${encodeURIComponent(taskId)}`
-      : `${COMET_SUNO_FETCH_BASE}?task_id=${encodeURIComponent(taskId)}`
-    const res = await fetch(fetchUrl, {
-      method: 'GET',
-      headers: { Authorization: `Bearer ${apiKey}` },
-    })
+    let res: Response
+    let text: string
+    let urlIndex = 0
 
-    const text = await res.text()
+    while (urlIndex < SUNO_FETCH_URLS.length) {
+      const fetchUrl = SUNO_FETCH_URLS[urlIndex](taskId)
+      res = await fetch(fetchUrl, { method: 'GET', headers })
+      text = await res.text()
 
-    if (res.status === 404 && !usePathParam) {
-      usePathParam = true
-      console.log('[Suno Fetch] 404 with query param, fallback to path param:', `${COMET_SUNO_FETCH_BASE}/${taskId}`)
+      if (res.status === 404 || text.trimStart().startsWith('<')) {
+        console.warn('[Suno Fetch] 404 or HTML, try next URL:', fetchUrl)
+        urlIndex++
+        continue
+      }
+      break
+    }
+
+    if (urlIndex >= SUNO_FETCH_URLS.length) {
+      console.warn('[Suno Fetch] all URLs returned 404 or HTML for task_id=', taskId)
       await sleep(POLL_INTERVAL_MS)
       continue
     }
 
-    if (!res.ok) {
-      console.warn(`Suno fetch ${res.status} for task_id=${taskId}:`, text.slice(0, 200))
-      await sleep(POLL_INTERVAL_MS)
-      continue
-    }
-    if (text.trimStart().startsWith('<')) {
-      console.warn('Suno fetch returned HTML for task_id=', taskId)
+    const resFinal = res!
+    const textFinal = text!
+
+    if (!resFinal.ok) {
+      console.warn(`Suno fetch ${resFinal.status} for task_id=${taskId}:`, textFinal.slice(0, 200))
       await sleep(POLL_INTERVAL_MS)
       continue
     }
 
     let data: FetchPayload
     try {
-      data = JSON.parse(text) as FetchPayload
+      data = JSON.parse(textFinal) as FetchPayload
     } catch {
-      console.warn('Suno fetch response not JSON for task_id=', taskId, text.slice(0, 100))
+      console.warn('Suno fetch response not JSON for task_id=', taskId, textFinal.slice(0, 100))
       await sleep(POLL_INTERVAL_MS)
       continue
     }
 
     const status = data.status ?? data.data?.status ?? ''
 
-    // デバッグ: ステータスが変わったタイミングで生レスポンスを出力（仕様書 3. 必須要件）
     if (status !== lastStatus) {
       lastStatus = status
       console.log('[Suno Fetch] status changed, raw response:', JSON.stringify(data))
