@@ -1121,7 +1121,7 @@ export async function POST(request: NextRequest) {
     {
       "name": "卒業生名（職業を含む）",
       "year": "卒業年",
-      "achievement": "地域との関わりを含む業績（50-70字、固有名詞を含む）"
+      "achievement": "地域との関わりを含む業績（**35-50字、約半分の分量で簡潔に**、固有名詞を含む）"
     },
     // ... 3名
   ],

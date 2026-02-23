@@ -102,7 +102,7 @@ Suno と同様に、**画像生成でも「1回呼んで画像が返る」想定
 | 原因 | ログで見るキーワード | 対処 |
 |------|------------------------|------|
 | Comet が HTML を返している（認証エラー・未契約・エンドポイント不一致） | `Comet image API returned HTML instead of JSON` | `Comet_API_確認手順.md` の 1〜3（API キー・画像 API 利用可否・モデル ID）を確認 |
-| HTTP エラー（4xx/5xx） | `Comet image API non-OK:` のあとにステータスコード | 同じく Comet ダッシュボードでエラー内容・レート制限を確認 |
+| HTTP エラー（4xx/5xx） | `Comet image API non-OK:` のあとにステータスコード | 同じく Comet ダッシュボードでエラー内容・レート制限を確認。**400「マルチモーダル出力はサポートされていません」** のときは、そのモデルは画像出力非対応。Comet のドキュメントで**画像生成対応**のモデル ID を確認し **COMET_IMAGE_MODEL** に設定。 |
 | レスポンスが JSON ではない | `Comet image API response not JSON` | 上記と同様、Comet 側の返却形式を確認 |
 | **200 OK だが画像が含まれていない**（安全フィルタでブロック・空の candidates 等） | `[Comet image] 200 OK but no image in response` | ログの `finishReason` や `rawCandidatesKeys` を確認。プロンプトの内容がブロックされていないか、別モデル（例: `COMET_IMAGE_MODEL=gemini-2.5-flash-image`）を試す |
 

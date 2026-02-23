@@ -78,8 +78,10 @@ export async function POST(request: NextRequest) {
     const taskId = typeof taskIdRaw === 'string' ? taskIdRaw : undefined
     if (!taskId) {
       console.error('Suno submit response (full):', submitData)
+      const keys = Object.keys(submitData).join(', ')
+      const sample = JSON.stringify(submitData).slice(0, 400)
       throw new Error(
-        'Suno submit のレスポンスに task_id が含まれていません。Comet の Suno API ドキュメントでレスポンス形式を確認してください。'
+        `Suno submit のレスポンスに task_id が含まれていません。実際のキー: [${keys}] 先頭: ${sample}`
       )
     }
 

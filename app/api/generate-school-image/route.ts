@@ -22,8 +22,8 @@ async function dataUrlToBlobUrl(dataUrl: string): Promise<string> {
   }
 }
 
-// Comet利用時: v1beta で 404 になる場合は COMET_IMAGE_MODEL で利用可能なモデルを指定（Comet の ListModels またはドキュメントで確認）
-const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.5-flash'
+// Comet利用時: 画像生成用。400「マルチモーダル未対応」の場合は COMET_IMAGE_MODEL で別モデルを指定
+const DEFAULT_COMET_IMAGE_MODEL = 'gemini-2.0-flash-exp-image-generation'
 
 async function generateImageViaComet(
   prompt: string,
