@@ -194,7 +194,6 @@ export const schoolGenerateFunction = inngest.createFunction(
     })
 
     // Step 2: 画像を生成（モック時はキャッシュがあれば再利用してAPI節約）
-    const { location } = event.data as { jobId: string; location: LocationData }
     const schoolWithImages = await step.run('step2-images', async () => {
       const tasks = collectImageTasks(schoolData, location)
       const isMock = !!(schoolData as SchoolData & { fallbackUsed?: boolean }).fallbackUsed
