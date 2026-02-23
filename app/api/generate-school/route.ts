@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { kv } from '@vercel/kv'
 import { LocationData, SchoolData, StyleConfig } from '@/types/school'
+
+const COMET_CHAT_SUCCESS_CACHE_KEY = 'school:comet_chat_last_success'
+const COMET_CHAT_SUCCESS_CACHE_TTL = 86400 * 7 // 7日
 
 // Vercel: Hobby は最大60秒・Pro は最大300秒。Pro なら 300 で有効。Hobby では 60 が上限。
 export const maxDuration = 300
@@ -79,20 +83,32 @@ async function generateImageViaComet(
   return `https://placehold.co/800x450/CCCCCC/666666?text=Image`
 }
 
-/** CometAPI（500+モデル・1API・最大20%オフ）経由でClaudeテキスト生成 */
-async function callCometChat(systemPrompt: string, userPrompt: string): Promise<string> {
+/** Comet でよく使われるチャットモデルID（契約によっては利用不可。カタログで要確認） */
+const COMET_CHAT_FALLBACKS = [
+  'google/gemini-2.5-flash',
+  'google/gemini-2.0-flash',
+  'openai/gpt-4o-mini',
+]
+
+/** CometAPI（500+モデル・1API）経由でテキスト生成。成功したモデルIDを返して次回優先する */
+async function callCometChat(systemPrompt: string, userPrompt: string): Promise<{ content: string; modelId: string }> {
   const key = process.env.COMET_API_KEY
   if (!key) throw new Error('COMET_API_KEY not set')
-  // 未設定時は「速い1本＋フォールバック1本」のみ（試行を増やしすぎるとAPI消費が膨らむ）
-  const modelIds = (
-    process.env.COMET_CHAT_MODEL
-      ? [process.env.COMET_CHAT_MODEL]
-      : [
-          'anthropic/claude-3-5-haiku',   // 1本目: 速い（失敗時のみ次へ）
-          'anthropic/claude-3-5-sonnet',  // 2本目: フォールバック
-        ]
-  )
-  const maxTokens = 2048 // 出力短縮で生成時間短縮（3072→2048）
+  const userModel = process.env.COMET_CHAT_MODEL?.trim()
+  const defaultIds = [
+    'anthropic/claude-3-5-haiku',
+    'anthropic/claude-3-5-sonnet',
+  ]
+  let ordered = userModel
+    ? [userModel, ...defaultIds.filter((m) => m !== userModel), ...COMET_CHAT_FALLBACKS.filter((m) => m !== userModel)]
+    : [...defaultIds, ...COMET_CHAT_FALLBACKS]
+  ordered = ordered.slice(0, 6)
+  const cachedModel = await kv.get<string>(COMET_CHAT_SUCCESS_CACHE_KEY).catch(() => null)
+  const modelIds =
+    cachedModel && ordered.includes(cachedModel)
+      ? [cachedModel, ...ordered.filter((m) => m !== cachedModel)]
+      : ordered
+  const maxTokens = 2048
   let lastErr: string = ''
   for (const model of modelIds) {
     try {
@@ -109,7 +125,7 @@ async function callCometChat(systemPrompt: string, userPrompt: string): Promise<
             { role: 'user', content: userPrompt },
           ],
           max_tokens: maxTokens,
-          temperature: 0.9, // 0.9でやや速く・安定
+          temperature: 0.9,
         }),
       })
       if (!res.ok) {
@@ -119,7 +135,10 @@ async function callCometChat(systemPrompt: string, userPrompt: string): Promise<
       }
       const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> }
       const content = data?.choices?.[0]?.message?.content
-      if (typeof content === 'string') return content
+      if (typeof content === 'string') {
+        await kv.set(COMET_CHAT_SUCCESS_CACHE_KEY, model, { ex: COMET_CHAT_SUCCESS_CACHE_TTL }).catch(() => {})
+        return { content, modelId: model }
+      }
     } catch (e) {
       lastErr = `${model}: ${e instanceof Error ? e.message : String(e)}`
     }
@@ -868,7 +887,7 @@ function generateMockSchoolData(location: LocationData): SchoolData {
       motto: motto,
       motto_single_char: motto.charAt(0), // 校訓の頭文字（一文の場合は先頭1文字）
       sub_catchphrase: `${landmark}と共に歩む学校`,
-      overview: `本校は${established.fullText}、${address}の地に創立され、${landmark}に象徴される地域と共に${yearsExisted}年の歴史を歩んでまいりました。「${motto}」の校訓のもと、知・徳・体の調和のとれた全人教育を実践し、地域社会に貢献できる人材を輩出しております。生徒一人ひとりの個性を伸ばし、基礎学力の定着と応用力の育成に努め、ICT・国際理解・キャリア教育にも取り組んでおります。教職員一同、生徒の健やかな成長を第一に日々の教育に誠心誠意取り組んでおります。`,
+      overview: `本校は${established.fullText}、${address}の地に創立され、${landmark}に象徴される地域と共に歩んできました。「${motto}」の校訓のもと、知・徳・体の調和のとれた全人教育を実践し、地域に貢献できる人材を輩出しています。生徒の個性を伸ばし、基礎学力と応用力の育成、ICT・国際理解・キャリア教育に努めています。`,
       emblem_prompt: `A traditional Japanese high school emblem featuring a stylized ${landmark} motif crossed with mountain peaks, with kanji characters in gold embroidery on a navy blue shield background, old-fashioned crest design`,
       emblem_url: 'https://placehold.co/200x200/003366/FFD700?text=School+Emblem',
       established: established.fullText,
@@ -879,6 +898,20 @@ function generateMockSchoolData(location: LocationData): SchoolData {
           description: `${landmark}の麓に建てられた木造平屋建ての校舎。創立者${founderName}先生の理念のもと、地域の子どもたちの教育に尽力いたしました。`,
           image_prompt: 'Old Japanese school building, wooden structure, Meiji era architecture, sepia tone, historical photo, nostalgic, grainy',
           image_url: 'https://placehold.co/400x300/8B7355/FFFFFF?text=First+Building'
+        },
+        {
+          name: '二代目校舎',
+          year: '大正13年〜昭和20年',
+          description: `鉄筋コンクリートの校舎として建て替え。${landmark}を望む高台に立地し、採光と風通しを重視した設計です。`,
+          image_prompt: 'Japanese school building, Taisho to early Showa era, concrete structure, retro architecture',
+          image_url: 'https://placehold.co/400x300/6B7280/FFFFFF?text=Second+Building'
+        },
+        {
+          name: '現校舎',
+          year: '昭和〜現在',
+          description: `耐震改修を経て、現在も地域の教育の拠点として利用されています。${landmark}と調和した外観が特徴です。`,
+          image_prompt: 'Modern Japanese high school building, clean design, contemporary',
+          image_url: 'https://placehold.co/400x300/4B5563/FFFFFF?text=Current+Building'
         }
       ]
     },
@@ -892,7 +925,7 @@ function generateMockSchoolData(location: LocationData): SchoolData {
     // 校歌は歌詞のみ（音声は後回し）。歌詞は必ず入れる
     school_anthem: {
       title: `${schoolName}校歌`,
-      lyrics: `一\n${landmark}の麓に 朝日が昇り\n我等が学び舎 希望の門\n${motto}の心を 胸に抱き\n今日も励まん 仲間と共に\n\n二\n${landmarks[1] || landmark}の風に 歴史を聞き\n伝統を受け 明日を築く\n誠実勤勉 誇りを持ち\n永遠に咲かせん この母校の花`,
+      lyrics: `一\n${landmark}の麓に 朝日が昇り\n我等が学び舎 希望の門\n${motto}の心を 胸に抱き\n今日も励まん 仲間と共に\n\n二\n${landmarks[1] || landmark}の風に 歴史を聞き\n伝統を受け 明日を築く\n誠実勤勉 誇りを持ち\n永遠に咲かせん この母校の花\n\n三\n緑の丘に 鐘が鳴り\n夢を結ぶ この学び舎\n未来へ羽ばたく 若人の\n誇りと希望 ここにあり`,
       style: '荘厳な合唱曲風',
       suno_prompt: ''
     },
@@ -993,10 +1026,11 @@ JSONで出力。先頭は{。校訓=あるある一文。校長=でございま�
 
     let responseText: string
     if (useComet) {
-      responseText = await Promise.race([
+      const cometResult = await Promise.race([
         callCometChat(systemPrompt, userPrompt),
         timeoutPromise,
       ])
+      responseText = cometResult.content
     } else if (useAnthropic) {
       const message = await Promise.race([
         anthropic.messages.create({

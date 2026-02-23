@@ -109,7 +109,13 @@ export default function Home() {
           .then((body) => {
             if (cancelled) return
             if ((body.status === 'completed' || body.status === 'partial') && body.data) {
-              setSchoolData(body.data as SchoolData)
+              const data = body.data as SchoolData
+              setSchoolData(data)
+              if (data.fallbackUsed) {
+                setApiFallbackMessage(data.errorMessage || 'テキスト生成APIが利用できなかったため、テンプレートで表示しています。')
+              } else {
+                setApiFallbackMessage(null)
+              }
               setStage('school')
               if (body.status === 'completed') setShowCongratulations(true)
               return

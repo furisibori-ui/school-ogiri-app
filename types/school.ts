@@ -181,4 +181,8 @@ export interface SchoolData {
   school_trip?: SchoolTrip
   access?: string
   style_config?: StyleConfig
+  /** テキスト生成が失敗しモックで返した場合 true。画面で「テンプレート表示」と分かるようにする用 */
+  fallbackUsed?: boolean
+  /** fallbackUsed 時のエラー内容（表示用） */
+  errorMessage?: string
 }

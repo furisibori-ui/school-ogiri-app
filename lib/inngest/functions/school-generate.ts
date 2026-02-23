@@ -4,6 +4,9 @@ import type { LocationData, SchoolData } from '@/types/school'
 
 const EVENT_NAME = 'school/generate'
 const KV_TTL = 3600 // 1時間
+const MOCK_CACHE_TTL = 86400 * 30 // モック用画像・音声キャッシュ 30日
+const MOCK_IMAGES_KEY = 'school:mock:image_results'
+const MOCK_AUDIO_KEY = 'school:mock:audio_url'
 
 function getBaseUrl(): string {
   if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL
@@ -175,77 +178,126 @@ export const schoolGenerateFunction = inngest.createFunction(
       return data
     })
 
-    // Step 2: 画像7枚を並列生成し、URL を school に反映
+    // Step 2: 画像を生成（モック時はキャッシュがあれば再利用してAPI節約）
     const schoolWithImages = await step.run('step2-images', async () => {
       const tasks = collectImageTasks(schoolData)
-      const results = await Promise.all(
-        tasks.map(async (task) => {
-          const res = await fetch(`${baseUrl}/api/generate-school-image`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: task.prompt, imageType: task.imageType }),
-          })
-          const raw = await res.text()
-          let data: { url?: string } = {}
-          if (raw.trimStart().startsWith('{')) {
-            try {
-              data = JSON.parse(raw) as { url?: string }
-            } catch {
-              console.warn('step2 generate-school-image response not valid JSON:', raw.slice(0, 200))
-            }
-          } else {
-            console.warn('step2 generate-school-image returned non-JSON (e.g. HTML):', raw.slice(0, 200))
+      const isMock = !!(schoolData as SchoolData & { fallbackUsed?: boolean }).fallbackUsed
+      let results: { task: { prompt: string; imageType: string }; url: string }[]
+
+      if (isMock) {
+        const cached = await kv.get<{ imageType: string; url: string }[]>(MOCK_IMAGES_KEY).catch(() => null)
+        const byType = cached && Array.isArray(cached) ? new Map(cached.map((c) => [c.imageType, c.url])) : null
+        const cacheHit = byType && tasks.every((t) => byType.has(t.imageType))
+        if (cacheHit) {
+          results = tasks.map((task) => ({ task, url: byType!.get(task.imageType)! }))
+          console.log('step2 mock cache hit', { jobId, imageCount: results.length })
+        } else {
+          results = await Promise.all(
+            tasks.map(async (task) => {
+              const res = await fetch(`${baseUrl}/api/generate-school-image`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: task.prompt, imageType: task.imageType }),
+              })
+              const raw = await res.text()
+              let data: { url?: string } = {}
+              if (raw.trimStart().startsWith('{')) {
+                try {
+                  data = JSON.parse(raw) as { url?: string }
+                } catch {
+                  console.warn('step2 generate-school-image response not valid JSON:', raw.slice(0, 200))
+                }
+              }
+              const url = data?.url || `https://placehold.co/800x450/CCCCCC/666666?text=Image`
+              return { task, url }
+            })
+          )
+          if (results.some((r) => !isPlaceholder(r.url))) {
+            await kv.set(
+              MOCK_IMAGES_KEY,
+              results.map((r) => ({ imageType: r.task.imageType, url: r.url })),
+              { ex: MOCK_CACHE_TTL }
+            ).catch(() => {})
           }
-          const url = data?.url || `https://placehold.co/800x450/CCCCCC/666666?text=Image`
-          return { task, url }
-        })
-      )
+        }
+      } else {
+        results = await Promise.all(
+          tasks.map(async (task) => {
+            const res = await fetch(`${baseUrl}/api/generate-school-image`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ prompt: task.prompt, imageType: task.imageType }),
+            })
+            const raw = await res.text()
+            let data: { url?: string } = {}
+            if (raw.trimStart().startsWith('{')) {
+              try {
+                data = JSON.parse(raw) as { url?: string }
+              } catch {
+                console.warn('step2 generate-school-image response not valid JSON:', raw.slice(0, 200))
+              }
+            }
+            const url = data?.url || `https://placehold.co/800x450/CCCCCC/666666?text=Image`
+            return { task, url }
+          })
+        )
+      }
+
       let current = schoolData
       for (const { task, url } of results) {
         current = applyImageUrl(current, task, url)
       }
       await kv.set(`school:${jobId}:partial`, JSON.stringify(current), { ex: KV_TTL })
       const placeholderCount = results.filter((r) => isPlaceholder(r.url)).length
-      const realCount = results.length - placeholderCount
       console.log('step2 done', {
         jobId,
         imageCount: results.length,
-        realImages: realCount,
-        placeholderImages: placeholderCount,
-        detail: results.map((r) => ({ type: r.task.imageType, isPlaceholder: isPlaceholder(r.url) })),
+        realImages: results.length - placeholderCount,
+        fromMockCache: isMock && !!results.length,
       })
-      if (placeholderCount > 0) {
-        console.warn('step2: some or all images are placeholder. Check Vercel logs for "Comet image" or "generate-school-image".')
-      }
       return current
     })
 
-    // Step 3: 校歌音声を1本生成（step.run の戻り値は型が失われるため SchoolData にキャスト）
+    // Step 3: 校歌音声を1本生成（モック時はキャッシュがあれば再利用）
     const schoolWithAudio = await step.run('step3-anthem-audio', async () => {
       const data = schoolWithImages as SchoolData
       const anthem = data.school_anthem
       if (!anthem?.lyrics) return data
-      const res = await fetch(`${baseUrl}/api/generate-audio`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lyrics: anthem.lyrics,
-          style: anthem.style || '荘厳な合唱曲風',
-          title: anthem.title || '校歌',
-        }),
-      })
-      const raw = await res.text()
-      let audioData: { url?: string } = {}
-      if (raw.trimStart().startsWith('{')) {
-        try {
-          audioData = JSON.parse(raw) as { url?: string }
-        } catch {
-          console.warn('step3 generate-audio response not valid JSON:', raw.slice(0, 200))
+      const isMock = !!(data as SchoolData & { fallbackUsed?: boolean }).fallbackUsed
+      let audioUrl: string | undefined
+
+      if (isMock) {
+        const cached = await kv.get<string>(MOCK_AUDIO_KEY).catch(() => null)
+        if (cached && cached.length > 0) {
+          audioUrl = cached
+          console.log('step3 mock audio cache hit', { jobId })
         }
-      } else {
-        console.warn('step3 generate-audio returned non-JSON (e.g. HTML):', raw.slice(0, 200))
       }
-      const audioUrl = audioData?.url ?? undefined
+      if (!audioUrl) {
+        const res = await fetch(`${baseUrl}/api/generate-audio`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lyrics: anthem.lyrics,
+            style: anthem.style || '荘厳な合唱曲風',
+            title: anthem.title || '校歌',
+          }),
+        })
+        const raw = await res.text()
+        let audioData: { url?: string } = {}
+        if (raw.trimStart().startsWith('{')) {
+          try {
+            audioData = JSON.parse(raw) as { url?: string }
+          } catch {
+            console.warn('step3 generate-audio response not valid JSON:', raw.slice(0, 200))
+          }
+        }
+        audioUrl = audioData?.url ?? undefined
+        if (audioUrl && isMock) {
+          await kv.set(MOCK_AUDIO_KEY, audioUrl, { ex: MOCK_CACHE_TTL }).catch(() => {})
+        }
+      }
+
       const next = audioUrl
         ? { ...data, school_anthem: { ...anthem, audio_url: audioUrl } }
         : data
