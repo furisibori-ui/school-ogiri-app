@@ -68,8 +68,8 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
     sectionOrder: []
   }
 
-  // 筆文字フォント（楷書体風）
-  const calligraphyFont = 'var(--font-yuji-mai), "HGS行書体", "AR行書体M", cursive'
+  // 筆文字フォント（楷書体風）。末尾にフォールバックを付けて、未収録文字が ??? にならないようにする
+  const calligraphyFont = 'var(--font-yuji-mai), "HGS行書体", "AR行書体M", "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif'
 
   // 【重要】sections オブジェクト内で key: 条件 ? ( <section>... ) と書くと Vercel/SWC が
   // "<" を比較演算子と解釈し "Unexpected token `section`" でビルド失敗する。
@@ -381,16 +381,19 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
             minWidth: '200px'
           }}>
             {data.school_profile.motto_single_char && (
-              <div style={{
-                fontSize: '6rem',
-                fontFamily: '"Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif',
-                fontWeight: 'bold',
-                color: '#8B0000',
-                textShadow: '3px 3px 6px rgba(0,0,0,0.3)',
-                marginBottom: '1rem',
-                lineHeight: '1'
-              }}>
-                『{data.school_profile.motto_single_char}』
+              <div
+                style={{
+                  fontSize: '6rem',
+                  fontFamily: '"Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif',
+                  fontWeight: 'bold',
+                  color: '#8B0000',
+                  textShadow: '3px 3px 6px rgba(0,0,0,0.3)',
+                  marginBottom: '1rem',
+                  lineHeight: '1'
+                }}
+                title={data.school_profile.motto_single_char}
+              >
+                『{String(data.school_profile.motto_single_char).trim() || '・'}』
               </div>
             )}
             {data.school_profile.sub_catchphrase && (
@@ -436,85 +439,8 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
       </section>
     ) : <></>,
 
-    historical_buildings: data.school_profile.historical_buildings && data.school_profile.historical_buildings.length > 0 ? (
-      <section key="historical_buildings" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
-        <h2 style={{ 
-          fontSize: styleConfig.typography.headingSize,
-          color: styleConfig.colorTheme.accentColor,
-          borderBottom: `3px solid ${styleConfig.colorTheme.accentColor}`,
-          paddingBottom: '0.5rem',
-          marginBottom: '1rem',
-          fontFamily: styleConfig.typography.fontFamily,
-          textAlign: 'center'
-        }}>
-          ◆ 校舎の歴史 ◆
-        </h2>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: data.school_profile.historical_buildings.length === 1 ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: '1.5rem',
-          backgroundColor: styleConfig.colorTheme.cardBg,
-          padding: styleConfig.spacing.cardPadding,
-          borderRadius: '8px',
-          border: `2px solid ${styleConfig.colorTheme.borderColor}`,
-          boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-          maxWidth: data.school_profile.historical_buildings.length === 1 ? '900px' : undefined,
-          margin: data.school_profile.historical_buildings.length === 1 ? '0 auto' : undefined
-        }}>
-          {data.school_profile.historical_buildings.map((building, index) => (
-            <div key={index} style={{
-              textAlign: 'center',
-              padding: '1.25rem',
-              backgroundColor: '#fdfcf8',
-              border: '2px solid #8B7355',
-              borderRadius: '8px',
-              minHeight: '360px',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <div style={{ width: '100%', aspectRatio: '16/10', overflow: 'hidden', borderRadius: '8px', marginBottom: '1rem', flexShrink: 0, border: '4px solid #5D4E37', boxShadow: '0 8px 24px rgba(0,0,0,0.25)' }}>
-                <img 
-                  src={building.image_url || 'https://placehold.co/400x300/8B7355/FFFFFF?text=Historical+Building'}
-                  alt={building.name}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    display: 'block',
-                    filter: 'blur(0.8px) sepia(50%) saturate(50%)'
-                  }}
-                />
-              </div>
-              <h3 style={{
-                fontSize: '1.3rem',
-                fontWeight: 'bold',
-                marginBottom: '0.5rem',
-                color: '#5D4E37',
-                fontFamily: calligraphyFont
-              }}>
-                {building.name}
-              </h3>
-              <p style={{
-                fontSize: '0.85rem',
-                color: '#666',
-                marginBottom: '0.75rem',
-                fontWeight: 'bold'
-              }}>
-                {building.year}
-              </p>
-              <p style={{
-                fontSize: '0.9rem',
-                color: '#374151',
-                lineHeight: '1.8',
-                textAlign: 'left'
-              }}>
-                {building.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-    ) : <></>,
+    // 校舎の歴史セクションは非表示（初代・現校舎の画像は概要・校訓で使用）
+    historical_buildings: null,
 
     anthem: (
       <section key="anthem" style={{ marginBottom: styleConfig.spacing.sectionGap }}>
@@ -637,7 +563,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               )}
             </div>
 
-            {/* 歌詞（読みやすいサイズに調整） */}
+            {/* 歌詞（1番・2番・3番を付けて表示） */}
             <div style={{
               backgroundColor: '#fffef8',
               padding: '1.25rem',
@@ -656,7 +582,18 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                 fontWeight: 'bold',
                 textShadow: '1px 1px 2px rgba(0,0,0,0.08)'
               }}>
-                {data.school_anthem.lyrics}
+                {(() => {
+                  const raw = data.school_anthem.lyrics || ''
+                  // 一・二・三で区切られている場合はそれで分割、否则は \n\n で分割
+                  const byKanji = raw.split(/(?=^[一二三]\s*\n)/m).filter(Boolean)
+                  const parts = byKanji.length >= 2
+                    ? byKanji
+                    : raw.split(/\n\n+/)
+                  if (parts.length >= 2) {
+                    return parts.map((p, i) => `${i + 1}番\n${p.trim()}`).join('\n\n')
+                  }
+                  return raw ? `1番\n${raw}` : raw
+                })()}
               </p>
             </div>
           </div>
@@ -949,7 +886,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
     school_trip: null,
   }
 
-  const defaultOrder = ['news', 'principal', 'overview', 'anthem', 'rules', 'events', 'clubs', 'motto', 'historical_buildings', 'facilities', 'monument', 'uniform', 'history', 'teachers']
+  const defaultOrder = ['news', 'principal', 'overview', 'anthem', 'rules', 'events', 'clubs', 'motto', 'facilities', 'monument', 'uniform', 'history', 'teachers']
   const normalizedOrder = (() => {
     const order = Array.isArray(styleConfig.sectionOrder) && styleConfig.sectionOrder.length > 0 ? styleConfig.sectionOrder : defaultOrder
     return order.flatMap((key: string) => {
@@ -1043,8 +980,8 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
         position: 'relative'
       }}>
       
-      {/* 背景にリピートするシンボル */}
-      {styleConfig.backgroundPattern && (
+      {/* 背景にリピートするシンボル（PDFで？？？になる場合はフォント未埋め込みの可能性。Noto Sans JP を優先） */}
+      {styleConfig.backgroundPattern && styleConfig.backgroundPattern.symbol != null && String(styleConfig.backgroundPattern.symbol).trim() !== '' && (
         <div 
           className="pattern-symbol"
           style={{
@@ -1068,10 +1005,11 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                 opacity: styleConfig.backgroundPattern!.opacity,
                 color: styleConfig.colorTheme.accentColor,
                 textAlign: 'center',
-                userSelect: 'none'
+                userSelect: 'none',
+                fontFamily: '"Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif'
               }}
             >
-              {styleConfig.backgroundPattern!.symbol}
+              {String(styleConfig.backgroundPattern!.symbol).trim()}
             </div>
           ))}
         </div>
@@ -1248,7 +1186,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text'
                 }}>
-                  {data.school_profile.motto}
+                  {data.school_profile.motto || ''}
                 </p>
               </div>
             )}
