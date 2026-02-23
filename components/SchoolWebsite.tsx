@@ -494,7 +494,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
             }}>
               〜 荘厳な合唱曲風 〜
             </p>
-            {/* 挿絵風の風景画像 */}
+            {/* 挿絵風の風景画像（日本語だと？？？になるため英語表記のプレースホルダー） */}
             <div style={{
               marginBottom: '0.75rem',
               textAlign: 'center',
@@ -504,7 +504,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
             }}>
               <img 
-                src="https://placehold.co/800x300/87CEEB/FFFFFF?text=校舎と青空の風景"
+                src="https://placehold.co/800x300/87CEEB/FFFFFF?text=School+and+Sky"
                 alt="校舎の風景"
                 style={{
                   width: '100%',
@@ -617,15 +617,14 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               }}>
                 {(() => {
                   const raw = data.school_anthem.lyrics || ''
-                  // 一・二・三で区切られている場合はそれで分割、否则は \n\n で分割
                   const byKanji = raw.split(/(?=^[一二三]\s*\n)/m).filter(Boolean)
                   const parts = byKanji.length >= 2
                     ? byKanji
                     : raw.split(/\n\n+/)
                   if (parts.length >= 2) {
-                    return parts.map((p, i) => `${i + 1}番\n${p.trim()}`).join('\n\n')
+                    return parts.map((p, i) => `【歌詞 ${i + 1}番】\n${p.trim()}`).join('\n\n')
                   }
-                  return raw ? `1番\n${raw}` : raw
+                  return raw ? `【歌詞 1番】\n${raw}` : raw
                 })()}
               </p>
             </div>
@@ -1195,7 +1194,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               </p>
             </div>
             
-            {/* 校訓（ヘッダーに表示する場合） */}
+            {/* 校訓（ヘッダーに表示。フォントはNoto優先で？？？を防ぐ） */}
             {styleConfig.headerStyle.showMottoInHeader && (
               <div style={{
                 backgroundColor: 'rgba(255,255,255,0.95)',
@@ -1209,7 +1208,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               }}>
                 <p style={{ 
                   fontSize: '3rem',
-                  fontFamily: calligraphyFont,
+                  fontFamily: '"Noto Sans JP", "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif',
                   fontWeight: 'bold',
                   lineHeight: '1.6',
                   letterSpacing: '0.15em',

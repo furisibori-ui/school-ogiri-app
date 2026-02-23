@@ -20,7 +20,7 @@ function isPlaceholder(url: string | undefined): boolean {
   return url.includes('placehold.co') || url.startsWith('data:')
 }
 
-/** 画像7枚分のタスクを収集（フロントの page.tsx と同じ構成） */
+/** 画像タスクを収集。必ず含めるもの: 校章・初代校舎・現校舎・校長・銅像・制服・行事1・部活1 */
 function collectImageTasks(schoolData: SchoolData): { prompt: string; imageType: string }[] {
   const tasks: { prompt: string; imageType: string }[] = []
   const p = schoolData.school_profile

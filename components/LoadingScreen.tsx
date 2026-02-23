@@ -716,10 +716,10 @@ export default function LoadingScreen() {
   const [yKeyframes, setYKeyframes] = useState(VIBRATION_AMPLITUDES[0])
 
   useEffect(() => {
-    // メッセージを0.7秒に1回のテンポで切り替え
+    // メッセージを1.5秒に1回のテンポで切り替え
     const messageInterval = setInterval(() => {
       setMessageIndex(prev => (prev + 1) % loadingMessages.length)
-    }, 700)
+    }, 1500)
 
     // 経過時間で振動をどんどん速くする用
     const elapsedInterval = setInterval(() => {
@@ -733,10 +733,10 @@ export default function LoadingScreen() {
     }
   }, [])
 
-  // 進捗バー：3分（180秒）で100%になるよう経過時間から計算。最大5分待機。
+  // 進捗バー：目安2分（120秒）で100%になるよう経過時間から計算。最大5分待機。
   useEffect(() => {
     const elapsedSec = elapsed * 0.25
-    const progressPercent = Math.min(100, (elapsedSec / 180) * 100)
+    const progressPercent = Math.min(100, (elapsedSec / 120) * 100)
     setProgress(progressPercent)
   }, [elapsed])
 
@@ -764,9 +764,9 @@ export default function LoadingScreen() {
   // 経過＋進捗で振動周期を短く（最後はマジで速く）
   const vibrationDuration = Math.max(0.012, 0.07 - (elapsed / 70) * 0.048 - (progress / 100) * 0.02)
 
-  // 工事の人が顔（丸枠）にズーム：3分で最大まで近づき（顔でいっぱい）、その後遠ざかり、ループ
+  // 工事の人が顔（丸枠）にズーム：目安2分で最大まで近づき（顔でいっぱい）、その後遠ざかり、ループ
   const elapsedSec = elapsed * 0.25
-  const approachSec = 180 // 3分で最大接近
+  const approachSec = 120 // 2分で最大接近
   const periodSec = approachSec * 2
   const t = elapsedSec % periodSec
   const scaleMax = 4.2
@@ -855,7 +855,7 @@ export default function LoadingScreen() {
           学校建設中
         </motion.h2>
         <p style={{ fontSize: '0.9rem', color: 'rgba(240,230,210,0.8)', marginBottom: '1rem' }}>
-          目安：約3分。最大5分程度かかることがあります。そのままお待ちください。
+          目安：約2分。最大5分程度かかることがあります。そのままお待ちください。
         </p>
 
         {/* ローディングメッセージ */}
