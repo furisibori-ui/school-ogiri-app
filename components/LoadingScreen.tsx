@@ -716,10 +716,10 @@ export default function LoadingScreen() {
   const [yKeyframes, setYKeyframes] = useState(VIBRATION_AMPLITUDES[0])
 
   useEffect(() => {
-    // メッセージを2秒に1回切り替え
+    // メッセージを0.7秒に1回のテンポで切り替え
     const messageInterval = setInterval(() => {
       setMessageIndex(prev => (prev + 1) % loadingMessages.length)
-    }, 2000)
+    }, 700)
 
     // 経過時間で振動をどんどん速くする用
     const elapsedInterval = setInterval(() => {
