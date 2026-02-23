@@ -1,7 +1,7 @@
 'use client'
 
 import { SchoolData } from '@/types/school'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface SchoolWebsiteProps {
   data: SchoolData
@@ -14,6 +14,11 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
   // BGM用のaudio要素の参照
   const bgmRef = useRef<HTMLAudioElement>(null)
   const anthemRef = useRef<HTMLAudioElement>(null)
+  // 校歌の音声URLが期限切れなどで読み込めなかったとき
+  const [anthemAudioError, setAnthemAudioError] = useState(false)
+  useEffect(() => {
+    setAnthemAudioError(false)
+  }, [data.school_anthem?.audio_url])
 
   // BGMを自動再生（昔のサイトっぽく）
   useEffect(() => {
@@ -524,18 +529,46 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                 🎵 校歌を聴く
               </p>
               {data.school_anthem.audio_url ? (
-                <audio
-                  ref={anthemRef}
-                  controls
-                  style={{ width: '100%', maxWidth: '500px' }}
-                  preload="metadata"
-                  onPlay={handleAnthemPlay}
-                  onPause={handleAnthemPause}
-                  onEnded={handleAnthemPause}
-                >
-                  <source src={data.school_anthem.audio_url} type="audio/mpeg" />
-                  お使いのブラウザは音声再生に対応していません。
-                </audio>
+                <>
+                  {anthemAudioError && (
+                    <div style={{ fontSize: '0.9rem', color: '#b91c1c', marginBottom: '0.5rem', padding: '0.5rem', background: '#fef2f2', borderRadius: '6px', border: '1px solid #fecaca' }}>
+                      この音声のリンクは期限切れになっている可能性があります（十数分〜20分程度で切れることがあります）。下の「音声生成を再試行」で再度生成できます。
+                      {onRetryAnthemAudio && (
+                        <button
+                          type="button"
+                          onClick={() => { setAnthemAudioError(false); onRetryAnthemAudio() }}
+                          style={{
+                            display: 'block',
+                            marginTop: '0.5rem',
+                            padding: '0.35rem 0.75rem',
+                            fontSize: '0.85rem',
+                            border: '2px solid #8B4513',
+                            borderRadius: '6px',
+                            background: '#fffef8',
+                            color: '#8B4513',
+                            cursor: 'pointer',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          音声生成を再試行
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <audio
+                    ref={anthemRef}
+                    controls
+                    style={{ width: '100%', maxWidth: '500px' }}
+                    preload="metadata"
+                    onPlay={handleAnthemPlay}
+                    onPause={handleAnthemPause}
+                    onEnded={handleAnthemPause}
+                    onError={() => setAnthemAudioError(true)}
+                  >
+                    <source src={data.school_anthem.audio_url} type="audio/mpeg" />
+                    お使いのブラウザは音声再生に対応していません。
+                  </audio>
+                </>
               ) : (
                 <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>
                   <p style={{ margin: '0 0 0.5rem 0' }}>
