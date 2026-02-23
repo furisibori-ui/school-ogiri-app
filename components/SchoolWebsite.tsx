@@ -483,7 +483,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               textAlign: 'center',
               color: '#8B0000'
             }}>
-              {data.school_anthem.title}
+              {data.school_anthem?.title}
             </h3>
             <p style={{ 
               fontSize: '0.875rem', 
@@ -528,7 +528,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               <p style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#8B0000' }}>
                 🎵 校歌を聴く
               </p>
-              {data.school_anthem.audio_url ? (
+              {data.school_anthem?.audio_url ? (
                 <>
                   {anthemAudioError && (
                     <div style={{ fontSize: '0.9rem', color: '#b91c1c', marginBottom: '0.5rem', padding: '0.5rem', background: '#fef2f2', borderRadius: '6px', border: '1px solid #fecaca' }}>
@@ -565,7 +565,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                     onEnded={handleAnthemPause}
                     onError={() => setAnthemAudioError(true)}
                   >
-                    <source src={data.school_anthem.audio_url} type="audio/mpeg" />
+                    <source src={data.school_anthem?.audio_url} type="audio/mpeg" />
                     お使いのブラウザは音声再生に対応していません。
                   </audio>
                 </>
@@ -616,7 +616,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
                 textShadow: '1px 1px 2px rgba(0,0,0,0.08)'
               }}>
                 {(() => {
-                  const raw = data.school_anthem.lyrics || ''
+                  const raw = data.school_anthem?.lyrics || ''
                   const byKanji = raw.split(/(?=^[一二三]\s*\n)/m).filter(Boolean)
                   const parts = byKanji.length >= 2
                     ? byKanji
