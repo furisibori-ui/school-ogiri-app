@@ -61,17 +61,17 @@ export async function POST(request: NextRequest) {
     console.log('[Suno Submit] raw response:', JSON.stringify(submitData))
     console.log('[Suno Submit] top-level keys:', Object.keys(submitData))
 
-    const data = submitData.data as Record<string, unknown> | undefined
+    // Comet の Suno submit は { code, message, data } で data がタスクIDの文字列のことがある
+    const data = submitData.data as Record<string, unknown> | string | undefined
     const result = submitData.result as Record<string, unknown> | undefined
     const taskIdRaw =
+      (typeof data === 'string' ? data : undefined) ??
       submitData.task_id ??
       submitData.id ??
       submitData.taskId ??
       submitData.request_id ??
       submitData.job_id ??
-      data?.task_id ??
-      data?.id ??
-      data?.taskId ??
+      (typeof data === 'object' && data ? (data.task_id ?? data.id ?? data.taskId) as string | undefined : undefined) ??
       result?.task_id ??
       result?.id ??
       result?.taskId
