@@ -496,15 +496,6 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
             }}>
               {data.school_anthem?.title}
             </h3>
-            <p style={{ 
-              fontSize: '0.9rem', 
-              color: '#6b7280', 
-              marginBottom: '1.25rem',
-              textAlign: 'center',
-              fontStyle: 'italic'
-            }}>
-              〜 {data.school_anthem?.style || '荘厳な合唱曲風'} 〜
-            </p>
             <div style={{ height: '1px', background: 'linear-gradient(90deg, transparent, #8B4513, transparent)', marginBottom: '1.25rem', opacity: 0.6 }} />
 
             {/* 校歌の再生（音声ありならプレーヤー、なしなら説明表示） */}

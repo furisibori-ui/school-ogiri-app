@@ -176,14 +176,16 @@ export const schoolGenerateFunction = inngest.createFunction(
         throw new Error(`generate-school failed: ${res.status} ${err.slice(0, 200)}`)
       }
       const data = (await res.json()) as SchoolData
+      const outputSize = JSON.stringify(data).length
+      console.log('step1 done', { jobId, outputSizeChars: outputSize })
       await kv.set(`school:${jobId}:partial`, JSON.stringify(data), { ex: KV_TTL })
-      console.log('step1 done', { jobId })
       return data
     })
 
     // Step 2: 画像を生成（モック時はキャッシュがあれば再利用してAPI節約）
     const schoolWithImages = await step.run('step2-images', async () => {
       const tasks = collectImageTasks(schoolData, location)
+      console.log('step2 collectImageTasks', { jobId, taskCount: tasks.length, types: tasks.map((t) => t.imageType) })
       const isMock = !!(schoolData as SchoolData & { fallbackUsed?: boolean }).fallbackUsed
       let results: { task: ImageTask; url: string }[]
 
