@@ -54,8 +54,11 @@ function normalizeSchoolData(data: SchoolData): SchoolData {
   if ((!next.teachers || next.teachers.length === 0) && Array.isArray(profile.teachers) && profile.teachers.length > 0) {
     next.teachers = profile.teachers as SchoolData['teachers']
   }
-  if ((!next.history || next.history.length === 0) && Array.isArray(profile.history) && profile.history.length > 0) {
-    next.history = profile.history as SchoolData['history']
+  if (Array.isArray(profile.history) && profile.history.length > 0) {
+    const topLen = (next.history ?? []).length
+    if (profile.history.length > topLen) {
+      next.history = profile.history as SchoolData['history']
+    }
   }
   return next
 }

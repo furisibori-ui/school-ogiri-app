@@ -305,7 +305,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-// 歌詞を Suno 用に [Verse 1][Verse 2][Verse 3] などで構造化（3番まで対応）
+// 歌詞を Suno 用に [Verse 1][Verse 2][Verse 3] などで構造化。第一番・第二番・一・二・三 などの行は除去（Suno に歌わせない）
 function formatLyricsWithTags(lyrics: string): string {
   const lines = lyrics.split('\n').map((l) => l.trim()).filter(Boolean)
   if (lines.length === 0) return lyrics
@@ -314,8 +314,14 @@ function formatLyricsWithTags(lyrics: string): string {
   let current: string[] = []
   let verseNum = 1
 
+  // 除去する行: 第一番, 第二番, 第三番 / 一, 二, 三 / 1. 2. 3. など
+  const isSectionHeader = (line: string) =>
+    /^第[一二三四五六七八九十百]+番\s*$/.test(line) ||
+    /^[一二三四五六七八九十]+[、．.]?\s*$/.test(line) ||
+    /^[0-9]+\.?\s*$/.test(line)
+
   for (const line of lines) {
-    if (/^[一二三四五六七八九十]+[、．.]?\s*$/.test(line) || /^[0-9]+\.?\s*$/.test(line)) {
+    if (isSectionHeader(line)) {
       if (current.length > 0) {
         blocks.push(`[Verse ${verseNum}]\n${current.join('\n')}`)
         verseNum++

@@ -578,7 +578,7 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               )}
             </div>
 
-            {/* 歌詞（1番・2番・3番を付けて表示） */}
+            {/* 歌詞（第一番・第二番・第三番は見出しとして分離表示） */}
             <div style={{
               backgroundColor: '#fffef8',
               padding: '1.5rem 1.25rem',
@@ -586,29 +586,65 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
               borderRadius: '8px',
               boxShadow: 'inset 0 0 20px rgba(139,69,19,0.1)'
             }}>
-              <p style={{ 
-                fontSize: '1.2rem',
-                lineHeight: '1.9',
-                whiteSpace: 'pre-line',
-                fontFamily: calligraphyFont,
-                color: '#1a1a1a',
-                textAlign: 'center',
-                letterSpacing: '0.08em',
-                fontWeight: 'bold',
-                textShadow: '1px 1px 2px rgba(0,0,0,0.08)'
-              }}>
-                {(() => {
-                  const raw = data.school_anthem?.lyrics || ''
-                  const byKanji = raw.split(/(?=^[一二三]\s*\n)/m).filter(Boolean)
-                  const parts = byKanji.length >= 2
-                    ? byKanji
-                    : raw.split(/\n\n+/)
-                  if (parts.length >= 2) {
-                    return parts.map((p, i) => `【歌詞 ${i + 1}番】\n${p.trim()}`).join('\n\n')
-                  }
-                  return raw ? `【歌詞 1番】\n${raw}` : raw
-                })()}
-              </p>
+              {(() => {
+                const raw = data.school_anthem?.lyrics || ''
+                const parts = raw.split(/(?=第[一二三四五六七八九十百]+番)/).filter(Boolean)
+                if (parts.length >= 2) {
+                  return parts.map((block, i) => {
+                    const headerMatch = block.match(/^(第[一二三四五六七八九十百]+番)\s*\n?/)
+                    const header = headerMatch ? headerMatch[1] : null
+                    const body = headerMatch ? block.slice(headerMatch[0].length).trim() : block.trim()
+                    return (
+                      <div key={i} style={{ marginBottom: i < parts.length - 1 ? '1.5rem' : 0 }}>
+                        {header && (
+                          <p style={{
+                            fontSize: '0.85rem',
+                            fontWeight: 'bold',
+                            color: '#8B4513',
+                            letterSpacing: '0.2em',
+                            marginBottom: '0.4rem',
+                            fontFamily: 'sans-serif'
+                          }}>
+                            {header}
+                          </p>
+                        )}
+                        <p style={{
+                          fontSize: '1.2rem',
+                          lineHeight: '1.9',
+                          whiteSpace: 'pre-line',
+                          fontFamily: calligraphyFont,
+                          color: '#1a1a1a',
+                          textAlign: 'center',
+                          letterSpacing: '0.08em',
+                          fontWeight: 'bold',
+                          textShadow: '1px 1px 2px rgba(0,0,0,0.08)'
+                        }}>
+                          {body}
+                        </p>
+                      </div>
+                    )
+                  })
+                }
+                const byKanji = raw.split(/(?=^[一二三]\s*\n)/m).filter(Boolean)
+                const fallbackParts = byKanji.length >= 2 ? byKanji : raw.split(/\n\n+/)
+                if (fallbackParts.length >= 2) {
+                  return fallbackParts.map((p, i) => (
+                    <div key={i} style={{ marginBottom: i < fallbackParts.length - 1 ? '1.5rem' : 0 }}>
+                      <p style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#8B4513', marginBottom: '0.4rem', fontFamily: 'sans-serif' }}>
+                        第{i + 1}番
+                      </p>
+                      <p style={{ fontSize: '1.2rem', lineHeight: '1.9', whiteSpace: 'pre-line', fontFamily: calligraphyFont, color: '#1a1a1a', textAlign: 'center', letterSpacing: '0.08em', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.08)' }}>
+                        {p.trim()}
+                      </p>
+                    </div>
+                  ))
+                }
+                return (
+                  <p style={{ fontSize: '1.2rem', lineHeight: '1.9', whiteSpace: 'pre-line', fontFamily: calligraphyFont, color: '#1a1a1a', textAlign: 'center', letterSpacing: '0.08em', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.08)' }}>
+                    {raw || ''}
+                  </p>
+                )
+              })()}
             </div>
           </div>
         </div>
