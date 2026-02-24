@@ -305,23 +305,34 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/** 行頭の「1番」「一」「一番」などを除去（歌詞として歌わせない） */
+function stripVerseMarkerFromLine(line: string): string {
+  return line
+    .replace(/^第?[一二三四五六七八九十百]+番[、．.\s]*/, '')
+    .replace(/^[一二三四五六七八九十]+[、．.\s]*/, '')
+    .replace(/^[0-9]+番[、．.\s]*/, '')
+    .replace(/^[0-9]+[、．.\s]*/, '')
+    .trim()
+}
+
 // 歌詞を Suno 用に [Verse 1][Verse 2][Verse 3] などで構造化。第一番・第二番・一・二・三 などの行は除去（Suno に歌わせない）
 function formatLyricsWithTags(lyrics: string): string {
-  const lines = lyrics.split('\n').map((l) => l.trim()).filter(Boolean)
-  if (lines.length === 0) return lyrics
-
+  const rawLines = lyrics.split('\n')
   const blocks: string[] = []
   let current: string[] = []
   let verseNum = 1
 
-  // 除去する行: 第一番, 第二番, 第三番 / 一, 二, 三 / 1. 2. 3. など
+  // 除去する行（行全体が番号のみ）: 第一番, 第二番 / 一, 二, 三 / 1番, 2番 / 1. 2. など
   const isSectionHeader = (line: string) =>
     /^第[一二三四五六七八九十百]+番\s*$/.test(line) ||
     /^[一二三四五六七八九十]+[、．.]?\s*$/.test(line) ||
+    /^[一二三四五六七八九十]番\s*$/.test(line) ||
+    /^[0-9]+番\s*$/.test(line) ||
     /^[0-9]+\.?\s*$/.test(line)
 
-  for (const line of lines) {
-    if (isSectionHeader(line)) {
+  for (const line of rawLines) {
+    const trimmed = line.trim()
+    if (isSectionHeader(trimmed)) {
       if (current.length > 0) {
         blocks.push(`[Verse ${verseNum}]\n${current.join('\n')}`)
         verseNum++
@@ -329,7 +340,8 @@ function formatLyricsWithTags(lyrics: string): string {
       }
       continue
     }
-    current.push(line)
+    const cleaned = stripVerseMarkerFromLine(trimmed)
+    if (cleaned) current.push(cleaned)
   }
   if (current.length > 0) {
     blocks.push(`[Verse ${verseNum}]\n${current.join('\n')}`)
