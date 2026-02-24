@@ -1,9 +1,12 @@
 import { inngest } from '../client'
 import { kv } from '@vercel/kv'
 import type { LocationData, SchoolData } from '@/types/school'
+import { persistSchoolAssetsToBlob } from '@/lib/blob-persist'
+import { addToArchive } from '@/lib/archive'
 
 const EVENT_NAME = 'school/generate'
-const KV_TTL = 3600 // 1時間
+const KV_TTL = 3600 // 1時間（即時表示用）
+const KV_TTL_PERSISTED = 86400 * 30 // 永続化用: 30日（共有URL用）
 const MOCK_CACHE_TTL = 86400 * 30 // モック用画像・音声キャッシュ 30日
 const MOCK_IMAGES_KEY = 'school:mock:image_results'
 const MOCK_AUDIO_KEY = 'school:mock:audio_url'
@@ -361,13 +364,35 @@ export const schoolGenerateFunction = inngest.createFunction(
       return next
     })
 
-    // Step 4: Vercel KV に保存
+    // Step 4: Vercel KV に保存（即時表示用・既存ロジックそのまま）
     await step.run('step4-save-kv', async () => {
       console.log('saving to KV', jobId)
       const payload = JSON.stringify(schoolWithAudio)
       await kv.set(`school:${jobId}`, payload, { ex: KV_TTL })
       await kv.set(`school:${jobId}:status`, 'completed', { ex: KV_TTL })
       console.log('saved to KV', jobId)
+      return { ok: true }
+    })
+
+    // Step 5: Blob 永続化（追加機能・失敗しても Inngest 全体は成功扱い）
+    await step.run('step5-blob-persist', async () => {
+      try {
+        const withBlob = await persistSchoolAssetsToBlob(schoolWithAudio as SchoolData, jobId)
+        const payload = JSON.stringify(withBlob)
+        await kv.set(`school:${jobId}`, payload, { ex: KV_TTL_PERSISTED })
+        console.log('step5 blob persist done', { jobId })
+        return { ok: true, persisted: true }
+      } catch (e) {
+        console.warn('step5 blob persist failed (keeping original data):', e)
+        return { ok: true, persisted: false }
+      }
+    })
+
+    // Step 6: アーカイブ一覧に追加（星順表示用）
+    await step.run('step6-add-archive', async () => {
+      const raw = await kv.get<string>(`school:${jobId}`)
+      const data = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) as SchoolData : schoolWithAudio
+      await addToArchive(jobId, data)
       return { ok: true }
     })
 

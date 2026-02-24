@@ -12,6 +12,7 @@ export interface HomeContentProps {
   setStage: (s: 'landing' | 'map' | 'school') => void
   isGenerating: boolean
   schoolData: SchoolData | null
+  jobId: string | null
   error: string | null
   apiFallbackMessage: string | null
   landingBgmRef: React.RefObject<HTMLAudioElement | null>
@@ -30,6 +31,7 @@ export default function HomeContent(props: HomeContentProps) {
     setStage,
     isGenerating,
     schoolData,
+    jobId,
     error,
     apiFallbackMessage,
     landingBgmRef,
@@ -376,6 +378,54 @@ export default function HomeContent(props: HomeContentProps) {
             }
             return null
           })()}
+          {jobId && (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '0.75rem',
+                padding: '0.75rem 1rem',
+                backgroundColor: 'rgba(255,255,255,0.9)',
+                borderBottom: '1px solid #e5e7eb',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+              }}
+            >
+              <span style={{ fontSize: '0.9rem', color: '#374151' }}>共有リンク:</span>
+              <Link
+                href={`/school/${jobId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: '0.85rem',
+                  color: '#2563eb',
+                  textDecoration: 'underline',
+                  wordBreak: 'break-all',
+                }}
+              >
+                /school/{jobId}
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/school/${jobId}`
+                  navigator.clipboard?.writeText(url).then(() => alert('リンクをコピーしました！'))
+                }}
+                style={{
+                  padding: '0.35rem 0.75rem',
+                  fontSize: '0.8rem',
+                  backgroundColor: '#2563eb',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                コピー
+              </button>
+            </div>
+          )}
           <SchoolWebsite data={schoolData} onReset={onReset} onRetryAnthemAudio={onRetryAnthemAudio} />
         </>
       )}
