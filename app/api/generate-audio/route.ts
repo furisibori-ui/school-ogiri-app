@@ -36,9 +36,11 @@ async function lyricsToHiragana(lyrics: string): Promise<{ text: string; convert
   }
 }
 
+const DEFAULT_SUNO_TAGS = 'Japanese traditional school song, grand piano accompaniment, majestic brass band, children\'s choir, nostalgic, anthem, slow tempo, solemn, emotional'
+
 export async function POST(request: NextRequest) {
   try {
-    const { lyrics, style, title } = await request.json()
+    const { lyrics, style, title, suno_prompt } = await request.json()
 
     if (!process.env.COMET_API_KEY) {
       console.warn('COMET_API_KEY not set, audio generation disabled')
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         prompt: structuredLyrics,
         title: title || '校歌',
-        tags: 'chorus, school anthem, Japanese school song, solemn, classical choir, not enka',
+        tags: (typeof suno_prompt === 'string' && suno_prompt.trim()) ? suno_prompt.trim() : DEFAULT_SUNO_TAGS,
         make_instrumental: false,
         mv: 'chirp-bluejay', // v4.5+
       }),

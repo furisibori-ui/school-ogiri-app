@@ -20,7 +20,7 @@ function isPlaceholder(url: string | undefined): boolean {
   return url.includes('placehold.co') || url.startsWith('data:')
 }
 
-/** principal_message / multimedia_content が school_profile 内にある場合、トップレベルに正規化 */
+/** principal_message / multimedia_content / school_anthem 等が school_profile 内にある場合、トップレベルに正規化 */
 function normalizeSchoolData(data: SchoolData): SchoolData {
   const profile = data.school_profile as unknown as Record<string, unknown> | undefined
   if (!profile) return data
@@ -30,6 +30,32 @@ function normalizeSchoolData(data: SchoolData): SchoolData {
   }
   if (!next.multimedia_content && profile.multimedia_content && typeof profile.multimedia_content === 'object') {
     next.multimedia_content = profile.multimedia_content as SchoolData['multimedia_content']
+  }
+  const profileAnthem = profile.school_anthem as SchoolData['school_anthem'] | undefined
+  if (profileAnthem && typeof profileAnthem === 'object' && profileAnthem.lyrics) {
+    const topLen = (next.school_anthem?.lyrics ?? '').length
+    const profileLen = profileAnthem.lyrics.length
+    if (profileLen > topLen) {
+      next.school_anthem = { ...(next.school_anthem ?? {}), ...profileAnthem }
+    }
+  }
+  if ((!next.news_feed || next.news_feed.length === 0) && Array.isArray(profile.news_feed) && profile.news_feed.length > 0) {
+    next.news_feed = profile.news_feed as SchoolData['news_feed']
+  }
+  if (Array.isArray(profile.crazy_rules) && profile.crazy_rules.length > 0) {
+    const topLen = (next.crazy_rules ?? []).length
+    if (profile.crazy_rules.length > topLen) {
+      next.crazy_rules = profile.crazy_rules as SchoolData['crazy_rules']
+    }
+  }
+  if ((!next.notable_alumni || next.notable_alumni.length === 0) && Array.isArray(profile.notable_alumni) && profile.notable_alumni.length > 0) {
+    next.notable_alumni = profile.notable_alumni as SchoolData['notable_alumni']
+  }
+  if ((!next.teachers || next.teachers.length === 0) && Array.isArray(profile.teachers) && profile.teachers.length > 0) {
+    next.teachers = profile.teachers as SchoolData['teachers']
+  }
+  if ((!next.history || next.history.length === 0) && Array.isArray(profile.history) && profile.history.length > 0) {
+    next.history = profile.history as SchoolData['history']
   }
   return next
 }
@@ -302,6 +328,7 @@ export const schoolGenerateFunction = inngest.createFunction(
             lyrics: anthem.lyrics,
             style: anthem.style || '荘厳な合唱曲風',
             title: anthem.title || '校歌',
+            suno_prompt: anthem.suno_prompt,
           }),
         })
         const raw = await res.text()

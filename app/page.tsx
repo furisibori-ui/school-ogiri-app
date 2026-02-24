@@ -331,6 +331,7 @@ export default function Home() {
         lyrics: schoolData.school_anthem.lyrics,
         style: schoolData.school_anthem.style || '荘厳な合唱曲風',
         title: schoolData.school_anthem.title || '校歌',
+        suno_prompt: schoolData.school_anthem.suno_prompt,
       }),
     })
       .then((res) => res.json())
@@ -365,6 +366,7 @@ export default function Home() {
         lyrics: schoolData.school_anthem.lyrics,
         style: schoolData.school_anthem.style || '荘厳な合唱曲風',
         title: schoolData.school_anthem.title || '校歌',
+        suno_prompt: schoolData.school_anthem.suno_prompt,
       }),
     })
       .then((r) => r.json())
