@@ -22,7 +22,7 @@ function isPlaceholder(url: string | undefined): boolean {
 
 /** principal_message / multimedia_content が school_profile 内にある場合、トップレベルに正規化 */
 function normalizeSchoolData(data: SchoolData): SchoolData {
-  const profile = data.school_profile as Record<string, unknown> | undefined
+  const profile = data.school_profile as unknown as Record<string, unknown> | undefined
   if (!profile) return data
   const next: SchoolData = { ...data }
   if (!next.principal_message && profile.principal_message && typeof profile.principal_message === 'object') {
@@ -42,8 +42,8 @@ function collectImageTasks(schoolData: SchoolData, _location?: LocationData): Im
   const tasks: ImageTask[] = []
   const p = schoolData.school_profile
   // LLMが principal_message / multimedia_content を school_profile 内に出力する場合のフォールバック
-  const principal = schoolData.principal_message ?? (p as Record<string, unknown>)?.principal_message as SchoolData['principal_message'] | undefined
-  const mc = schoolData.multimedia_content ?? (p as Record<string, unknown>)?.multimedia_content as SchoolData['multimedia_content'] | undefined
+  const principal = schoolData.principal_message ?? (p as unknown as Record<string, unknown>)?.principal_message as SchoolData['principal_message'] | undefined
+  const mc = schoolData.multimedia_content ?? (p as unknown as Record<string, unknown>)?.multimedia_content as SchoolData['multimedia_content'] | undefined
 
   if (p?.emblem_prompt && isPlaceholder(p.emblem_url)) {
     tasks.push({ prompt: p.emblem_prompt, imageType: 'emblem' })

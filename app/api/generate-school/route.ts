@@ -71,7 +71,7 @@ function repairAndParseSchoolJson(jsonText: string): SchoolData {
 
 /** LLMが principal_message / multimedia_content を school_profile 内に出力した場合、トップレベルに正規化 */
 function normalizeSchoolDataStructure(data: SchoolData): SchoolData {
-  const profile = data.school_profile as Record<string, unknown> | undefined
+  const profile = data.school_profile as unknown as Record<string, unknown> | undefined
   if (!profile) return data
   const next: SchoolData = { ...data }
   if (!next.principal_message && profile.principal_message && typeof profile.principal_message === 'object') {
