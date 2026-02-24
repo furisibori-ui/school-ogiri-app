@@ -20,6 +20,20 @@ function isPlaceholder(url: string | undefined): boolean {
   return url.includes('placehold.co') || url.startsWith('data:')
 }
 
+/** principal_message / multimedia_content が school_profile 内にある場合、トップレベルに正規化 */
+function normalizeSchoolData(data: SchoolData): SchoolData {
+  const profile = data.school_profile as Record<string, unknown> | undefined
+  if (!profile) return data
+  const next: SchoolData = { ...data }
+  if (!next.principal_message && profile.principal_message && typeof profile.principal_message === 'object') {
+    next.principal_message = profile.principal_message as SchoolData['principal_message']
+  }
+  if (!next.multimedia_content && profile.multimedia_content && typeof profile.multimedia_content === 'object') {
+    next.multimedia_content = profile.multimedia_content as SchoolData['multimedia_content']
+  }
+  return next
+}
+
 /** 画像タスク用 */
 type ImageTask = { prompt: string; imageType: string; schoolName?: string; landmark?: string }
 
@@ -27,8 +41,9 @@ type ImageTask = { prompt: string; imageType: string; schoolName?: string; landm
 function collectImageTasks(schoolData: SchoolData, _location?: LocationData): ImageTask[] {
   const tasks: ImageTask[] = []
   const p = schoolData.school_profile
-  const mc = schoolData.multimedia_content
-  const principal = schoolData.principal_message
+  // LLMが principal_message / multimedia_content を school_profile 内に出力する場合のフォールバック
+  const principal = schoolData.principal_message ?? (p as Record<string, unknown>)?.principal_message as SchoolData['principal_message'] | undefined
+  const mc = schoolData.multimedia_content ?? (p as Record<string, unknown>)?.multimedia_content as SchoolData['multimedia_content'] | undefined
 
   if (p?.emblem_prompt && isPlaceholder(p.emblem_url)) {
     tasks.push({ prompt: p.emblem_prompt, imageType: 'emblem' })
@@ -184,9 +199,10 @@ export const schoolGenerateFunction = inngest.createFunction(
 
     // Step 2: 画像を生成（モック時はキャッシュがあれば再利用してAPI節約）
     const schoolWithImages = await step.run('step2-images', async () => {
-      const tasks = collectImageTasks(schoolData, location)
+      const normalized = normalizeSchoolData(schoolData)
+      const tasks = collectImageTasks(normalized, location)
       console.log('step2 collectImageTasks', { jobId, taskCount: tasks.length, types: tasks.map((t) => t.imageType) })
-      const isMock = !!(schoolData as SchoolData & { fallbackUsed?: boolean }).fallbackUsed
+      const isMock = !!(normalized as SchoolData & { fallbackUsed?: boolean }).fallbackUsed
       let results: { task: ImageTask; url: string }[]
 
       if (isMock) {
@@ -248,7 +264,7 @@ export const schoolGenerateFunction = inngest.createFunction(
         )
       }
 
-      let current = schoolData
+      let current = normalized
       for (const { task, url } of results) {
         current = applyImageUrl(current, task, url)
       }

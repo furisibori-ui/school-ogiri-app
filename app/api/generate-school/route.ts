@@ -66,7 +66,21 @@ function repairAndParseSchoolJson(jsonText: string): SchoolData {
       }
     }
   }
-  return parsed as SchoolData
+  return normalizeSchoolDataStructure(parsed as SchoolData)
+}
+
+/** LLMが principal_message / multimedia_content を school_profile 内に出力した場合、トップレベルに正規化 */
+function normalizeSchoolDataStructure(data: SchoolData): SchoolData {
+  const profile = data.school_profile as Record<string, unknown> | undefined
+  if (!profile) return data
+  const next: SchoolData = { ...data }
+  if (!next.principal_message && profile.principal_message && typeof profile.principal_message === 'object') {
+    next.principal_message = profile.principal_message as SchoolData['principal_message']
+  }
+  if (!next.multimedia_content && profile.multimedia_content && typeof profile.multimedia_content === 'object') {
+    next.multimedia_content = profile.multimedia_content as SchoolData['multimedia_content']
+  }
+  return next
 }
 
 // 画像生成ヘルパー関数
@@ -172,7 +186,7 @@ async function callCometChat(systemPrompt: string, userPrompt: string): Promise<
       ? [cachedModel, ...ordered.filter((m) => m !== cachedModel)]
       : ordered
   // 全文JSON（校訓・校長・校歌・行事・部活・施設・銅像・制服・教員・沿革・アクセスなど）が欠けないよう余裕を持たせる
-  const maxTokens = 12288
+  const maxTokens = 16384
   let lastErr: string = ''
   for (const model of modelIds) {
     try {
@@ -1109,7 +1123,7 @@ JSONで出力。先頭は{。校訓=あるある一文。校長=でございま�
       const message = await Promise.race([
         anthropic.messages.create({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 12288,
+          max_tokens: 16384,
           temperature: 0.9,
           system: systemPrompt,
           messages: [{ role: 'user', content: userPrompt }],
