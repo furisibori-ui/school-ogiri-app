@@ -57,15 +57,15 @@ export default async function SchoolSharePage({
   const initialStars = await getStarCount(id)
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f0' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#e5e2dc' }}>
       {/* 共有ページ用ヘッダー: 学校名を大きく、サムネイルを表示 */}
       <header
         style={{
-          background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+          background: 'linear-gradient(180deg, #0f172a 0%, #1e3a8a 50%, #1e40af 100%)',
           color: '#fff',
-          padding: '2rem 1.5rem',
+          padding: '2.5rem 1.5rem',
           textAlign: 'center',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.25)',
         }}
       >
         <div
@@ -104,11 +104,12 @@ export default async function SchoolSharePage({
           <h1
             style={{
               fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-              fontWeight: 700,
+              fontWeight: 600,
               margin: 0,
               fontFamily: 'var(--font-shippori), "Shippori Mincho", "Noto Serif JP", serif',
-              textShadow: '0 2px 8px rgba(0,0,0,0.3)',
-              lineHeight: 1.3,
+              textShadow: '0 2px 12px rgba(0,0,0,0.4)',
+              lineHeight: 1.4,
+              letterSpacing: '0.08em',
             }}
           >
             {schoolName}
@@ -116,10 +117,11 @@ export default async function SchoolSharePage({
           {data.school_profile.sub_catchphrase && (
             <p
               style={{
-                fontSize: '1.1rem',
-                opacity: 0.95,
+                fontSize: '1rem',
+                opacity: 0.9,
                 margin: 0,
                 fontFamily: 'var(--font-noto-serif), "Noto Serif JP", serif',
+                letterSpacing: '0.04em',
               }}
             >
               {data.school_profile.sub_catchphrase}

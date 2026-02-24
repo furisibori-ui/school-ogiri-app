@@ -68,12 +68,13 @@ export default function SchoolPageActions({ id, initialStars = 0 }: SchoolPageAc
           alignItems: 'center',
           gap: '0.5rem',
           padding: '0.5rem 1rem',
-          backgroundColor: 'rgba(255,255,255,0.2)',
-          border: '2px solid rgba(255,255,255,0.8)',
+          backgroundColor: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.5)',
           color: '#fff',
-          borderRadius: '8px',
-          fontSize: '1rem',
-          fontWeight: 600,
+          borderRadius: '6px',
+          fontSize: '0.95rem',
+          fontWeight: 500,
+          letterSpacing: '0.04em',
           cursor: loading ? 'not-allowed' : 'pointer',
         }}
       >
@@ -86,10 +87,11 @@ export default function SchoolPageActions({ id, initialStars = 0 }: SchoolPageAc
         style={{
           padding: '0.5rem 1rem',
           backgroundColor: 'transparent',
-          border: '2px solid rgba(255,255,255,0.6)',
-          color: 'rgba(255,255,255,0.9)',
-          borderRadius: '8px',
+          border: '1px solid rgba(255,255,255,0.4)',
+          color: 'rgba(255,255,255,0.85)',
+          borderRadius: '6px',
           fontSize: '0.9rem',
+          letterSpacing: '0.04em',
           cursor: deleting ? 'not-allowed' : 'pointer',
         }}
       >

@@ -58,11 +58,11 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
     colorTheme: {
       headerBg: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
       headerText: '#ffffff',
-      bgColor: '#f5f5f0',
-      cardBg: '#ffffff',
-      accentColor: '#2563eb',
+      bgColor: '#e8e6e1',
+      cardBg: '#faf9f7',
+      accentColor: '#1e3a8a',
       textColor: '#374151',
-      borderColor: '#d1d5db'
+      borderColor: '#d4cfc7'
     },
     typography: {
       titleSize: '3rem',
@@ -1380,10 +1380,10 @@ export default function SchoolWebsite({ data, onReset, onRetryAnthemAudio }: Sch
         textAlign: 'center',
         padding: '1rem 0.75rem',
         fontSize: '0.75rem',
-        color: '#6b7280',
+        color: '#5c5c5c',
         borderTop: `4px double ${styleConfig.colorTheme.borderColor}`,
         marginTop: '1rem',
-        backgroundColor: '#f9fafb'
+        backgroundColor: '#f0ede8'
       }}>
         <div style={{
           marginBottom: '1rem',

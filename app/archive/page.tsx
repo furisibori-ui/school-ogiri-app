@@ -48,26 +48,28 @@ export default function ArchivePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f0', padding: '2rem 1rem' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#e5e2dc', padding: '2rem 1rem' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         <h1
           style={{
             fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
-            fontWeight: 700,
+            fontWeight: 600,
             textAlign: 'center',
             marginBottom: '2rem',
-            fontFamily: 'var(--font-shippori), "Shippori Mincho", serif',
-            color: '#1e3a8a',
+            fontFamily: 'var(--font-shippori), "Shippori Mincho", "Noto Serif JP", serif',
+            color: '#1a1a2e',
+            letterSpacing: '0.12em',
           }}
         >
-          ★ 学校アーカイブ ★
+          学校アーカイブ
         </h1>
         <p
           style={{
             textAlign: 'center',
-            color: '#6b7280',
+            color: '#5c5c5c',
             marginBottom: '1rem',
             fontSize: '0.95rem',
+            fontFamily: 'var(--font-noto-serif), "Noto Serif JP", serif',
           }}
         >
           星が多い順に表示されています。気に入った学校に星をつけてください！
@@ -77,8 +79,9 @@ export default function ArchivePage() {
             href="/create"
             style={{
               fontSize: '0.9rem',
-              color: '#2563eb',
+              color: '#4a5568',
               textDecoration: 'underline',
+              fontFamily: 'var(--font-noto-serif), serif',
             }}
           >
             新しい学校を生成する（API消費あり）
@@ -111,10 +114,11 @@ export default function ArchivePage() {
             style={{
               textAlign: 'center',
               padding: '3rem',
-              color: '#6b7280',
-              backgroundColor: '#fff',
-              borderRadius: '12px',
-              border: '2px dashed #d1d5db',
+              color: '#5c5c5c',
+              backgroundColor: '#faf9f7',
+              borderRadius: '8px',
+              border: '1px dashed #c9c4bc',
+              fontFamily: 'var(--font-noto-serif), serif',
             }}
           >
             まだアーカイブに学校がありません。
@@ -125,16 +129,16 @@ export default function ArchivePage() {
           {items.map((item) => (
             <div
               key={item.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                padding: '1rem 1.25rem',
-                backgroundColor: '#fff',
-                borderRadius: '12px',
-                border: '2px solid #e5e7eb',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              padding: '1rem 1.25rem',
+              backgroundColor: '#faf9f7',
+              borderRadius: '8px',
+              border: '1px solid #d4cfc7',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+            }}
             >
               <Link
                 href={`/school/${item.id}`}
@@ -182,10 +186,10 @@ export default function ArchivePage() {
                   </div>
                 )}
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#1e3a8a' }}>
+                  <div style={{ fontWeight: 600, fontSize: '1.1rem', color: '#1a1a2e', fontFamily: 'var(--font-shippori), "Shippori Mincho", serif' }}>
                     {item.name}
                   </div>
-                  <div style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#5c5c5c', marginTop: '0.25rem', fontFamily: 'var(--font-noto-serif), serif' }}>
                     ★ {item.stars} つ星
                   </div>
                 </div>
@@ -199,13 +203,14 @@ export default function ArchivePage() {
                     alignItems: 'center',
                     gap: '0.25rem',
                     padding: '0.5rem 0.75rem',
-                    backgroundColor: '#fef3c7',
-                    border: '2px solid #f59e0b',
-                    color: '#92400e',
-                    borderRadius: '8px',
+                    backgroundColor: '#f5f0e8',
+                    border: '1px solid #c9b896',
+                    color: '#6b5b3a',
+                    borderRadius: '6px',
                     fontSize: '0.9rem',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     cursor: 'pointer',
+                    fontFamily: 'var(--font-noto-serif), serif',
                   }}
                 >
                   ★ +1
@@ -214,12 +219,13 @@ export default function ArchivePage() {
                   href={`/school/${item.id}`}
                   style={{
                     padding: '0.5rem 1rem',
-                    backgroundColor: '#2563eb',
+                    backgroundColor: '#1e3a8a',
                     color: '#fff',
-                    borderRadius: '8px',
+                    borderRadius: '6px',
                     fontSize: '0.9rem',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     textDecoration: 'none',
+                    fontFamily: 'var(--font-noto-serif), serif',
                   }}
                 >
                   見る
@@ -229,13 +235,14 @@ export default function ArchivePage() {
                   onClick={() => handleDelete(item.id, item.name)}
                   style={{
                     padding: '0.5rem 1rem',
-                    backgroundColor: '#ef4444',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '8px',
+                    backgroundColor: 'transparent',
+                    color: '#7f5c4a',
+                    border: '1px solid #c9b896',
+                    borderRadius: '6px',
                     fontSize: '0.9rem',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     cursor: 'pointer',
+                    fontFamily: 'var(--font-noto-serif), serif',
                   }}
                 >
                   削除
