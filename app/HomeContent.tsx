@@ -224,6 +224,20 @@ export default function HomeContent(props: HomeContentProps) {
             >
               開校する場所を選ぶ
             </button>
+            <div style={{ position: 'absolute', left: '50%', bottom: '1.5rem', transform: 'translateX(-50%)' }}>
+              <Link
+                href="/archive"
+                style={{
+                  fontSize: '0.7rem',
+                  color: 'rgba(26,26,46,0.45)',
+                  textDecoration: 'none',
+                  fontFamily: '"Noto Serif JP", serif',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                過去の学校を見る
+              </Link>
+            </div>
             <div style={{ position: 'absolute', right: '2rem', bottom: '2rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <Link href="/settings" style={{ fontSize: '0.7rem', color: 'rgba(26,26,46,0.7)', textDecoration: 'none' }}>API設定</Link>
               <button
