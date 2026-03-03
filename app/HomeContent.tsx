@@ -224,7 +224,7 @@ export default function HomeContent(props: HomeContentProps) {
             >
               開校する場所を選ぶ
             </button>
-            <div style={{ position: 'absolute', left: '50%', bottom: '1.5rem', transform: 'translateX(-50%)' }}>
+            <div style={{ position: 'absolute', left: '2rem', bottom: '2rem' }}>
               <Link
                 href="/archive"
                 style={{
